@@ -141,10 +141,9 @@ def handle_message():
     selected_template = data['prompt_template']  # 接收选择的模板编号
     # 判断是否用户变更模版，如果是则清空信息
     if last_selected != selected_template:
-        session['last_selected'] = 0
-    if session['last_selected'] != selected_template:
         clear_messages(user_id)
-    session['last_selected'] = selected_template
+        session['selected_template'] = selected_template
+        print("Session after template change:", session)
 
     prompts = get_prompt_templates()
     prompt_template = list(prompts.items())[int(selected_template)] #元组
