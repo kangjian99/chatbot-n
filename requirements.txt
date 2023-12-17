@@ -1,0 +1,7 @@
+flask
+Openai
+tiktoken
+langchain
+weaviate-client
+pypdf
+docx2txt

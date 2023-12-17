@@ -1,0 +1,9 @@
+.env
+/docs
+/legacy
+/session_messages
+docs/PDFextract.py
+docs/.DS_Store
+/__pycache__
+.DS_Store
+static/_next/.DS_Store
