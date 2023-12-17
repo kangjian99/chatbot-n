@@ -186,9 +186,9 @@ def handle_message():
 
     return jsonify(response) # 非流式
 
-def interact_with_openai(user_id, prompt, prompt_template, n=param_n, messages=None):
+def interact_with_openai(user_id, prompt, prompt_template, messages=None):
     messages = [] if messages is None else messages
-    res = Chat_Completion(model, prompt, param_temperature, messages, False, n) # 非流式调用
+    res = Chat_Completion(model, prompt, param_temperature, messages, False, param_n) # 非流式调用
     
     messages.append({"role": "assistant", "content": res})
     join_message = "".join([msg["content"] for msg in messages])
