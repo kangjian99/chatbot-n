@@ -6,6 +6,7 @@ from datetime import datetime
 from db_process import *
 from RAG_with_langchain import get_cache, get_cache_serial, response_from_rag_chain, response_from_retriver, template, template_writer
 from utils import *
+from geminiai import gemini_response
 #from werkzeug.utils import secure_filename
 #from pypinyin import lazy_pinyin
 
@@ -148,20 +149,24 @@ def handle_message():
     prompts = get_prompt_templates()
     prompt_template = list(prompts.items())[int(selected_template)] #元组
     if '文档' not in prompt_template[0]:
-        messages = get_user_messages(user_id)
-        if messages == []:
-            prompt = f"{prompt_template[1].format(keyword=user_input)!s}"
-        else:
-            prompt = user_input
-        # 添加与OpenAI交互的逻辑
-        response = interact_with_openai(user_id, prompt, prompt_template, messages)
+        if 'Gemini' in prompt_template[0]: # 选择Google Gemini
+            prompt = f"{prompt_template[1].format(question=user_input)!s}"                
+            response = gemini_response(prompt)
+        else: 
+            messages = get_user_messages(user_id)
+            if messages == []:
+                prompt = f"{prompt_template[1].format(question=user_input)!s}"
+            else:
+                prompt = user_input
+            # 添加与OpenAI交互的逻辑
+            response = interact_with_openai(user_id, prompt, prompt_template, messages)
     else:
         if user_input.startswith('#clear'):
             clear_files_with_prefix(user_id)
             session['uploaded_filename'] = ''
             return jsonify('Cleared.')
         elif user_input.startswith('#file'):
-            filelist = get_files_with_prefix(user_id)
+            filelist = get_files_with_prefix(user_id) or "没有文件上传。"
             return jsonify(f'{filelist}') 
         elif user_input.startswith('#cache'):
             session['cache_list'] = get_cache_serial()
