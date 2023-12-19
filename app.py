@@ -4,7 +4,8 @@ from openai import OpenAI
 import json, threading
 from datetime import datetime
 from db_process import *
-from RAG_with_langchain import get_cache, get_cache_serial, response_from_rag_chain, response_from_retriver, template, template_writer
+from RAG_with_langchain import get_cache, get_cache_serial, response_from_rag_chain, response_from_retriver
+from templates import *
 from utils import *
 from geminiai import gemini_response
 #from werkzeug.utils import secure_filename
@@ -36,7 +37,7 @@ def Chat_Completion(model, question, tem, messages, stream, n=1):
         if not stream:
             print(f"{response.usage}\n")
             session['tokens'] = response.usage.total_tokens
-            combined_content = '\n'.join([f"******\n回复{n+1}:\n{choice.message.content}" for n, choice in enumerate(response.choices)])
+            combined_content = '\n'.join([f"******\n回复【{n+1}】:\n{choice.message.content}" for n, choice in enumerate(response.choices)])
             return combined_content
         return response
         
@@ -185,7 +186,10 @@ def handle_message():
             uploaded_filename = user_id + '_' + uploaded_filename
             #response = response_from_rag_chain(uploaded_filename, user_input, False)
             response = response_from_retriver(uploaded_filename, user_input, max_k)
-            docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
+            if '模仿' in prompt_template[0]:
+                docchat_template = template_mimic
+            else:
+                docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
             prompt = f"{docchat_template.format(question=user_input, context=response)!s}"
             response = interact_with_openai(user_id, prompt, prompt_template)
 
