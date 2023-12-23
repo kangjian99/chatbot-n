@@ -18,7 +18,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 param_temperature = 0.5
 param_n = 3
-max_k = 10
+#max_k = 10
 
 def Chat_Completion(model, question, tem, messages, stream, n=1):
     try:
@@ -117,35 +117,47 @@ def upload_file():
         filename = safe_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_id+'_'+filename))
         session['uploaded_filename'] = filename  # 将文件名保存到会话中
-        print("Session after file uploaded:", session)
+        #session['uploading'] = True
+        print("\n#Session after file uploaded:", session)
         # 使用多线程执行get_cache
-        def execute_get_cache():
-            get_cache(user_id+'_'+filename)
-        
+        #def execute_get_cache():
+        get_cache(user_id+'_'+filename)
+         
         # 启动新线程执行get_cache
-        cache_thread = threading.Thread(target=execute_get_cache)
-        cache_thread.start()
-        
-        return 'File uploaded successfully', 200
+        #cache_thread = threading.Thread(target=execute_get_cache)
+        #cache_thread.start()
+        return 'File uploaded successfully', 200        
     else:
         return 'File type not allowed', 400
+    
+@app.route('/get-filenames', methods=['GET'])
+def get_filenames():
+    key_words = get_cache_serial()   
+    # 提取文件名作为列表
+    file_names = list(key_words.values())
+
+    return jsonify(file_names)
     
 @app.route('/message', methods=['GET', 'POST']) #必须要有GET
 def handle_message():
     print(session)
-    user_id = session.get('user_id', 'test')
+    user_id = session.get('user_id', 'test')       
     last_selected = session.get('selected_template', '0')
     uploaded_filename = session.get('uploaded_filename', '')
-    
+
     data = request.json
     # print(data)
     user_input = data['user_input']
     selected_template = data['prompt_template']  # 接收选择的模板编号
+    if data['selected_file']:  # 接收选择的上传文件
+        session['uploaded_filename'] = data['selected_file']
+        uploaded_filename = session.get('uploaded_filename')
+    print("接收信息后session：", session)
     # 判断是否用户变更模版，如果是则清空信息
     if last_selected != selected_template:
         clear_messages(user_id)
         session['selected_template'] = selected_template
-        print("Session after template change:", session)
+        #print("Session after template change:", session)
 
     prompts = get_prompt_templates()
     prompt_template = list(prompts.items())[int(selected_template)] #元组
@@ -165,27 +177,32 @@ def handle_message():
         if user_input.startswith('#clear'):
             clear_files_with_prefix(user_id)
             session['uploaded_filename'] = ''
+            session['key_words'] = {}
             return jsonify('Cleared.')
         elif user_input.startswith('#file'):
             filelist = get_files_with_prefix(user_id) or "没有文件上传。"
             return jsonify(f'{filelist}') 
-        elif user_input.startswith('#cache'):
-            session['cache_list'] = get_cache_serial()
-            return jsonify(f"{session['cache_list']}")
-        elif user_input.startswith('#set#'):
-            matched_filename = match_file(user_input, get_cache_serial())
-            if matched_filename:
-                session['uploaded_filename'] = matched_filename
-                uploaded_filename = session['uploaded_filename']
-                return jsonify(f'{uploaded_filename}')
-            else:
-                return jsonify('无文档匹配')
+
         elif uploaded_filename == '' or is_file_in_directory(user_id + '_' + uploaded_filename) == False:
             return jsonify('请先上传文档')
         else:
+            if user_input.startswith(('总结', '写作')) and num_tokens(user_input) < 20:
+                # 处理提取关键词逻辑
+                try:
+                    response = response_from_retriver(user_id+'_'+uploaded_filename, uploaded_filename, 2)
+                    key_words = gemini_response(f"提取以下信息的关键词，以/分隔显示，不超过5个：\n{response}")
+                     #session['uploading'] = False
+                    #print("\n#Session after key words extracted:", session)        
+                except Exception as e:
+                    # 提取失败时返回错误消息
+                    key_words = uploaded_filename
+                user_input += '\n' + key_words  # 为用户提问增添关键词
+            #else:
+            #    user_input += '\n(' + uploaded_filename + ')' # 为用户提问增添补充信息
+            print(user_input)
             uploaded_filename = user_id + '_' + uploaded_filename
             #response = response_from_rag_chain(uploaded_filename, user_input, False)
-            response = response_from_retriver(uploaded_filename, user_input, max_k)
+            response = response_from_retriver(uploaded_filename, user_input)
             if '模仿' in prompt_template[0]:
                 docchat_template = template_mimic
             else:

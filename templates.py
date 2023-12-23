@@ -1,6 +1,5 @@
 template = """You are an assistant for question-answering tasks.
-Use the following pieces of retrieved context to answer the question only in Chinese.
-If you don't know the answer, just politely say that you don't know. 
+Use the following pieces of retrieved context to answer the question only in Chinese. Don't try to make up an answer. 
 Question: {question} 
 Context: {context} 
 Assistant answer based on most relevant sentences in the context:

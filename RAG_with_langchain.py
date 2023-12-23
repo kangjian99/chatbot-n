@@ -17,6 +17,7 @@ cache = {}
 max_cache_size = 10
 tem = 0
 top_k = 4
+max_k = 10
 
 enc = tiktoken.get_encoding("cl100k_base") # 以 token 计算文本块长度
 def length_function(text: str) -> int:
@@ -24,7 +25,7 @@ def length_function(text: str) -> int:
 
 text_splitter = RecursiveCharacterTextSplitter(
                 #separators=['\n\n','\n'],
-                chunk_size=500,
+                chunk_size=350,
                 chunk_overlap=50,
                 length_function=length_function,
                 add_start_index = True,)
@@ -112,10 +113,10 @@ def get_cache(file_name):
 
 def response_from_rag_chain(file_name, query, stream=False):
     vectorstore = get_cache(file_name)
-    top_k = 10 if query.startswith(('总结', '写作')) else 4
+    top_k = max_k if query.startswith(('总结', '写作')) else 4
     prompt = ChatPromptTemplate.from_template(template_writer)if query.startswith(('总结', '写作')) else ChatPromptTemplate.from_template(template)
     retriever, rag_chain = retrieve(prompt, top_k, vectorstore)
-    docs = retriever.get_relevant_documents(query) # 返回检索结果
+    #docs = retriever.get_relevant_documents(query) # 返回检索结果
     #print(format_docs(docs), '\n检索数量：', len(docs))
 
     if not stream:
@@ -127,9 +128,9 @@ def response_from_rag_chain(file_name, query, stream=False):
             partial_text += chunk
             yield(f"data: {json.dumps({'data': partial_text})}\n\n")
 
-def response_from_retriver(file_name, query, k):
+def response_from_retriver(file_name, query, k=top_k):
     vectorstore = get_cache(file_name)
-    top_k = k if query.startswith(('总结', '写作')) else 4
+    top_k = max_k if query.startswith(('总结', '写作')) else k
     #prompt = ChatPromptTemplate.from_template(template_writer)if query.startswith(('总结', '写作')) else ChatPromptTemplate.from_template(template)
     retriever = vectorstore.as_retriever(search_kwargs={"k": top_k})
 
