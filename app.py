@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, Response, session, render_template
-#from flask_cors import CORS
+from flask_cors import CORS
 from openai import OpenAI
 import json, threading
 from datetime import datetime
@@ -12,7 +12,7 @@ from geminiai import gemini_response
 #from pypinyin import lazy_pinyin
 
 app = Flask(__name__)
-#CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True)
 app.config['SECRET_KEY'] = SESSION_SECRET_KEY
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -120,12 +120,12 @@ def upload_file():
         #session['uploading'] = True
         print("\n#Session after file uploaded:", session)
         # 使用多线程执行get_cache
-        #def execute_get_cache():
-        get_cache(user_id+'_'+filename)
-         
+        def execute_get_cache():
+            get_cache(user_id+'_'+filename)         
         # 启动新线程执行get_cache
-        #cache_thread = threading.Thread(target=execute_get_cache)
-        #cache_thread.start()
+        cache_thread = threading.Thread(target=execute_get_cache)
+        cache_thread.start()
+
         return 'File uploaded successfully', 200        
     else:
         return 'File type not allowed', 400
