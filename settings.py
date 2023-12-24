@@ -1,8 +1,8 @@
 import os
 from openai import OpenAI
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
 API_KEY = os.environ.get('OPENAI_API_KEY')
 model="gpt-3.5-turbo-1106"
 #model="gpt-4-1106-preview"

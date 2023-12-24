@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, Response, session, render_template
-from flask_cors import CORS
+#from flask_cors import CORS
 from openai import OpenAI
 import json, threading
 from datetime import datetime
@@ -12,7 +12,7 @@ from geminiai import gemini_response
 #from pypinyin import lazy_pinyin
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+#CORS(app, supports_credentials=True)
 app.config['SECRET_KEY'] = SESSION_SECRET_KEY
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
