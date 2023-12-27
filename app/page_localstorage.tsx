@@ -54,7 +54,7 @@ export default function Home() {
                 setPrompts(data);
                 // 设置默认选中的模板（如果有）
                 if (data && Object.keys(data).length > 0) {
-                    setSelectedTemplate(Object.keys(data)[0]);
+                    //setSelectedTemplate(Object.keys(data)[0]);
                 }
             })
             .catch(error => console.error('Error fetching prompts:', error));
@@ -89,7 +89,30 @@ export default function Home() {
         setSelectedFileName(fileName);
         setSelectedTemplate('1')  // 直接设定模板为文档问答
     };    
-
+    useEffect(() => {
+        // 尝试从 localStorage 获取保存的文件名
+        const savedFileName = localStorage.getItem('selectedFileName');
+        const savedTemplate = localStorage.getItem('selectedTemplate');
+        if (savedFileName) {
+            setSelectedFileName(savedFileName);
+        }
+        if (savedTemplate) {
+            setSelectedTemplate(savedTemplate);
+        }
+        console.log(localStorage,selectedFileName, selectedTemplate)
+    }, []);
+    
+    useEffect(() => {
+        // 当 selectedFileName 改变时，更新 localStorage
+        if (selectedFileName) {
+            localStorage.setItem('selectedFileName', selectedFileName);
+        }
+        if (selectedTemplate) {
+            localStorage.setItem('selectedTemplate', selectedTemplate);
+        }
+        console.log("变化时",localStorage,selectedFileName, selectedTemplate)
+    }, [selectedFileName, selectedTemplate]);
+    
     const sendMessage = async () => {
         const newMessageId = Date.now(); // 使用时间戳作为简单的唯一ID
         // 将用户输入和“思考中...”消息添加到消息列表

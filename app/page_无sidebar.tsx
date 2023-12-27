@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // 导入 Bootstrap
 import MessageList from "./components/MessageList"; // 导入新的组件
 import FileUploader from "./components/FileUploader";
-import UploadedFilesSidebar from "./components/FileSidebar";
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 
@@ -15,19 +14,10 @@ interface Message {
 }
 
 export default function Home() {
-    const initialMessages: Message[] = [
-        {
-          type: "system",
-          text: "请提问，根据文档问答请先选择文件并上传",
-        },
-      ];
-    const [messages, setMessages] = useState<Message[]>(initialMessages);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [userInput, setUserInput] = useState<string>('');
     const [isSending, setIsSending] = useState<boolean>(false);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
-    const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
-    const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
-    const [refreshTrigger, setRefreshTrigger] = useState(false);
 
     useEffect(() => {
         document.title = "文档助手Chatbot";
@@ -74,21 +64,13 @@ export default function Home() {
             if (response.ok) {
                 alert("文件上传成功！较长文档需等待系统处理10秒以上再检索。");
                 setSelectedTemplate('1')  // 直接设定模板为文档问答
-                setUploadedFiles(prevFiles => [...prevFiles, file.name]); // 更新上传文件列表
-                setSelectedFileName(file.name); // 设置最新上传的文件为选中状态
             } else {
                 alert("文件上传失败！");
             }
         } catch (error) {
             console.error("上传错误:", error);
         }
-        setRefreshTrigger(prev => !prev); // 改变触发器状态
     };
-
-    const handleFileSelect = (fileName: string) => {
-        setSelectedFileName(fileName);
-        setSelectedTemplate('1')  // 直接设定模板为文档问答
-    };    
 
     const sendMessage = async () => {
         const newMessageId = Date.now(); // 使用时间戳作为简单的唯一ID
@@ -109,8 +91,7 @@ export default function Home() {
                 },
                 body: JSON.stringify({ 
                     user_input: userInput,
-                    prompt_template: selectedTemplate, // 发送选择的模板
-                    selected_file: selectedFileName // 将选中的文件名添加到请求中
+                    prompt_template: selectedTemplate // 发送选择的模板
                 }),
                 credentials: "include",
             });
@@ -180,10 +161,6 @@ export default function Home() {
                 </div>
                 <FileUploader onUpload={handleFileUpload} />{" "}
             </div>
-            <UploadedFilesSidebar 
-        uploadedFiles={uploadedFiles} 
-        onFileSelect={handleFileSelect} 
-        refreshTrigger={refreshTrigger} 
-    />    </div>
+        </div>
     );
 }
