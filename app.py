@@ -132,9 +132,9 @@ def upload_file():
     
 @app.route('/get-filenames', methods=['GET'])
 def get_filenames():
-    key_words = get_cache_serial()   
+    file_names = get_cache_serial()   
     # 提取文件名作为列表
-    file_names = list(key_words.values())
+    file_names = list(file_names.values())
 
     return jsonify(file_names)
     
@@ -177,7 +177,7 @@ def handle_message():
         if user_input.startswith('#clear'):
             clear_files_with_prefix(user_id)
             session['uploaded_filename'] = ''
-            session['key_words'] = {}
+            #session['key_words'] = {}
             return jsonify('Cleared.')
         elif user_input.startswith('#file'):
             filelist = get_files_with_prefix(user_id) or "没有文件上传。"
