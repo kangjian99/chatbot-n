@@ -93,78 +93,40 @@ export default function Home() {
     const sendMessage = async () => {
         const newMessageId = Date.now(); // 使用时间戳作为简单的唯一ID
         // 将用户输入和“思考中...”消息添加到消息列表
-        setMessages((prevMessages) => [
-            ...prevMessages,
-            { type: "user", text: userInput },
-            { type: "system", text: "思考中......", id: newMessageId },
+        setMessages(prevMessages => [
+            ...prevMessages, 
+            { type: 'user', text: userInput },
+            { type: 'system', text: '思考中......', id: newMessageId }
         ]);
-
+    
         setIsSending(true);
 
-        const handleStreamResponse = async (
-            reader: ReadableStreamDefaultReader
-        ) => {
-            const decoder = new TextDecoder();
-            let partialData = "";
-
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
-
-                partialData += decoder.decode(value, { stream: true });
-                let lines = partialData.split("\n");
-
-                for (let line of lines.slice(0, -1)) {
-                    if (line.startsWith("data: ")) {
-                        try {
-                            let messageText = line.replace("data: ", "");
-                            let data = JSON.parse(messageText);
-                            // 更新“思考中...”消息
-                            setMessages((prevMessages) =>
-                                prevMessages.map((msg) =>
-                                    msg.id === newMessageId
-                                        ? { ...msg, text: data.data }
-                                        : msg
-                                )
-                            );
-                        } catch (error) {
-                            console.error("Error parsing message:", error);
-                        }
-                    }
-                }
-                partialData = lines[lines.length - 1];
-            }
-        };
-
         try {
-            const response = await fetch(url + "message", {
-                method: "POST",
+            const response = await fetch(url + 'message', {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
+                body: JSON.stringify({ 
                     user_input: userInput,
-                    prompt_template: selectedTemplate,
+                    prompt_template: selectedTemplate, // 发送选择的模板
                     selected_file: selectedFileName // 将选中的文件名添加到请求中
-                }), // 发送选择的模板
+                }),
                 credentials: "include",
             });
-
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            // 处理流式响应
-            // console.log(response, response.body)
-            if (response.body) {
-                const reader = response.body.getReader();
-                handleStreamResponse(reader);
-            } else {
-                console.error("Response body is null");
-            }
+            const data = await response.json();
+            // 更新“思考中...”消息为实际的回复
+            setMessages(prevMessages => prevMessages.map(msg => 
+                msg.id === newMessageId ? { ...msg, text: data } : msg
+            ));
         } catch (error) {
-            console.error("Error sending message:", error);
+            console.error('Error sending message:', error);
+            // 可以在这里处理错误
         }
-        setUserInput("");
+        setUserInput('');
         setIsSending(false);
     };
 
