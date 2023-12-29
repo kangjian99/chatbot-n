@@ -53,7 +53,7 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
         onChange={handleFileChange}
         style={{
             marginRight: "10px",
-            fontSize: "14px",
+            fontSize: "13px",
             padding: "6px",
             borderRadius: "5px",
             border: "1px solid #ccc",

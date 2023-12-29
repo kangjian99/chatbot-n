@@ -219,7 +219,7 @@ export default function Home() {
                     </button>
                 </div>
                 <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center', justifyContent: 'flex-end' }}>
-                <label style={{ marginRight: '5px', fontSize: '13px' }}>Choices</label>
+                <label style={{ marginRight: '10px', fontSize: '13px' }}>Choices</label>
                     <input
                     type="range"
                     min="1"
@@ -230,8 +230,9 @@ export default function Home() {
                     style={{marginRight: '10px',
                             width: "80px",
                     }}
+                    title={'回复数量1~3'}
                     />
-                    <span style={{marginRight: '30px', fontSize: '13px'}}>{nrangeValue}</span>
+                    <span style={{marginRight: '45px', fontSize: '13px'}}>{nrangeValue}</span>
                     <FileUploader onUpload={handleFileUpload} />{" "}
                 </div>
             </div>
