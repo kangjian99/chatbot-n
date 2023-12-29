@@ -18,7 +18,7 @@ export default function Home() {
     const initialMessages: Message[] = [
         {
           type: "system",
-          text: "请提问，根据文档问答请先选择文件并上传",
+          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章，指令需以“写作”开头。",
         },
       ];
     const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -173,6 +173,11 @@ export default function Home() {
     return (
         <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ width: '80%', maxWidth: '600px' }}>
+            <div className="row">
+            <div className="col-12 text-center">
+                <h3>AI-assisted Writer</h3>
+            </div>
+        </div>
             <MessageList
                         messages={messages}
                         messagesEndRef={messagesEndRef}
