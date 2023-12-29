@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 interface Message {
   type: 'user' | 'system' | 'image';
+  role?: 'system';
   text: string;
   imageUrl?: string; // 添加 imageUrl 字段来存储图片的 URL
 }
@@ -45,8 +46,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
                 display: 'inline-block',
                 maxWidth: '70%',
                 wordWrap: 'break-word',
-                fontSize: msg.text === '思考中......' ? '13px' : '15px',
-                fontStyle: msg.text === '思考中......' ? 'italic' : 'normal',
+                fontSize: msg.role === 'system' ? '13px' : '15px',
+                fontStyle: msg.role === 'system' ? 'italic' : 'normal',
                 cursor: 'default', // 使用默认光标样式
               }}
               onClick={() => copyToClipboard(msg.text)} // 添加点击事件处理器

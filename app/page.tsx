@@ -10,6 +10,7 @@ const url = process.env.NEXT_PUBLIC_API_URL;
 
 interface Message {
   type: 'user' | 'system';
+  role?: 'system';
   text: string;
   id?: number;
 }
@@ -18,6 +19,7 @@ export default function Home() {
     const initialMessages: Message[] = [
         {
           type: "system",
+          role: "system",
           text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章，指令需以“写作”开头。",
         },
       ];
@@ -97,7 +99,7 @@ export default function Home() {
         setMessages((prevMessages) => [
             ...prevMessages,
             { type: "user", text: userInput },
-            { type: "system", text: "思考中......", id: newMessageId },
+            { type: "system", text: "思考中......", role: "system", id: newMessageId },
         ]);
 
         setIsSending(true);
@@ -124,7 +126,7 @@ export default function Home() {
                             setMessages((prevMessages) =>
                                 prevMessages.map((msg) =>
                                     msg.id === newMessageId
-                                        ? { ...msg, text: data.data }
+                                        ? { ...msg, text: data.data, role: "" }
                                         : msg
                                 )
                             );
