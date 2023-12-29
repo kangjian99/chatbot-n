@@ -61,7 +61,7 @@ def Chat_Completion(model, question, tem, messages, stream, n=param_n):
                     text[choice.index] += content
                     # print(choice.index, text[choice.index])
                     chunk_count += 1
-                    if chunk_count > 4:
+                    if chunk_count > 5:
                         yield {'content': partial_words + "\n***请等待全部输出完毕***"}
 
                 if choice.finish_reason == "stop":
@@ -122,7 +122,6 @@ def upload_file():
         filename = safe_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_id+'_'+filename))
         session['uploaded_filename'] = filename  # 将文件名保存到会话中
-        #session['uploading'] = True
         print("\n#Session after file uploaded:", session)
         # 使用多线程执行get_cache
         def execute_get_cache():
@@ -157,6 +156,7 @@ def handle_message():
     if data['selected_file']:  # 接收选择的上传文件
         session['uploaded_filename'] = data['selected_file']
         uploaded_filename = session.get('uploaded_filename')
+    n = data.get('n', 3)
     print("接收信息后session：", session)
     # 判断是否用户变更模版，如果是则清空信息
     if last_selected != selected_template:
@@ -177,7 +177,7 @@ def handle_message():
             else:
                 prompt = user_input
             # 添加与OpenAI交互的逻辑
-            response = interact_with_openai(user_id, prompt, prompt_template, messages)
+            response = interact_with_openai(user_id, prompt, prompt_template, n, messages)
     else:
         if user_input.startswith('#clear'):
             clear_files_with_prefix(user_id)
@@ -196,7 +196,6 @@ def handle_message():
                 try:
                     response = response_from_retriver(user_id+'_'+uploaded_filename, uploaded_filename, 2)
                     key_words = gemini_response_key_words(f"提取以下信息的关键词，以/分隔显示，不超过5个：\n{response}")
-                     #session['uploading'] = False
                     #print("\n#Session after key words extracted:", session)        
                 except Exception as e:
                     # 提取失败时返回错误消息
@@ -204,7 +203,7 @@ def handle_message():
                 user_input += '\n' + key_words  # 为用户提问增添关键词
             #else:
             #    user_input += '\n(' + uploaded_filename + ')' # 为用户提问增添补充信息
-            print(user_input)
+                print(user_input)
             uploaded_filename = user_id + '_' + uploaded_filename
             #response = response_from_rag_chain(uploaded_filename, user_input, False)
             response = response_from_retriver(uploaded_filename, user_input)
@@ -213,16 +212,16 @@ def handle_message():
             else:
                 docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
             prompt = f"{docchat_template.format(question=user_input, context=response)!s}"
-            response = interact_with_openai(user_id, prompt, prompt_template)
+            response = interact_with_openai(user_id, prompt, prompt_template, n)
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 
-def interact_with_openai(user_id, prompt, prompt_template, messages=None):
+def interact_with_openai(user_id, prompt, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     res = None
 
     try:
-        for res in Chat_Completion(model, prompt, param_temperature, messages, True):
+        for res in Chat_Completion(model, prompt, param_temperature, messages, True, n):
             if 'content' in res:
                 markdown_message = res['content']  # generate_markdown_message(res['content'])
                 # print(f"Yielding markdown_message: {markdown_message}")  # 添加这一行
