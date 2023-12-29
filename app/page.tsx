@@ -10,7 +10,7 @@ const url = process.env.NEXT_PUBLIC_API_URL;
 
 interface Message {
   type: 'user' | 'system';
-  role?: 'system';
+  role?: 'system' | 'assistant';
   text: string;
   id?: number;
 }
@@ -126,7 +126,7 @@ export default function Home() {
                             setMessages((prevMessages) =>
                                 prevMessages.map((msg) =>
                                     msg.id === newMessageId
-                                        ? { ...msg, text: data.data, role: "" }
+                                        ? { ...msg, text: data.data, role: 'assistant' }
                                         : msg
                                 )
                             );

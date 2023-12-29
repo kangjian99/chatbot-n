@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 interface Message {
   type: 'user' | 'system' | 'image';
-  role?: 'system';
+  role?: 'system' | 'assistant';
   text: string;
   imageUrl?: string; // 添加 imageUrl 字段来存储图片的 URL
 }
