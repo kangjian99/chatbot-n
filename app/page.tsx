@@ -28,6 +28,7 @@ export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
+    const [nrangeValue, setNrangeValue] = useState(3);
 
     useEffect(() => {
         document.title = "文档助手Chatbot";
@@ -145,7 +146,8 @@ export default function Home() {
                 body: JSON.stringify({
                     user_input: userInput,
                     prompt_template: selectedTemplate,
-                    selected_file: selectedFileName // 将选中的文件名添加到请求中
+                    selected_file: selectedFileName, // 将选中的文件名添加到请求中
+                    n: nrangeValue
                 }), // 发送选择的模板
                 credentials: "include",
             });
@@ -216,7 +218,22 @@ export default function Home() {
                         {isSending ? '已发送' : '发送'}
                     </button>
                 </div>
-                <FileUploader onUpload={handleFileUpload} />{" "}
+                <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                <label style={{ marginRight: '5px', fontSize: '13px' }}>Choices</label>
+                    <input
+                    type="range"
+                    min="1"
+                    max="3"
+                    value={nrangeValue}
+                    onChange={(e) => setNrangeValue(Number(e.target.value))}
+                    className="form-range"
+                    style={{marginRight: '10px',
+                            width: "80px",
+                    }}
+                    />
+                    <span style={{marginRight: '30px', fontSize: '13px'}}>{nrangeValue}</span>
+                    <FileUploader onUpload={handleFileUpload} />{" "}
+                </div>
             </div>
             <UploadedFilesSidebar 
         uploadedFiles={uploadedFiles} 
