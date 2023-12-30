@@ -37,7 +37,7 @@ export default function Home() {
     }, []); // 空依赖数组意味着这个效果仅在组件挂载时运行
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
     }
 
     useEffect(() => {
@@ -104,40 +104,71 @@ export default function Home() {
 
         setIsSending(true);
 
-        const handleStreamResponse = async (
-            reader: ReadableStreamDefaultReader
-        ) => {
-            const decoder = new TextDecoder();
-            let partialData = "";
+const handleStreamResponse = async (
+    reader: ReadableStreamDefaultReader
+) => {
+    const decoder = new TextDecoder();
+    let accumulatedData = "";
 
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
 
-                partialData += decoder.decode(value, { stream: true });
-                let lines = partialData.split("\n");
+        let messageText = decoder.decode(value, { stream: true });
 
-                for (let line of lines.slice(0, -1)) {
-                    if (line.startsWith("data: ")) {
+        if (messageText.startsWith("data: ")) {
+            try {
+                messageText = messageText.replace(/data: /g, "");
+                let messages = messageText.split("\n\n"); // 有可能发来多个JSON对象，根据换行符分割
+                messages.forEach(msg => {
+                    msg = msg.trim();
+                    if (msg !== "") {
                         try {
-                            let messageText = line.replace("data: ", "");
-                            let data = JSON.parse(messageText);
-                            // 更新“思考中...”消息
-                            setMessages((prevMessages) =>
-                                prevMessages.map((msg) =>
-                                    msg.id === newMessageId
-                                        ? { ...msg, text: data.data, role: 'assistant' }
-                                        : msg
-                                )
-                            );
-                        } catch (error) {
-                            console.error("Error parsing message:", error);
+                            let data = JSON.parse(msg); // 解析每个JSON字符串
+                            console.log("Parsed Data:", messages, data.data);
+                            accumulatedData += data.data; // 累积 data 属性的值
+                        } catch (e) {
+                            console.error("Error parsing JSON:", e, "in message:", msg);
+                            // 可以根据需要在这里添加 break 或 continue
                         }
                     }
+                });
+
+                // 以下是多个回复的特殊处理
+                const pattern = /\n\*\*\*[^*]+?\*\*\*(?=\n|$)/g; // 匹配所有单独一行的“*** ***”
+                const dashPattern = /-----/; // 检查是否存在“-----”
+            
+                if (pattern.test(accumulatedData)) {
+                    if (dashPattern.test(accumulatedData)) {
+                        // 如果存在“-----”，则清除所有“*** ***”
+                        accumulatedData = accumulatedData.replace(pattern, '');
+                    } else {
+                        // 否则，仅保留最后一个“*** ***”
+                        let matches = accumulatedData.match(pattern);
+                        if (matches && matches.length > 1) {
+                            // 移除除最后一个外的所有匹配项
+                            for (let i = 0; i < matches.length - 1; i++) {
+                                accumulatedData = accumulatedData.replace(matches[i], '');
+                            }
+                        }
+                    }
+                } else { accumulatedData = accumulatedData.replace(/\n\*\*\*[^*]+?\*\*\*/, '');
                 }
-                partialData = lines[lines.length - 1];
+
+                // 更新“思考中...”消息
+                setMessages((prevMessages) =>
+                    prevMessages.map((msg) =>
+                        msg.id === newMessageId
+                            ? { ...msg, text: accumulatedData, role: 'assistant' }
+                            : msg
+                    )
+                );
+            } catch (error) {
+                console.error("Error parsing message:", error);
             }
-        };
+        }
+    }
+};
 
         try {
             const response = await fetch(url + "message", {
