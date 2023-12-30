@@ -39,7 +39,6 @@ def Chat_Completion(model, question, tem, messages, stream, n=param_n):
             session['tokens'] = response.usage.total_tokens
             return response.choices[0].message.content
         else:
-            partial_words = ""
             text=[''] * n
             chunk_count = 0
 
@@ -53,23 +52,22 @@ def Chat_Completion(model, question, tem, messages, stream, n=param_n):
                 
                 if choice.index == 0:
                     # 对于第一个choice，立即输出并重置chunk_count
-                    partial_words += content
                     chunk_count = 0
-                    yield {'content': partial_words}
+                    yield {'content': content}
                 else:
                     # 对于其他choices，暂存内容
                     text[choice.index] += content
                     # print(choice.index, text[choice.index])
                     chunk_count += 1
-                    if chunk_count > 5:
-                        yield {'content': partial_words + "\n***请等待全部输出完毕***"}
+                    if chunk_count > 6:
+                        yield {'content': "\n***请等待全部输出完毕***"}
 
                 if choice.finish_reason == "stop":
                     break
         # 在所有响应处理完毕后，输出暂存变量中的内容
         if text[1]:
             combined_content = '\n'.join([f"{'-'*10}\n回复 {n+2}：\n{choice}" for n, choice in enumerate(text[1:])])
-            yield {'content': partial_words+'\n'+combined_content}
+            yield {'content': '\n'+combined_content}
         return response
         
     except Exception as e:
@@ -222,7 +220,7 @@ def interact_with_openai(user_id, prompt, prompt_template, n, messages=None):
 
     try:
         for res in Chat_Completion(model, prompt, param_temperature, messages, True, n):
-            if 'content' in res:
+            if 'content' in res and res['content']:
                 markdown_message = res['content']  # generate_markdown_message(res['content'])
                 # print(f"Yielding markdown_message: {markdown_message}")  # 添加这一行
                 # token_counter += 1

@@ -10,12 +10,10 @@ model = genai.GenerativeModel('gemini-pro')
 def gemini_response(query):
     response = model.generate_content(query, stream=True)
 
-    partial_text = ''
     for chunk in response:
         print(chunk.text)
         print("_"*80)
-        partial_text += chunk.text
-        yield(f"data: {json.dumps({'data': partial_text})}\n\n")
+        yield(f"data: {json.dumps({'data': chunk.text})}\n\n")
 
 def gemini_response_key_words(query):
     response = model.generate_content(query, stream=False)
