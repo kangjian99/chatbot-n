@@ -123,10 +123,8 @@ def response_from_rag_chain(file_name, query, stream=False):
         response = rag_chain.invoke(query)
         return(response)
     else:
-        partial_text = ''
         for chunk in rag_chain.stream(query):
-            partial_text += chunk
-            yield(f"data: {json.dumps({'data': partial_text})}\n\n")
+            yield(f"data: {json.dumps({'data': chunk})}\n\n")
 
 def response_from_retriver(file_name, query, k=top_k):
     vectorstore = get_cache(file_name)

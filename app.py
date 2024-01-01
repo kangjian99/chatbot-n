@@ -142,7 +142,7 @@ def get_filenames():
     
 @app.route('/message', methods=['GET', 'POST']) #必须要有GET
 def handle_message():
-    print(session)
+    # print(session)
     user_id = session.get('user_id', 'test')       
     last_selected = session.get('selected_template', '0')
     uploaded_filename = session.get('uploaded_filename', '')
@@ -203,14 +203,16 @@ def handle_message():
             #    user_input += '\n(' + uploaded_filename + ')' # 为用户提问增添补充信息
                 print(user_input)
             uploaded_filename = user_id + '_' + uploaded_filename
-            #response = response_from_rag_chain(uploaded_filename, user_input, False)
-            response = response_from_retriver(uploaded_filename, user_input)
-            if '模仿' in prompt_template[0]:
-                docchat_template = template_mimic
+            if n==1:
+                response = response_from_rag_chain(uploaded_filename, user_input, True)
             else:
-                docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
-            prompt = f"{docchat_template.format(question=user_input, context=response)!s}"
-            response = interact_with_openai(user_id, prompt, prompt_template, n)
+                docs = response_from_retriver(uploaded_filename, user_input)
+                if '模仿' in prompt_template[0]:
+                    docchat_template = template_mimic
+                else:
+                    docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
+                prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
+                response = interact_with_openai(user_id, prompt, prompt_template, n)
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 
