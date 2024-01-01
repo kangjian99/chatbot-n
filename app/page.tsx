@@ -20,7 +20,7 @@ export default function Home() {
         {
           type: "system",
           role: "system",
-          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章，指令需以“写作”开头。",
+          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章指令需以“写作”开头。",
         },
       ];
     const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -119,13 +119,13 @@ const handleStreamResponse = async (
         if (messageText.startsWith("data: ")) {
             try {
                 messageText = messageText.replace(/data: /g, "");
-                let messages = messageText.split("\n\n"); // 有可能发来多个JSON对象，根据换行符分割
+                let messages = messageText.split("\n\n"); // 由于网络延迟可能导致多个JSON对象的数组，根据换行符分割
                 messages.forEach(msg => {
                     msg = msg.trim();
                     if (msg !== "") {
                         try {
                             let data = JSON.parse(msg); // 解析每个JSON字符串
-                            console.log("Parsed Data:", messages, data.data);
+                            // console.log("Parsed Data:", data.data);
                             accumulatedData += data.data; // 累积 data 属性的值
                         } catch (e) {
                             console.error("Error parsing JSON:", e, "in message:", msg);
