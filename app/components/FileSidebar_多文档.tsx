@@ -25,6 +25,10 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
             if (uploadedFiles.length > 0) {
                 fileNames.push(uploadedFiles[uploadedFiles.length - 1]);
             }
+            else if (fileNames.length == 2) {
+                    fileNames.splice(0, 1);
+                }
+            
             setFiles(fileNames);
             if (uploadedFiles.length > 0) {
                 if (fileNames.length > 0) {
@@ -55,7 +59,6 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
             console.error('Error:', error);
         }
     };
-
 //    useEffect(() => {
         // 当文件列表更新时，将最新的文件设置为选中状态
 //        if (files.length > 0) {

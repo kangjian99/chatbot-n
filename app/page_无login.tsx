@@ -5,7 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // 导入 Bootstrap
 import MessageList from "./components/MessageList"; // 导入新的组件
 import FileUploader from "./components/FileUploader";
 import UploadedFilesSidebar from "./components/FileSidebar";
-import Login from "./components/Login";
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 
@@ -32,41 +31,10 @@ export default function Home() {
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
     const [nrangeValue, setNrangeValue] = useState(3);
-    const [isLoggedIn, setIsLoggedIn] = useState(false); 
-    const [isLoading, setIsLoading] = useState(true); // 新增状态来追踪加载状态
 
     useEffect(() => {
         document.title = "文档助手Chatbot";
     }, []); // 空依赖数组意味着这个效果仅在组件挂载时运行
-
-    useEffect(() => {
-        // 检查用户是否已登录
-        const checkSession = async () => {
-            try {
-                const response = await fetch(url + "check_session", {
-                    credentials: "include",
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setIsLoggedIn(true);
-                    if (data.user_id) {
-                        document.title = `文档助手Chatbot - ${data.user_id}`;
-                    }
-                } else {
-                    setIsLoggedIn(false);
-                }
-            } catch (error) {
-                console.error("检查会话失败:", error);
-            } finally {
-                setIsLoading(false); // 检查完成后取消加载状态
-            }
-        };
-        checkSession();
-    }, []);
-
-    const handleLoginSuccess = () => {
-        setIsLoggedIn(true); // 处理登录成功的逻辑
-    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
@@ -237,92 +205,81 @@ const handleStreamResponse = async (
         setIsSending(false);
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>; // 或者一个旋转器/加载器组件
-    }
-    
     return (
         <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
-            {!isLoggedIn ? (
-                <Login onLoginSuccess={handleLoginSuccess} />
-            ) : (
-            <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: '80%', maxWidth: '600px' }}>
-                <div className="row">
-                <div className="col-12 text-center">
-                    <h3>AI-assisted Writer</h3>
-                </div>
-                </div>
-                <MessageList
-                            messages={messages}
-                            messagesEndRef={messagesEndRef}
-                        />{" "}
-                    <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center' }}>
-                        {/* 下拉选择列表 */}
-                        <select style={{width: "175px"}} value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)} className="custom-select" >
-                            {Object.entries(prompts).map(([key, value], index) => (
-                                <option key={key} value={index}>{typeof value === 'string' ? value : String(value)}</option>
-                            ))}
-                        </select>
-                        {/* 输入框 */}
-                        <textarea
-                        value={userInput}
-                        onChange={(e) => setUserInput(e.target.value)}
-                        style={{
-                            fontSize: '14px',
-                            flex: 1,
-                            padding: '6px',
-                            paddingLeft: '10px',
-                            borderRadius: '5px',
-                            border: '1px solid #ccc',
-                            marginRight: '5px',
+            <div style={{ width: '80%', maxWidth: '600px' }}>
+            <div className="row">
+            <div className="col-12 text-center">
+                <h3>AI-assisted Writer</h3>
+            </div>
+        </div>
+            <MessageList
+                        messages={messages}
+                        messagesEndRef={messagesEndRef}
+                    />{" "}
+                 <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center' }}>
+                    {/* 下拉选择列表 */}
+                    <select style={{width: "175px"}} value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)} className="custom-select" >
+                        {Object.entries(prompts).map(([key, value], index) => (
+                            <option key={key} value={index}>{typeof value === 'string' ? value : String(value)}</option>
+                        ))}
+                    </select>
+                    {/* 输入框 */}
+                    <textarea
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    style={{
+                        fontSize: '14px',
+                        flex: 1,
+                        padding: '6px',
+                        paddingLeft: '10px',
+                        borderRadius: '5px',
+                        border: '1px solid #ccc',
+                        marginRight: '5px',
+                    }}
+                    disabled={isSending}
+                    rows={3}
+                    placeholder="在此输入..."
+                />
+                    <button 
+                        onClick={sendMessage} 
+                        style={{ 
+                            padding: '5px', 
+                            borderRadius: '5px', 
+                            border: '1px solid #ccc', 
+                            background: isSending ? '#ccc' : '#007bff', 
+                            color: isSending ? '#666' : 'white',
+                            width: '70px',
+                            marginRight: "5px",
+                            fontSize: "14px",
                         }}
                         disabled={isSending}
-                        rows={3}
-                        placeholder="在此输入..."
-                    />
-                        <button 
-                            onClick={sendMessage} 
-                            style={{ 
-                                padding: '5px', 
-                                borderRadius: '5px', 
-                                border: '1px solid #ccc', 
-                                background: isSending ? '#ccc' : '#007bff', 
-                                color: isSending ? '#666' : 'white',
-                                width: '70px',
-                                marginRight: "5px",
-                                fontSize: "14px",
-                            }}
-                            disabled={isSending}
-                        >
-                            {isSending ? '已发送' : '发送'}
-                        </button>
-                    </div>
-                    <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <label style={{ marginRight: '10px', fontSize: '13px' }}>Choices</label>
-                        <input
-                        type="range"
-                        min="1"
-                        max="3"
-                        value={nrangeValue}
-                        onChange={(e) => setNrangeValue(Number(e.target.value))}
-                        className="form-range"
-                        style={{marginRight: '10px',
-                                width: "80px",
-                        }}
-                        title={'回复数量1~3'}
-                        />
-                        <span style={{marginRight: '45px', fontSize: '13px'}}>{nrangeValue}</span>
-                        <FileUploader onUpload={handleFileUpload} />{" "}
-                    </div>
+                    >
+                        {isSending ? '已发送' : '发送'}
+                    </button>
                 </div>
-                <UploadedFilesSidebar 
-            uploadedFiles={uploadedFiles} 
-            onFileSelect={handleFileSelect} 
-            refreshTrigger={refreshTrigger} 
-            />
-            </ div>
-        )}
-    </div>
+                <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                <label style={{ marginRight: '10px', fontSize: '13px' }}>Choices</label>
+                    <input
+                    type="range"
+                    min="1"
+                    max="3"
+                    value={nrangeValue}
+                    onChange={(e) => setNrangeValue(Number(e.target.value))}
+                    className="form-range"
+                    style={{marginRight: '10px',
+                            width: "80px",
+                    }}
+                    title={'回复数量1~3'}
+                    />
+                    <span style={{marginRight: '45px', fontSize: '13px'}}>{nrangeValue}</span>
+                    <FileUploader onUpload={handleFileUpload} />{" "}
+                </div>
+            </div>
+            <UploadedFilesSidebar 
+        uploadedFiles={uploadedFiles} 
+        onFileSelect={handleFileSelect} 
+        refreshTrigger={refreshTrigger} 
+    />    </div>
     );
 }
