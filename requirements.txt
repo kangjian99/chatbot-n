@@ -6,3 +6,4 @@ weaviate-client
 pypdf
 docx2txt
 google.generativeai
+flask_cors
