@@ -156,3 +156,6 @@ def get_cache_serial():
         serial_number += 1
 
     return result_dict
+
+def clear_cache():
+    cache.clear()

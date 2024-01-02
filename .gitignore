@@ -8,11 +8,9 @@ docs/.DS_Store
 .DS_Store
 static/_next/.DS_Store
 /.github/workflows
-app_加关键词.py
-app_session加关键词.py
-app_session加关键词_预加载.py
-app_无关键词.py
 backend.code-workspace
 perp.py
 prompts_perp.txt
 app_perp.py
+app_多文档.py
+RAG_with_langchain_多文档.py

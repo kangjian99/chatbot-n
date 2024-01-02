@@ -1,21 +1,25 @@
-#import pyodbc
+import hashlib
 import json
 import tiktoken
 from settings import *
-  
+
+def hash_password(password):
+    # 使用 SHA-256 散列算法
+    hashed = hashlib.sha256(password.encode()).hexdigest()
+    return hashed
+    
 def authenticate_user(username, password):
-    # 连接到 Azure SQL 数据库，并检查 user_info 表格中是否存在提供的用户名和密码
-    cnxn = pyodbc.connect(f'DRIVER={driver};SERVER={server};DATABASE={database};UID={db_username};PWD={db_password}')
-    cursor = cnxn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM user_info WHERE user_id = ? AND password = ?", (username, password))
-    count = cursor.fetchone()[0]
+    with open('checknm.txt', 'r') as file:
+        lines = file.readlines()
 
-    # 关闭数据库连接
-    cursor.close()
-    cnxn.close()
+        for line in lines:
+            user_id, stored_hashed_password = line.strip().split(',')
+            hashed_password = hash_password(password)
 
-    # 如果找到匹配的用户名和密码，则返回 True，否则返回 False
-    return count == 1
+            if user_id == username and stored_hashed_password == hashed_password:
+                return True
+
+    return False
 
 def insert_db(result, user_id=None, messages=[]):
     # 连接到数据库

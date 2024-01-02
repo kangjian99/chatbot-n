@@ -2,9 +2,9 @@ from flask import Flask, request, jsonify, Response, session, render_template
 #from flask_cors import CORS
 from openai import OpenAI
 import json, threading
-from datetime import datetime
+from datetime import timedelta
 from db_process import *
-from RAG_with_langchain import get_cache, get_cache_serial, response_from_rag_chain, response_from_retriver
+from RAG_with_langchain import get_cache, clear_cache, get_cache_serial, response_from_rag_chain, response_from_retriver
 from templates import *
 from utils import *
 from geminiai import gemini_response, gemini_response_key_words
@@ -14,6 +14,8 @@ from geminiai import gemini_response, gemini_response_key_words
 app = Flask(__name__)
 #CORS(app, supports_credentials=True)
 app.config['SECRET_KEY'] = SESSION_SECRET_KEY
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=12)  # 无交互session过期（重登录）时间
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 param_temperature = 0.5
@@ -73,32 +75,7 @@ def Chat_Completion(model, question, tem, messages, stream, n=param_n):
     except Exception as e:
         print(e)
         return "Connection Error! Please try again."
-        
-def count_chars(text, user_id, messages):
-    cn_pattern = re.compile(r'[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]') #匹配中文字符及标点符号
-    cn_chars = cn_pattern.findall(text)
 
-    en_pattern = re.compile(r'[a-zA-Z]') #匹配英文字符
-    en_chars = en_pattern.findall(text)
-
-    cn_char_count = len(cn_chars)
-    en_char_count = len(en_chars)
-
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    tokens = num_tokens(text)
-    # 将当前统计结果添加为字典
-    stats = {'user_id': user_id, 'datetime': now, 'cn_char_count': cn_char_count, 'en_char_count': en_char_count, 'tokens': tokens}
-    print(stats)
-    
-    #if stats:
-    #    insert_db(stats, user_id, messages)
-
-    return 'success'
-
-
-user_id = 'test'
-clear_messages(user_id)
 
 @app.route('/prompts')
 def get_prompts():
@@ -229,7 +206,6 @@ def interact_with_openai(user_id, prompt, prompt_template, n, messages=None):
                 yield f"data: {json.dumps({'data': markdown_message})}\n\n" # 将数据序列化为JSON字符串
     finally:
         messages.append({"role": "assistant", "content": res})
-        print(messages)
         join_message = "".join([str(msg["content"]) for msg in messages])
         print("精简前messages:", messages)
         rows = history_messages(user_id, prompt_template[0]) # 历史记录条数
@@ -242,6 +218,33 @@ def interact_with_openai(user_id, prompt, prompt_template, n, messages=None):
         # session['messages'] = messages
         count_chars(join_message, user_id, messages)
 
+@app.route('/clear', methods=['POST'])
+def clear_file():
+    session['uploaded_filename'] = ''
+    # session['files'] = []
+    clear_cache()
+    return "Files and cache cleared successfully"
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    if authenticate_user(username, password):
+        session.update(logged_in=True, user_id=username)
+        print(session)
+        clear_messages(username)
+        return jsonify({"message": "登录成功"}), 200
+    else:
+        return jsonify({"message": "用户名或密码错误"}), 401
+    
+@app.route('/check_session')
+def check_session():
+    user_id = session.get('user_id')
+    if user_id:
+        return jsonify({"logged_in": True, "user_id": user_id}), 200
+    else:
+        return jsonify({"logged_in": False}), 401
+    
 @app.route('/')
 def index():
     return render_template('index.html')
