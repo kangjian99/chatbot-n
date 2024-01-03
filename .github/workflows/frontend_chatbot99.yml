@@ -59,4 +59,4 @@ jobs:
           app-name: 'chatbot99'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B715FBBF501342B29D3EF96DF70F714D }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_82F0F50BA0234F57B0027ADD6D03ED9E }}
