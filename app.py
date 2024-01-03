@@ -12,11 +12,16 @@ from geminiai import gemini_response, gemini_response_key_words
 #from pypinyin import lazy_pinyin
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, samesite="None")
+CORS(app, supports_credentials=True)
 app.config['SECRET_KEY'] = SESSION_SECRET_KEY
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=12)  # 无交互session过期（重登录）时间
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='None'
+)
 
 param_temperature = 0.5
 param_n = 3
