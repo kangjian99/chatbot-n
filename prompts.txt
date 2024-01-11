@@ -1,4 +1,4 @@
-Google Gemini Pro
+Free Chat(Gemini Pro)
 ***
 用户输入：<{question}>。以下注意事项不要回复用户：
 如果问题与中国政治或政治家相关，回复“我不知道”。
