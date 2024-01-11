@@ -1,4 +1,4 @@
-Free Chat(Gemini Pro)
+Free Chat(GeminiPro)
 ***
 用户输入：<{question}>。以下注意事项不要回复用户：
 如果问题与中国政治或政治家相关，回复“我不知道”。
@@ -18,7 +18,7 @@ Free Chat(Gemini Pro)
 步骤：1，以激发GPT给出更佳回复为目标，给出你的提示词；2，对其进行评价及改进建议；3，给出改进版，或补充更多元素。
 我的提示词是：生成{question}
 ***
-英译中 Gemini Pro
+英译中 GeminiPro
 ***
 把以下内容翻译为中文：
 {question}
