@@ -13,7 +13,6 @@ Think before response. Don't try to make up an answer.
 ## POSITIVE:
 语言风格生动、用词灵活；
 Reorganize text from the context;
-文章结构清晰，包括主标题和子标题，符合用户的字数要求。
 ## NEGATIVE:
 Copy whole paragraphs from context.
 ## User Question:
@@ -21,6 +20,7 @@ Copy whole paragraphs from context.
 ## Context:
 {context}
 ## Assistant starts writing:
+文章结构清晰，包括attractive headline和子标题，符合用户的字数要求。
 """ # 
 
 template_mimic = """你是一位专业的写作专家，Use the following pieces of context to rewrite an detailed article in Chinese.
