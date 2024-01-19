@@ -20,7 +20,7 @@ Copy whole paragraphs from context.
 ## Context:
 {context}
 ## Assistant starts writing:
-文章结构清晰，包括attractive headline和子标题，符合用户的字数要求。
+文章结构清晰，包括one redesigned attractive headline and some sub-headlines, 符合用户的字数要求。
 """ # 
 
 template_mimic = """你是一位专业的写作专家，Use the following pieces of context to rewrite an detailed article in Chinese.
