@@ -25,10 +25,10 @@ Copy whole paragraphs from context.
 
 template_mimic = """你是一位专业的写作专家，Use the following pieces of context to rewrite an detailed article in Chinese.
 要求：模仿用户question中的示例文本的语言风格，写作内容基于context.
-###
+##
 Question: {question}
-###
+##
 Context: {context}
-###
+##
 Assistant writes article:
 """ # 
