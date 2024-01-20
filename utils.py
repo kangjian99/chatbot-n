@@ -73,7 +73,7 @@ def clear_files_with_prefix(prefix):
 
         # 遍历文件并删除以特定前缀开头的文件
         for file in files:
-            if file.startswith(prefix):
+            if file.startswith(prefix + "_") or file == prefix:
                 file_path = os.path.join(UPLOAD_FOLDER, file)
                 os.remove(file_path)
                 print(f"Deleted: {file_path}")
@@ -94,7 +94,7 @@ def get_files_with_prefix(prefix):
     try:
         files = os.listdir(UPLOAD_FOLDER)
         # 选择以特定前缀开头的文件
-        matching_files = [file for file in files if file.startswith(prefix)]
+        matching_files = [file for file in files if file.startswith(prefix + "_") or file == prefix]
         files_string = ", ".join(matching_files)
 
         print(f"All files with prefix '{prefix}' in {UPLOAD_FOLDER}: {files_string}")

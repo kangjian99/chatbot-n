@@ -117,7 +117,8 @@ def upload_file():
     
 @app.route('/get-filenames', methods=['GET'])
 def get_filenames():
-    file_names = get_cache_serial()   
+    user_id = session.get('user_id', 'test')       
+    file_names = get_cache_serial(user_id)   
     # 提取文件名作为列表
     file_names = list(file_names.values())
 
@@ -226,9 +227,10 @@ def interact_with_openai(user_id, prompt, prompt_template, n, messages=None):
 
 @app.route('/clear', methods=['POST'])
 def clear_file():
+    user_id = session.get('user_id', 'test')       
     session['uploaded_filename'] = ''
     # session['files'] = []
-    clear_cache()
+    clear_cache(user_id)
     return "Files and cache cleared successfully"
 
 @app.route('/login', methods=['POST'])

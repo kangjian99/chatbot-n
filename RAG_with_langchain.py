@@ -136,7 +136,7 @@ def response_from_retriver(file_name, query, k=top_k):
     print('\n检索数量：', len(docs))
     return format_docs(docs)
 
-def get_cache_serial():
+def get_cache_serial(user_id):
     """
     为cache中的每个键生成一个唯一的序列号，并返回新的字典。
     
@@ -151,11 +151,16 @@ def get_cache_serial():
 
     for key in cache:
         parts = key.split("_", 1)
-        formatted_key = parts[1] if len(parts) > 1 else None
-        result_dict[serial_number] = formatted_key
-        serial_number += 1
+        if parts[0] == user_id:
+            formatted_key = parts[1] if len(parts) > 1 else None
+            result_dict[serial_number] = formatted_key
+            serial_number += 1
 
     return result_dict
 
-def clear_cache():
-    cache.clear()
+def clear_cache(prefix):
+    keys_to_delete = [key for key in cache.keys() if key.startswith(prefix + '_')]
+
+    for key in keys_to_delete:
+        del cache[key]
+    print(f"Deleted cache '{keys_to_delete}'.\n", 'Cache length:', len(cache), list[cache.keys()])
