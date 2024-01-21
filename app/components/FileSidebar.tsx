@@ -71,7 +71,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
     return (
         <div
             style={{
-                width: "200px",
+                width: "260px",
                 borderRight: "1px solid #ccc",
                 padding: "20px",
             }}
