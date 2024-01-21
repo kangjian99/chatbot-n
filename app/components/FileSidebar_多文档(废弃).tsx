@@ -25,10 +25,9 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
             if (uploadedFiles.length > 0) {
                 fileNames.push(uploadedFiles[uploadedFiles.length - 1]);
             }
-            else if (fileNames.length == 2) {
+            else if (fileNames.length == 2 && fileNames[0] === "多文档") {
                     fileNames.splice(0, 1);
                 }
-            
             setFiles(fileNames);
             if (uploadedFiles.length > 0) {
                 if (fileNames.length > 0) {

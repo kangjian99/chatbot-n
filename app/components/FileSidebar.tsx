@@ -11,7 +11,7 @@ const url = process.env.NEXT_PUBLIC_API_URL;
 const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFiles, onFileSelect, refreshTrigger }) => {
     const [files, setFiles] = useState<string[]>([]);
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
-    const fetchFilenames = async () => {
+    const fetchFilenames = async (skipPush = false) => {
         try {
             const response = await fetch(url + 'get-filenames', {
                 method: 'GET',
@@ -22,7 +22,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
             }
             const fileNames = await response.json(); // 直接使用返回的数组
             // 如果有已上传的文件，将其最新内容添加到fileNames数组
-            if (uploadedFiles.length > 0) {
+            if (!skipPush && uploadedFiles.length > 0) {
                 fileNames.push(uploadedFiles[uploadedFiles.length - 1]);
             }
             setFiles(fileNames);
@@ -50,7 +50,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                 throw new Error('Network response was not ok');
             }
             // 请求成功后重新获取文件列表
-            fetchFilenames();
+            fetchFilenames(true);
         } catch (error) {
             console.error('Error:', error);
         }
