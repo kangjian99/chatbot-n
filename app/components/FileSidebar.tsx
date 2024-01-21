@@ -71,12 +71,12 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
     return (
         <div
             style={{
-                width: "260px",
+                width: "220px",
                 borderRight: "1px solid #ccc",
                 padding: "20px",
             }}
         >
-            <h2 style={{ fontSize: "14px", marginBottom: "10px" }}>已上传文件</h2>
+            <h2 style={{ fontSize: "13px", marginBottom: "10px" }}>已上传文件</h2>
             <ul
                 style={{
                     listStyle: "none",
@@ -99,6 +99,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                                 color: selectedFile === file ? "white" : "black",
                                 padding: "5px 10px",
                                 borderRadius: "5px",
+                                border: "1px solid #ccc", // 添加细外框
                                 display: "inline-block",
                                 wordBreak: 'break-word',  // 添加换行样式
                                 fontSize: "13px",
