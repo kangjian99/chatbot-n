@@ -6,8 +6,9 @@ interface FileUploaderProps {
 
 const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [fileUrl, setFileUrl] = useState<string>("");
     const [isUploaded, setIsUploaded] = useState<boolean>(false);
+    const [fileUrl, setFileUrl] = useState<string>("");
+    const [isUrlUploaded, setIsUrlUploaded] = useState<boolean>(false);
     const allowedExtensions = ["docx", "txt", "pdf"];
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,7 +55,6 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
 
     const handleUrlFileUpload = async () => {
         if (validateUrl(fileUrl)) {
-            setIsUploaded(true); // 开始上传
             try {
                 const response = await fetch(fileUrl);
                 if (!response.ok) {
@@ -64,18 +64,18 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
                 const maxSize = 5 * 1024 * 1024; // 5MB
                 if (blob.size > maxSize) {
                     alert("文件大小不能超过5MB！");
-                    setIsUploaded(false); // 更新上传状态
                     return; // 如果文件过大，不执行后续操作
                 }
                 const fileExt = fileUrl.split('.').pop();
                 const filename = fileUrl.split('/').pop() || 'default';
                 const file = new File([blob], filename, { type: `application/${fileExt}` });
-                onUpload(file);
+                setIsUrlUploaded(true); // 开始上传
+                await onUpload(file);
                 setFileUrl('');
             } catch (error) {
                 console.error("下载失败:", error);
             }
-            setIsUploaded(false); // 更新上传状态
+            setIsUrlUploaded(false); // 更新上传状态
         } else {
             alert("请输入一个有效的HTTPS链接，文件后缀必须是.docx, .txt, 或者 .pdf！");
         }
@@ -152,13 +152,13 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
                 marginRight: "5px",
                 borderRadius: "5px",
                 border: "1px solid #ccc",
-                background: isUploaded ? "#ccc" : "#004080",
+                background: isUrlUploaded ? "#ccc" : "#004080",
                 color: "white",
                 fontSize: "14px",
                 cursor: "pointer",
             }}
         >
-            {isUploaded ? '文件处理' : '链接上传'}
+            {isUrlUploaded ? '文件处理' : '链接上传'}
         </button>
     </div>
 </div>
