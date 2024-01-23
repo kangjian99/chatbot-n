@@ -27,9 +27,9 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
   };
 
   return (
-    <div style={{ height: '450px', overflowY: 'auto', marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '8px', whiteSpace: 'pre-wrap' }}>
+    <div style={{ height: '450px', overflowY: 'auto', marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '8px', whiteSpace: 'pre-wrap', boxShadow: '0 3px 6px rgba(0, 0, 0, 0.1)', }}>
       {messages.map((msg, index) => (
-        <div key={index} style={{ textAlign: msg.type === 'user' ? 'right' : 'left', margin: '10px 0' }}>
+        <div key={index} style={{ textAlign: msg.type === 'user' ? 'right' : 'left', margin: '10px 5px' }}>
           {msg.type === 'image' ? (
             <img
               src={msg.imageUrl}
@@ -39,12 +39,12 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
           ) : (
             <span
               style={{
-                padding: '10px',
-                borderRadius: '20px',
-                background: msg.type === 'user' ? '#007bff' : '#eee',
-                color: msg.type === 'user' ? 'white' : 'black',
+                padding: '6px 10px',  // 上下 6px，左右 10px
+                borderRadius: '10px',
+                background: msg.type === 'user' ? '#BAE6FC' : '#eee',
+                color: msg.type === 'user' ? 'black' : '#374151',
                 display: 'inline-block',
-                maxWidth: '70%',
+                maxWidth: msg.type === 'user' ? '70%' : '80%',
                 wordWrap: 'break-word',
                 fontSize: msg.role === 'system' ? '13px' : '15px',
                 fontStyle: msg.role === 'system' ? 'italic' : 'normal',
