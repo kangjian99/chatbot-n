@@ -12,6 +12,7 @@ from settings import API_KEY, model, WEAVIATE_URL, WEAVIATE_API_KEY
 from utils import UPLOAD_FOLDER
 from db_process import tiktoken, json
 from templates import *
+import re
 
 cache = {}
 max_cache_size = 10
@@ -63,7 +64,8 @@ def load_and_process_document(file_name):
         documents = loader.load_and_split()
     else:
         raise ValueError("Unsupported file extension")
-
+    
+    documents[0].page_content = re.sub(r'\n+', '\n', documents[0].page_content) #去除多余换行符
     print(documents[0].page_content[:200]) # 打印文档的第一页内容的前200个字符
 
     # 分割文档

@@ -159,6 +159,7 @@ def handle_message():
             else:
                 prompt = user_input
             # 添加与OpenAI交互的逻辑
+            n = 1
             response = interact_with_openai(user_id, prompt, prompt_template, n, messages)
     else:
         if user_input.startswith('#clear'):
@@ -203,6 +204,7 @@ def handle_message():
 def interact_with_openai(user_id, prompt, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     res = None
+    full_message = ''
 
     try:
         for res in Chat_Completion(model, prompt, param_temperature, messages, True, n):
@@ -210,11 +212,12 @@ def interact_with_openai(user_id, prompt, prompt_template, n, messages=None):
                 markdown_message = res['content']  # generate_markdown_message(res['content'])
                 # print(f"Yielding markdown_message: {markdown_message}")  # 添加这一行
                 # token_counter += 1
+                full_message += res['content'] if not res['content'].lstrip().startswith('***') else ''
                 yield f"data: {json.dumps({'data': markdown_message})}\n\n" # 将数据序列化为JSON字符串
     finally:
-        messages.append({"role": "assistant", "content": res})
+        messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
-        print("精简前messages:", messages)
+        print("精简前messages:", messages[-1])
         rows = history_messages(user_id, prompt_template[0]) # 历史记录条数
         if len(messages) > rows:
             messages = messages[-rows:] #对话仅保留最新rows条
