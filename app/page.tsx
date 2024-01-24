@@ -100,6 +100,7 @@ export default function Home() {
     const handleFileUpload = async (file: File) => {
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("user_id", user_id);
 
         try {
             const response = await fetch(url + "upload", {
@@ -364,6 +365,7 @@ const handleStreamResponse = async (
             uploadedFiles={uploadedFiles} 
             onFileSelect={handleFileSelect} 
             refreshTrigger={refreshTrigger} 
+            user_id={user_id} 
             />
             </ div>
         )}

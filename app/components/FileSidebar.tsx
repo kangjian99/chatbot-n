@@ -4,16 +4,17 @@ interface UploadedFilesSidebarProps {
     uploadedFiles: string[];
     onFileSelect: (fileName: string) => void;
     refreshTrigger: boolean;
+    user_id : string;
 }
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 
-const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFiles, onFileSelect, refreshTrigger }) => {
+const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFiles, onFileSelect, refreshTrigger, user_id }) => {
     const [files, setFiles] = useState<string[]>([]);
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
     const fetchFilenames = async (skipPush = false) => {
         try {
-            const response = await fetch(url + 'get-filenames', {
+            const response = await fetch(url + `get-filenames?user_id=${user_id}`, {
                 method: 'GET',
                 credentials: 'include' // 确保携带凭证
             });
@@ -42,8 +43,8 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
     const handleClear = async () => {
         try {
             // 向后端发送清除请求
-            const response = await fetch(url + 'clear', {
-                method: 'POST', // 或者是 GET，取决于后端的实现
+            const response = await fetch(url + `clear?user_id=${user_id}`, {
+                method: 'GET', // 或者是 GET，取决于后端的实现
                 credentials: 'include'
             });
             if (!response.ok) {
