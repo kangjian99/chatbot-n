@@ -1,4 +1,4 @@
-import os, re
+import os, re, json
 from datetime import datetime
 from db_process import num_tokens
 
@@ -28,11 +28,13 @@ def count_chars(text, user_id, messages):
     # 将当前统计结果添加为字典
     stats = {'user_id': user_id, 'datetime': now, 'cn_char_count': cn_char_count, 'en_char_count': en_char_count, 'tokens': tokens}
     print(stats)
-    
+
     #if stats:
     #    insert_db(stats, user_id, messages)
 
-    return 'success'
+    time_and_tokens = {'datetime': now, 'tokens': tokens}
+
+    return json.dumps(time_and_tokens)
 
 # 设置文件上传的目录
 UPLOAD_FOLDER = './docs'

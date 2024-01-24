@@ -91,7 +91,7 @@ def get_user_memory(user_id, directory='memory'):
                     messages.append(f"{key}:\n{value}\n")
                 # messages.append("-"*20)
     except FileNotFoundError:
-        return None
+        return []
     return messages
         
 def save_user_messages(user_id, messages, directory=DIRECTORY):

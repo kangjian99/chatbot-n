@@ -222,7 +222,7 @@ def interact_with_openai(user_id, user_input, prompt, prompt_template, n, messag
     finally:
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
-        count_chars(join_message, user_id, messages)
+        user_input += '\n' + count_chars(join_message, user_id, messages)
         if any(item in prompt_template[0] for item in ['文档', 'Chat']):
             save_user_memory(user_id, user_input, full_message)
         rows = history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
