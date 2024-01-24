@@ -37,7 +37,7 @@ def count_chars(text, user_id, messages):
 # 设置文件上传的目录
 UPLOAD_FOLDER = './docs'
 ALLOWED_EXTENSIONS = {'txt', 'docx', 'pdf'}
-FILE_PATH = 'lushanriji.docx'
+# FILE_PATH = 'lushanriji.docx'
 
 # 确保上传的目录存在
 if not os.path.exists(UPLOAD_FOLDER):
@@ -61,7 +61,7 @@ def safe_filename(file_name):
     
     return file_name
 
-def clear_files_with_prefix(prefix):
+def clear_files_with_prefix(prefix, folder=UPLOAD_FOLDER):
     """
     清除指定目录下所有以特定前缀开头的文件
     参数:
@@ -69,16 +69,16 @@ def clear_files_with_prefix(prefix):
     """
     try:
         # 获取目录中的所有文件
-        files = os.listdir(UPLOAD_FOLDER)
+        files = os.listdir(folder)
 
         # 遍历文件并删除以特定前缀开头的文件
         for file in files:
             if file.startswith(prefix + "_") or file == prefix:
-                file_path = os.path.join(UPLOAD_FOLDER, file)
+                file_path = os.path.join(folder, file)
                 os.remove(file_path)
                 print(f"Deleted: {file_path}")
 
-        print(f"All files with prefix '{prefix}' cleared in {UPLOAD_FOLDER}")
+        print(f"All files with prefix '{prefix}' cleared in {folder}")
 
     except Exception as e:
         print(f"Error: {e}")

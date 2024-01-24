@@ -2,8 +2,6 @@
 /docs
 /legacy
 /session_messages
-docs/PDFextract.py
-docs/.DS_Store
 /__pycache__
 .DS_Store
 static/_next/.DS_Store
@@ -14,3 +12,4 @@ prompts_perp.txt
 app_perp.py
 app_多文档.py
 RAG_with_langchain_multifile.py
+/memory

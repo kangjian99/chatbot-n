@@ -160,13 +160,18 @@ def handle_message():
                 prompt = user_input
             # 添加与OpenAI交互的逻辑
             n = 1
-            response = interact_with_openai(user_id, prompt, prompt_template, n, messages)
+            response = interact_with_openai(user_id, user_input, prompt, prompt_template, n, messages)
     else:
         if user_input.startswith('#clear'):
             clear_files_with_prefix(user_id)
             session['uploaded_filename'] = ''
             #session['key_words'] = {}
             return Response('data: {"data": "Cleared."}\n\n', mimetype='text/event-stream')
+        elif user_input.startswith('#memory'):
+            messages = get_user_memory(user_id)
+            join_messages = '\n'.join(messages)
+            save_user_memory(user_id, user_input, '', 4) # 保留最近4条记录
+            return Response(f'data: {json.dumps({"data": join_messages})}\n\n', mimetype='text/event-stream')
         elif user_input.startswith('#file'):
             filelist = get_files_with_prefix(user_id) or "没有文件上传。"
             return Response(f'data: {json.dumps({"data": filelist})}\n\n', mimetype='text/event-stream')
@@ -197,11 +202,11 @@ def handle_message():
                 else:
                     docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
                 prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
-                response = interact_with_openai(user_id, prompt, prompt_template, n)
+                response = interact_with_openai(user_id, user_input, prompt, prompt_template, n)
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 
-def interact_with_openai(user_id, prompt, prompt_template, n, messages=None):
+def interact_with_openai(user_id, user_input, prompt, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     res = None
     full_message = ''
@@ -217,16 +222,18 @@ def interact_with_openai(user_id, prompt, prompt_template, n, messages=None):
     finally:
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
-        print("精简前messages:", messages[-1])
-        rows = history_messages(user_id, prompt_template[0]) # 历史记录条数
-        if len(messages) > rows:
-            messages = messages[-rows:] #对话仅保留最新rows条
-        if rows == 0:
-            save_user_messages(user_id, []) # 清空历史记录
-        else:
-            save_user_messages(user_id, messages)
-        # session['messages'] = messages
         count_chars(join_message, user_id, messages)
+        if any(item in prompt_template[0] for item in ['文档', 'Chat']):
+            save_user_memory(user_id, user_input, full_message)
+        rows = history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
+        if rows != 0:
+            print("精简前messages:", messages[-1])
+            if len(messages) > rows:
+                messages = messages[-rows:] #对话仅保留最新rows条
+            save_user_messages(user_id, messages) # 清空历史记录
+        else:
+            save_user_messages(user_id, [])
+        # session['messages'] = messages
 
 @app.route('/clear', methods=['POST'])
 def clear_file():

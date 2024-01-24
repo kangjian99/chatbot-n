@@ -19,4 +19,4 @@ database = 'database'
 #db_username = os.environ.get('DB_USERNAME')
 #db_password = os.environ.get('DB_PASSWORD')
 
-directory = 'session_messages'
+DIRECTORY = 'session_messages'
