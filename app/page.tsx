@@ -154,14 +154,23 @@ export default function Home() {
 
     const sendMessage = async () => {
         const newMessageId = Date.now(); // 使用时间戳作为简单的唯一ID
-        // 将用户输入和“思考中...”消息添加到消息列表
-        setMessages((prevMessages) => [
-            ...prevMessages,
-            { type: "user", text: userInput },
-            { type: "system", text: "思考中......", role: "system", id: newMessageId },
-        ]);
-
-        setIsSending(true);
+        // 检查用户输入是否为空
+        if (!userInput.trim()) {
+            // 将系统消息添加到消息列表
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                { type: "system", text: "发送信息不能为空...", role: "system", id: newMessageId },
+            ]);
+            return;
+        } else {
+            // 将用户输入和“思考中...”消息添加到消息列表
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                { type: "user", text: userInput },
+                { type: "system", text: "思考中......", role: "system", id: newMessageId },
+            ]);
+            setIsSending(true);
+        }
 
 const handleStreamResponse = async (
     reader: ReadableStreamDefaultReader
