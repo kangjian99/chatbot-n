@@ -263,6 +263,14 @@ def check_session():
     else:
         return jsonify({"logged_in": False}), 401
     
+@app.route('/memory')
+def load_memory():
+    user_id = session.get('user_id')
+    messages = get_user_memory(user_id)
+    messages = messages[-10:] # 显示5组问答
+    join_messages = '\n'.join(messages)
+    return Response(f'data: {json.dumps({"data": join_messages})}\n\n', mimetype='text/event-stream')
+    
 @app.route('/')
 def index():
     return render_template('index.html')
