@@ -91,10 +91,12 @@ def get_prompts():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    user_id = session.get('user_id', 'test')
+    # user_id = session.get('user_id', 'test')
     if 'file' not in request.files:
         return 'No file part', 400
     file = request.files['file']
+    user_id = request.form.get('user_id')
+
     # 如果用户没有选择文件或选择了空文件，浏览器可能会提交没有文件名的空部分
     if file.filename == '':
         return 'No selected file', 400
@@ -117,7 +119,7 @@ def upload_file():
     
 @app.route('/get-filenames', methods=['GET'])
 def get_filenames():
-    user_id = session.get('user_id', 'test')       
+    user_id = request.args.get('user_id')
     file_names = get_cache_serial(user_id)   
     # 提取文件名作为列表
     file_names = list(file_names.values())
@@ -127,12 +129,13 @@ def get_filenames():
 @app.route('/message', methods=['GET', 'POST']) #必须要有GET
 def handle_message():
     # print(session)
-    user_id = session.get('user_id', 'test')       
+    # user_id = session.get('user_id', 'test')       
     last_selected = session.get('selected_template', '0')
     uploaded_filename = session.get('uploaded_filename', '')
 
     data = request.json
-    # print(data)
+    print(data)
+    user_id = data.get('user_id')
     user_input = data['user_input']
     selected_template = data['prompt_template']  # 接收选择的模板编号
     if data['selected_file']:  # 接收选择的上传文件
@@ -235,9 +238,9 @@ def interact_with_openai(user_id, user_input, prompt, prompt_template, n, messag
             save_user_messages(user_id, [])
         # session['messages'] = messages
 
-@app.route('/clear', methods=['POST'])
+@app.route('/clear')
 def clear_file():
-    user_id = session.get('user_id', 'test')       
+    user_id = request.args.get('user_id')       
     session['uploaded_filename'] = ''
     # session['files'] = []
     clear_cache(user_id)
@@ -265,7 +268,7 @@ def check_session():
     
 @app.route('/memory')
 def load_memory():
-    user_id = session.get('user_id')
+    user_id = request.args.get('user_id')
     messages = get_user_memory(user_id)
     messages = messages[-10:] # 显示5组问答
     join_messages = '\n'.join(messages)
