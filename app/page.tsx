@@ -25,6 +25,7 @@ export default function Home() {
         },
       ];
     const [messages, setMessages] = useState<Message[]>(initialMessages);
+    const [user_id, setUser_id] = useState<string>('');
     const [userInput, setUserInput] = useState<string>('');
     const [isSending, setIsSending] = useState<boolean>(false);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -36,8 +37,8 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(true); // 新增状态来追踪加载状态
 
     useEffect(() => {
-        document.title = "文档助手Chatbot";
-    }, []); // 空依赖数组意味着这个效果仅在组件挂载时运行
+        document.title = `文档助手Chatbot - ${user_id}`;
+      }, [user_id]); // 空依赖数组意味着这个效果仅在组件挂载时运行，非空则在user_id更新后执行
 
     useEffect(() => {
         // 检查用户是否已登录
@@ -50,7 +51,7 @@ export default function Home() {
                     const data = await response.json();
                     setIsLoggedIn(true);
                     if (data.user_id) {
-                        document.title = `文档助手Chatbot - ${data.user_id}`;
+                        setUser_id(data.user_id);
                     }
                 } else {
                     setIsLoggedIn(false);
@@ -64,8 +65,9 @@ export default function Home() {
         checkSession();
     }, []);
 
-    const handleLoginSuccess = () => {
+    const handleLoginSuccess = (username: string) => {
         setIsLoggedIn(true); // 处理登录成功的逻辑
+        setUser_id(username);
     };
 
     const scrollToBottom = () => {
@@ -129,7 +131,7 @@ export default function Home() {
 
     const handleMemory = async () => {
         // 建立 EventSource 连接
-        const eventSource = new EventSource(url + 'memory', { withCredentials: true });
+        const eventSource = new EventSource(url + 'memory?user_id=' + encodeURIComponent(user_id), { withCredentials: true });
     
         // 监听消息事件
         eventSource.addEventListener('message', (event) => {
@@ -156,7 +158,6 @@ export default function Home() {
         const newMessageId = Date.now(); // 使用时间戳作为简单的唯一ID
         // 检查用户输入是否为空
         if (!userInput.trim()) {
-            // 将系统消息添加到消息列表
             setMessages((prevMessages) => [
                 ...prevMessages,
                 { type: "system", text: "发送信息不能为空...", role: "system", id: newMessageId },
@@ -245,6 +246,7 @@ const handleStreamResponse = async (
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    user_id: user_id,
                     user_input: userInput,
                     prompt_template: selectedTemplate,
                     selected_file: selectedFileName, // 将选中的文件名添加到请求中

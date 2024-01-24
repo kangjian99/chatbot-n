@@ -28,8 +28,8 @@ function Login({ onLoginSuccess }: LoginProps) {
 
             if (response.ok) {
                 // 假设登录成功后，后端返回用户信息
-                const userData = await response.json();
-                onLoginSuccess(userData);
+                // const userData = await response.json();
+                onLoginSuccess(username); // 把username传递给回调函数onLoginSuccess
             } else {
                 // 登录失败，显示错误信息
                 setErrorMessage('登录失败：用户名或密码错误');
