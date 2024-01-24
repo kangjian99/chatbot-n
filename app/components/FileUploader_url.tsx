@@ -113,7 +113,7 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
                 border: "1px solid #ccc",
                 background: isUploaded ? "#ccc" : "#004080",
                 color: "white",
-                fontSize: "14px",
+                fontSize: "13px",
                 cursor: "pointer",
             }}
         >
@@ -154,7 +154,7 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
                 border: "1px solid #ccc",
                 background: isUrlUploaded ? "#ccc" : "#004080",
                 color: "white",
-                fontSize: "14px",
+                fontSize: "13px",
                 cursor: "pointer",
             }}
         >

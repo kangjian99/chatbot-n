@@ -21,7 +21,7 @@ export default function Home() {
         {
           type: "system",
           role: "system",
-          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章指令需以“写作”开头。",
+          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章指令，需以“写作”开头。",
         },
       ];
     const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -126,6 +126,31 @@ export default function Home() {
         setSelectedFileName(fileName);
         setSelectedTemplate('1')  // 直接设定模板为文档问答
     };    
+
+    const handleMemory = async () => {
+        // 建立 EventSource 连接
+        const eventSource = new EventSource(url + 'memory', { withCredentials: true });
+    
+        // 监听消息事件
+        eventSource.addEventListener('message', (event) => {
+            const eventData = JSON.parse(event.data);
+            const join_messages = eventData.data;
+    
+            // 处理消息，例如将其添加到消息列表
+            const newMessageId = Date.now();
+            setMessages((prevMessages) => [
+            ...prevMessages,
+            { type: "system", text: join_messages, role: "system", id: newMessageId },
+            ]);
+            // 关闭 SSE 连接
+            eventSource.close();
+        });
+    
+        // 监听错误事件
+        eventSource.addEventListener('error', (event) => {
+            console.error('Error occurred:', event);
+        });
+    };
 
     const sendMessage = async () => {
         const newMessageId = Date.now(); // 使用时间戳作为简单的唯一ID
@@ -250,7 +275,7 @@ const handleStreamResponse = async (
                 <div style={{ width: '80%', maxWidth: '600px' }}>
                 <div className="row">
                 <div className="col-12 text-center">
-                    <h3>AI-assisted Writer</h3>
+                    <br></br><h3>AI-assisted Writer</h3>
                 </div>
                 </div>
                 <MessageList
@@ -299,20 +324,28 @@ const handleStreamResponse = async (
                         </button>
                     </div>
                     <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <label style={{ marginRight: '10px', fontSize: '13px' }}>Choices</label>
-                        <input
-                        type="range"
-                        min="1"
-                        max="3"
-                        value={nrangeValue}
-                        onChange={(e) => setNrangeValue(Number(e.target.value))}
-                        className="form-range"
-                        style={{marginRight: '10px',
-                                width: "80px",
-                        }}
-                        title={'回复数量1~3'}
-                        />
-                        <span style={{marginRight: '45px', fontSize: '13px'}}>{nrangeValue}</span>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                            <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
+                                <label style={{ marginRight: '10px', fontSize: '13px' }}>Choices</label>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="3"
+                                        value={nrangeValue}
+                                        onChange={(e) => setNrangeValue(Number(e.target.value))}
+                                        className="form-range"
+                                        style={{ marginRight: '10px', width: "80px" }}
+                                        title={'回复数量1~3'}
+                                    />
+                                <span style={{ marginRight: '45px', fontSize: '13px' }}>{nrangeValue}</span>
+                            </div>
+                            <button 
+                            onClick={handleMemory} 
+                            style={{ float: "right", fontSize: "12px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 10px" }}
+                            >
+                            恢复记忆
+                            </button>
+                        </div>
                         <FileUploader onUpload={handleFileUpload} />{" "}
                     </div>
                 </div>
