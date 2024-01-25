@@ -169,7 +169,7 @@ def handle_message():
             return Response('data: {"data": "Cleared."}\n\n', mimetype='text/event-stream')
         elif user_input.startswith('#memory'):
             messages = get_user_memory(user_id)
-            join_messages = '\n'.join(messages)
+            join_messages = '\n\n'.join(json.dumps(msg, ensure_ascii=False) for msg in messages)
             save_user_memory(user_id, user_input, '', 4) # 保留最近4条记录
             return Response(f'data: {json.dumps({"data": join_messages})}\n\n', mimetype='text/event-stream')
         elif user_input.startswith('#file'):
@@ -266,8 +266,7 @@ def load_memory():
     user_id = request.args.get('user_id')
     messages = get_user_memory(user_id)
     messages = messages[-10:] # 显示5组问答
-    join_messages = '\n'.join(messages)
-    return jsonify(data=join_messages)
+    return messages
     
 @app.route('/')
 def index():

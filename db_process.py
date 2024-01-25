@@ -87,9 +87,10 @@ def get_user_memory(user_id, directory='memory'):
         with open(f'{directory}/{user_id}_memory.json', 'r') as f:
             for line in f.readlines():
                 data = json.loads(line.strip())
-                for key, value in data.items():
-                    messages.append(f"{key}:\n{value}\n")
-                # messages.append("-"*20)
+                user_data = {"User": data["User"]}
+                assistant_data = {"Assistant": data["Assistant"]}
+                messages.append(user_data)
+                messages.append(assistant_data)
     except FileNotFoundError:
         return []
     return messages

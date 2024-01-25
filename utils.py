@@ -32,9 +32,9 @@ def count_chars(text, user_id, messages):
     #if stats:
     #    insert_db(stats, user_id, messages)
 
-    time_and_tokens = {'datetime': now, 'tokens': tokens}
+    time_and_tokens = f"'{now}', '{tokens}'"
 
-    return json.dumps(time_and_tokens)
+    return time_and_tokens
 
 # 设置文件上传的目录
 UPLOAD_FOLDER = './docs'
