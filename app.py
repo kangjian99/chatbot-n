@@ -156,11 +156,8 @@ def handle_message():
             prompt = f"{prompt_template[1].format(question=user_input)!s}"                
             response = gemini_response(prompt)
         else: 
-            messages = get_user_messages(user_id)
-            if messages == []:
-                prompt = f"{prompt_template[1].format(question=user_input)!s}"
-            else:
-                prompt = user_input
+            messages = get_user_messages(user_id) if 'Chat' in prompt_template[0] else []
+            prompt = f"{prompt_template[1].format(question=user_input)!s}" if messages == [] else user_input
             # 添加与OpenAI交互的逻辑
             n = 1
             response = interact_with_openai(user_id, user_input, prompt, prompt_template, n, messages)
@@ -234,8 +231,6 @@ def interact_with_openai(user_id, user_input, prompt, prompt_template, n, messag
             if len(messages) > rows:
                 messages = messages[-rows:] #对话仅保留最新rows条
             save_user_messages(user_id, messages) # 清空历史记录
-        else:
-            save_user_messages(user_id, [])
         # session['messages'] = messages
 
 @app.route('/clear')
@@ -272,7 +267,7 @@ def load_memory():
     messages = get_user_memory(user_id)
     messages = messages[-10:] # 显示5组问答
     join_messages = '\n'.join(messages)
-    return Response(f'data: {json.dumps({"data": join_messages})}\n\n', mimetype='text/event-stream')
+    return jsonify(data=join_messages)
     
 @app.route('/')
 def index():
