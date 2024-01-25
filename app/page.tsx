@@ -6,6 +6,7 @@ import MessageList from "./components/MessageList"; // 导入新的组件
 import FileUploader from "./components/FileUploader_url";
 import UploadedFilesSidebar from "./components/FileSidebar";
 import Login from "./components/Login";
+import { handleStreamResponse } from './components/handleStreamResponse';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 
@@ -130,30 +131,28 @@ export default function Home() {
         setSelectedTemplate('1')  // 直接设定模板为文档问答
     };    
 
-    const handleMemory = async () => {
-        // 建立 EventSource 连接
-        const eventSource = new EventSource(url + 'memory?user_id=' + encodeURIComponent(user_id), { withCredentials: true });
-    
-        // 监听消息事件
-        eventSource.addEventListener('message', (event) => {
-            const eventData = JSON.parse(event.data);
-            const join_messages = eventData.data;
-    
-            // 处理消息，例如将其添加到消息列表
-            const newMessageId = Date.now();
-            setMessages((prevMessages) => [
+const handleMemory = async () => {
+    try {
+        const response = await fetch(`${url}memory?user_id=${encodeURIComponent(user_id)}`, {
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const eventData = await response.json();
+        const join_messages = eventData.data;
+
+        const newMessageId = Date.now();
+        setMessages((prevMessages) => [
             ...prevMessages,
             { type: "system", text: join_messages, role: "system", id: newMessageId },
-            ]);
-            // 关闭 SSE 连接
-            eventSource.close();
-        });
-    
-        // 监听错误事件
-        eventSource.addEventListener('error', (event) => {
-            console.error('Error occurred:', event);
-        });
-    };
+        ]);
+    } catch (error) {
+        console.error('Error occurred:', error);
+    }
+};
 
     const sendMessage = async () => {
         const newMessageId = Date.now(); // 使用时间戳作为简单的唯一ID
@@ -174,71 +173,6 @@ export default function Home() {
             setIsSending(true);
         }
 
-const handleStreamResponse = async (
-    reader: ReadableStreamDefaultReader
-) => {
-    const decoder = new TextDecoder();
-    let accumulatedData = "";
-
-    while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        let messageText = decoder.decode(value, { stream: true });
-
-        if (messageText.startsWith("data: ")) {
-            try {
-                messageText = messageText.replace(/data: /g, "");
-                let messages = messageText.split("\n\n"); // 由于网络延迟可能导致多个JSON对象的数组，根据换行符分割
-                messages.forEach(msg => {
-                    msg = msg.trim();
-                    if (msg !== "") {
-                        try {
-                            let data = JSON.parse(msg); // 解析每个JSON字符串
-                            // console.log("Parsed Data:", data.data);
-                            accumulatedData += data.data; // 累积 data 属性的值
-                        } catch (e) {
-                            console.error("Error parsing JSON:", e, "in message:", msg);
-                            // 可以根据需要在这里添加 break 或 continue
-                        }
-                    }
-                });
-
-                // 以下是多个回复的特殊处理
-                const pattern = /\n\*\*\*[^*]+?\*\*\*(?=\n|$)/g; // 匹配所有单独一行的“*** ***”
-                const dashPattern = /-----/; // 检查是否存在“-----”
-            
-                if (pattern.test(accumulatedData)) {
-                    if (dashPattern.test(accumulatedData)) {
-                        // 如果存在“-----”，则清除所有“*** ***”
-                        accumulatedData = accumulatedData.replace(pattern, '');
-                    } else {
-                        // 否则，仅保留最后一个“*** ***”
-                        let matches = accumulatedData.match(pattern);
-                        if (matches && matches.length > 1) {
-                            // 移除除最后一个外的所有匹配项
-                            for (let i = 0; i < matches.length - 1; i++) {
-                                accumulatedData = accumulatedData.replace(matches[i], '');
-                            }
-                        }
-                    }
-                } else { accumulatedData = accumulatedData.replace(/\n\*\*\*[^*]+?\*\*\*/, '');
-                }
-
-                // 更新“思考中...”消息
-                setMessages((prevMessages) =>
-                    prevMessages.map((msg) =>
-                        msg.id === newMessageId
-                            ? { ...msg, text: accumulatedData, role: 'assistant' }
-                            : msg
-                    )
-                );
-            } catch (error) {
-                console.error("Error parsing message:", error);
-            }
-        }
-    }
-};
 
         try {
             const response = await fetch(url + "message", {
@@ -263,7 +197,7 @@ const handleStreamResponse = async (
             // console.log(response, response.body)
             if (response.body) {
                 const reader = response.body.getReader();
-                handleStreamResponse(reader);
+                handleStreamResponse(reader, setMessages, newMessageId);
             } else {
                 console.error("Response body is null");
             }
