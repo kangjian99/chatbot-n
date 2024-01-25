@@ -142,23 +142,12 @@ const handleMemory = async () => {
         }
 
         const eventData = await response.json();
-        const newMessages = eventData.map((data: any, index: number) => {
-            try {
-                const newMessageId = Date.now() + index; // 使用时间戳和索引作为唯一ID
-                if (data.hasOwnProperty('User')) {
-                    return { type: "user", text: data.User, id: newMessageId };
-                } else if (data.hasOwnProperty('Assistant')) {
-                    return { type: "system", text: data.Assistant, id: newMessageId };
-                }
-            } catch (error) {
-                console.error('Error parsing JSON:', error, 'in message:', data);
-                return null; // 如果解析失败，返回 null 或者忽略该消息
-            }
-        }).filter((message:string): message is NonNullable<typeof message> => message !== null); // 过滤掉解析失败的消息
+        const join_messages = eventData.data;
 
+        const newMessageId = Date.now();
         setMessages((prevMessages) => [
             ...prevMessages,
-            ...newMessages,
+            { type: "system", text: join_messages, role: "system", id: newMessageId },
         ]);
     } catch (error) {
         console.error('Error occurred:', error);
