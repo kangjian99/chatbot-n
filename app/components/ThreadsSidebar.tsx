@@ -117,12 +117,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
             <h2 style={{ fontSize: "13px", marginBottom: "10px" }}>对话记录</h2>
             <ul
                 style={{
-                    listStyle: "none",
                     padding: 10,
-                    border: "1px solid #ccc",
-                    borderRadius: "5px",
-                    backgroundColor: "#f9f9f9",
-                    marginBottom: "10px",
                 }}
             >
                 {threads.map((thread, index) => (
@@ -133,7 +128,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
                     >
                         <span
                             style={{
-                                backgroundColor: selectedThread === thread.id ? "#004080" : "transparent",
+                                backgroundColor: selectedThread === thread.id ? "#004080" : "#f9f9f9",
                                 color: selectedThread === thread.id ? "white" : "black",
                                 padding: "5px 5px",
                                 borderRadius: "5px",

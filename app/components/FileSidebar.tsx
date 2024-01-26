@@ -80,12 +80,8 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
             <h2 style={{ fontSize: "13px", marginBottom: "10px" }}>已上传文件</h2>
             <ul
                 style={{
-                    listStyle: "none",
+                    listStyle: "disc",
                     padding: 10,
-                    border: "1px solid #ccc",
-                    borderRadius: "5px",
-                    backgroundColor: "#f9f9f9",
-                    marginBottom: "10px",
                 }}
             >
                 {files.map((file, index) => (
@@ -96,7 +92,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                     >
                         <span
                             style={{
-                                backgroundColor: selectedFile === file ? "#004080" : "transparent",
+                                backgroundColor: selectedFile === file ? "#004080" : "#f9f9f9",
                                 color: selectedFile === file ? "white" : "black",
                                 padding: "5px 5px",
                                 borderRadius: "5px",
@@ -111,7 +107,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                     </li>
                 ))}
             </ul>
-            <button style={{ float: "right", fontSize: "12px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }} onClick={handleClear}>
+            <button style={{ float: "left", fontSize: "12px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }} onClick={handleClear}>
                 清除文件
             </button>
         </div>
