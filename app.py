@@ -271,9 +271,12 @@ def load_memory():
 
 @app.route('/get-threads')
 def get_threads(directory='memory'):
+    if not os.path.exists(directory):
+        os.mkdir(directory)
     user_id = request.args.get('user_id')
     thread_length = request.args.get('length')    
     threads = []
+    
     def get_thread_name(user_id, thread_id, directory='memory'):
         try:
             with open(f'{directory}/{user_id}_{thread_id}_memory.json', 'r') as f:
