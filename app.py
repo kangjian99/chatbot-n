@@ -137,6 +137,7 @@ def handle_message():
     print(data)
     user_id = data.get('user_id')
     user_input = data['user_input']
+    thread_id = data.get('thread_id')
     selected_template = data['prompt_template']  # 接收选择的模板编号
     if data['selected_file']:  # 接收选择的上传文件
         session['uploaded_filename'] = data['selected_file']
@@ -160,7 +161,7 @@ def handle_message():
             prompt = f"{prompt_template[1].format(question=user_input)!s}" if messages == [] else user_input
             # 添加与OpenAI交互的逻辑
             n = 1
-            response = interact_with_openai(user_id, user_input, prompt, prompt_template, n, messages)
+            response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n, messages)
     else:
         if user_input.startswith('#clear'):
             clear_files_with_prefix(user_id)
@@ -168,7 +169,7 @@ def handle_message():
             #session['key_words'] = {}
             return Response('data: {"data": "Cleared."}\n\n', mimetype='text/event-stream')
         elif user_input.startswith('#memory'):
-            messages = get_user_memory(user_id)
+            messages = get_user_memory(user_id+'_'+thread_id)
             join_messages = '\n\n'.join(json.dumps(msg, ensure_ascii=False) for msg in messages)
             save_user_memory(user_id, user_input, '', 4) # 保留最近4条记录
             return Response(f'data: {json.dumps({"data": join_messages})}\n\n', mimetype='text/event-stream')
@@ -202,11 +203,11 @@ def handle_message():
                 else:
                     docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
                 prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
-                response = interact_with_openai(user_id, user_input, prompt, prompt_template, n)
+                response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n)
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 
-def interact_with_openai(user_id, user_input, prompt, prompt_template, n, messages=None):
+def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     res = None
     full_message = ''
@@ -224,7 +225,7 @@ def interact_with_openai(user_id, user_input, prompt, prompt_template, n, messag
         join_message = "".join([str(msg["content"]) for msg in messages])
         user_input += '\n' + count_chars(join_message, user_id, messages)
         if any(item in prompt_template[0] for item in ['文档', 'Chat']):
-            save_user_memory(user_id, user_input, full_message)
+            save_user_memory(user_id+'_'+thread_id, user_input, full_message)
         rows = history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
         if rows != 0:
             print("精简前messages:", messages[-1])
@@ -263,11 +264,57 @@ def check_session():
     
 @app.route('/memory')
 def load_memory():
-    user_id = request.args.get('user_id')
-    messages = get_user_memory(user_id)
+    id = request.args.get('user_id') + '_' + request.args.get('thread_id')
+    messages = get_user_memory(id)
     messages = messages[-10:] # 显示5组问答
     return messages
-    
+
+@app.route('/get-threads')
+def get_threads(directory='memory'):
+    user_id = request.args.get('user_id')
+    thread_length = request.args.get('length')    
+    threads = []
+    def get_thread_name(user_id, thread_id, directory='memory'):
+        try:
+            with open(f'{directory}/{user_id}_{thread_id}_memory.json', 'r') as f:
+                line = f.readline()
+                if line:
+                    data = json.loads(line.strip())
+                else:
+                    return ''
+        except FileNotFoundError:
+            return ''
+        name = data.get("User", '')
+        return name[:20]
+
+    filenames = [filename for filename in os.listdir(directory) if filename.startswith(f"{user_id}_") and filename.endswith("_memory.json")]
+    # 按照修改时间降序排序文件名
+    sorted_filenames = sorted(filenames, key=lambda x: os.path.getmtime(os.path.join(directory, x)), reverse=True)
+
+    selected_filenames = sorted_filenames[:5]
+
+    if thread_length == '0':
+        # 刷新页面情况下，遍历文件名，提取thread_id
+        for filename in selected_filenames:
+            match = re.match(rf'{user_id}_(\w+)_memory\.json', filename)
+            if match:
+                thread_id = match.group(1)
+                thread_name = get_thread_name(user_id, thread_id)
+                thread_data = {"id": thread_id, "name": thread_name}
+                threads.append(thread_data)
+    elif selected_filenames:
+        thread_id = selected_filenames[0].split('_')[1]
+        thread_name = get_thread_name(user_id, thread_id)     
+        thread_data = {"id": thread_id, "name": thread_name}
+        threads.append(thread_data)
+
+    # 删除没有被选中的文件
+    for filename in filenames:
+        if filename not in selected_filenames:
+            os.remove(os.path.join(directory, filename))
+
+    return jsonify(threads)
+
 @app.route('/')
 def index():
     return render_template('index.html')
