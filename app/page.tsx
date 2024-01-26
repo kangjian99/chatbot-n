@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // 导入 Bootstrap
 import MessageList from "./components/MessageList"; // 导入新的组件
 import FileUploader from "./components/FileUploader_url";
 import UploadedFilesSidebar from "./components/FileSidebar";
+import ThreadsSidebar from "./components/ThreadsSidebar";
 import Login from "./components/Login";
 import { handleStreamResponse } from './components/handleStreamResponse';
 
@@ -27,6 +28,8 @@ export default function Home() {
       ];
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [user_id, setUser_id] = useState<string>('');
+    const [thread_id, setThread_id] = useState<string>('');
+    const [thread_name, setThread_name] = useState<string>('');
     const [userInput, setUserInput] = useState<string>('');
     const [isSending, setIsSending] = useState<boolean>(false);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -133,7 +136,7 @@ export default function Home() {
 
 const handleMemory = async () => {
     try {
-        const response = await fetch(`${url}memory?user_id=${encodeURIComponent(user_id)}`, {
+        const response = await fetch(`${url}memory?user_id=${encodeURIComponent(user_id)}&thread_id=${thread_id}`, {
             credentials: 'include',
         });
 
@@ -193,6 +196,7 @@ const handleMemory = async () => {
                 body: JSON.stringify({
                     user_id: user_id,
                     user_input: userInput,
+                    thread_id: thread_id,
                     prompt_template: selectedTemplate,
                     selected_file: selectedFileName, // 将选中的文件名添加到请求中
                     n: nrangeValue
@@ -218,6 +222,22 @@ const handleMemory = async () => {
         setIsSending(false);
     };
 
+    const handleThreadSelect = (thread: any) => {
+        // Handle the thread selection, perhaps by setting state or performing an action
+        setThread_id(thread.id);
+        setThread_name(thread.name);
+    };
+
+    useEffect(() => {
+        if (!thread_id) return;
+        if (thread_name != '新对话') {
+            setMessages([])
+            handleMemory();
+        } else {
+            setMessages(initialMessages)
+        }
+    }, [thread_id]);
+
     if (isLoading) {
         return <div>Loading...</div>; // 或者一个旋转器/加载器组件
     }
@@ -227,7 +247,8 @@ const handleMemory = async () => {
             {!isLoggedIn ? (
                 <Login onLoginSuccess={handleLoginSuccess} />
             ) : (
-            <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                <ThreadsSidebar onThreadSelect={handleThreadSelect} user_id={user_id} len={messages.length}/>
                 <div style={{ width: '80%', maxWidth: '600px' }}>
                 <div className="row">
                 <div className="col-12 text-center">
@@ -295,12 +316,6 @@ const handleMemory = async () => {
                                     />
                                 <span style={{ marginRight: '45px', fontSize: '13px' }}>{nrangeValue}</span>
                             </div>
-                            <button 
-                            onClick={handleMemory} 
-                            style={{ float: "right", fontSize: "12px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }}
-                            >
-                            恢复记忆
-                            </button>
                         </div>
                         <FileUploader onUpload={handleFileUpload} />{" "}
                     </div>
