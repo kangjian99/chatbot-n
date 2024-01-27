@@ -82,6 +82,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                 style={{
                     listStyle: "disc",
                     padding: 10,
+                    marginBottom: "5px"
                 }}
             >
                 {files.map((file, index) => (
@@ -107,9 +108,11 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                     </li>
                 ))}
             </ul>
+            {files.length > 0 && (
             <button style={{ float: "left", fontSize: "12px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }} onClick={handleClear}>
                 清除文件
             </button>
+            )}
         </div>
     );
 };

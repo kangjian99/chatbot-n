@@ -118,6 +118,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
             <ul
                 style={{
                     padding: 10,
+                    marginBottom: "5px"
                 }}
             >
                 {threads.map((thread, index) => (
@@ -143,7 +144,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
                     </li>
                 ))}
             </ul>
-            <button onClick={handleNewThread} style={{ float: "right", fontSize: "12px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }}>
+            <button onClick={handleNewThread} style={{ float: "right", fontSize: "12px", marginRight: "10px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }}>
                 新建对话</button>
         </div>
     );
