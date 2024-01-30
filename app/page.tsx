@@ -150,6 +150,8 @@ const handleMemory = async () => {
                 const newMessageId = Date.now() + index; // 使用时间戳和索引作为唯一ID
                 if (data.hasOwnProperty('User')) {
                     return { type: "user", text: data.User, id: newMessageId };
+                } else if (data.hasOwnProperty('Info')) {
+                    return { type: "system", text: data.Info, role: "system", id: newMessageId };
                 } else if (data.hasOwnProperty('Assistant')) {
                     return { type: "system", text: data.Assistant, id: newMessageId };
                 }

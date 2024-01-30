@@ -27,6 +27,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
             // Check if the threadsData is empty and set an appropriate state
             if (threadsData.length === 0) {
                 setThreads([{ id: 'initial', name: '新对话' }]);
+                setSelectedThread('initial');
             } else {
                 if (threads.length > 0) {
                   // 非刷新页面，后端仅返回一个元素，替换最开头的“新对话”元素
@@ -36,16 +37,9 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
                   }
                 }  else {
                 setThreads(threadsData);
-            }
-            }
-    
-            // Optionally, handle the selection of the first thread or a placeholder
-            if (threadsData.length > 0) {
+                }
                 setSelectedThread(threadsData[0].id);
-            } else {
-                setSelectedThread('initial');
             }
-
         } catch (error) {
             console.error('Error:', error);
         }
@@ -77,13 +71,11 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
     const handleNewThread = async () => {
         const existingNewThread = threads.find(thread => thread.name === '新对话');
         const currentThread = threads.find(thread => thread.id === selectedThread);
-        let isFetchedThread = false
-        if (currentThread && currentThread.name === '新对话' && len > 1) {
-        await fetchThreads();  // 判断新对话长度超过1，则更新对话列表后再建新对话
-        isFetchedThread = true
+        if (currentThread?.name === '新对话' && len > 1) {
+            await fetchThreads();  // 判断新对话长度超过1，则更新对话列表后再建新对话
         }
-        if (!existingNewThread || isFetchedThread) {
-            // Generate a random thread ID
+        if (!existingNewThread || (currentThread?.name === '新对话' && len > 1)) {
+        // Generate a random thread ID
         const newThreadId = Math.random().toString(36).substring(2, 15);
         // Add the new thread to the threads state
         setThreads(prevThreads => [{ id: newThreadId, name: '新对话' }, ...prevThreads]);
@@ -91,8 +83,8 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
         setSelectedThread(newThreadId);
         onThreadSelect({ id: newThreadId, name: '新对话' });        
         } else if (existingNewThread) {
-                setSelectedThread(existingNewThread.id);
-            }
+            setSelectedThread(existingNewThread.id);
+        }
     };
 
     useEffect(() => {
