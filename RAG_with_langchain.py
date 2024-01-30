@@ -1,18 +1,17 @@
-from langchain.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Weaviate
+from langchain_community.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
+from langchain_community.vectorstores import Weaviate
 from langchain.text_splitter import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from langchain.prompts import ChatPromptTemplate
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
+from langchain_openai import OpenAIEmbeddings
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
-import weaviate, os
+import weaviate, os, json, re
 from weaviate.embedded import EmbeddedOptions
 from settings import API_KEY, model, WEAVIATE_URL, WEAVIATE_API_KEY
 from utils import UPLOAD_FOLDER
-from db_process import tiktoken, json
+import tiktoken
 from templates import *
-import re
 
 cache = {}
 max_cache_size = 10
@@ -76,7 +75,7 @@ def load_and_process_document(file_name):
     vectorstore = Weaviate.from_documents(
         client=weaviate_client,    
         documents=chunks,
-        embedding=OpenAIEmbeddings(openai_api_key=API_KEY),
+        embedding=OpenAIEmbeddings(openai_api_key=API_KEY, model="text-embedding-3-small"),
         by_text=False
     )
     return vectorstore

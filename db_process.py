@@ -89,8 +89,10 @@ def get_user_memory(user_id, directory='memory'):
                 data = json.loads(line.strip())
                 user_data = {"User": data["User"]}
                 assistant_data = {"Assistant": data["Assistant"]}
+                info_data = {"Info": data["Info"]}
                 messages.append(user_data)
                 messages.append(assistant_data)
+                messages.append(info_data)
     except FileNotFoundError:
         return []
     return messages
@@ -102,13 +104,14 @@ def save_user_messages(user_id, messages, directory=DIRECTORY):
         for message in messages:
             f.write(json.dumps(message, ensure_ascii=False) + '\n')
 
-def save_user_memory(user_id, user_input, messages, max_lines=0, directory='memory'):
+def save_user_memory(user_id, user_input, messages, info, max_lines=0, directory='memory'):
     if not os.path.exists(directory):
         os.mkdir(directory)
 
     data = {
         "User": user_input,
-        "Assistant": messages
+        "Assistant": messages,
+        "Info": info
     }
 
     file_path = os.path.join(directory, f'{user_id}_memory.json')

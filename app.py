@@ -171,7 +171,7 @@ def handle_message():
         elif user_input.startswith('#memory'):
             messages = get_user_memory(user_id+'_'+thread_id)
             join_messages = '\n\n'.join(json.dumps(msg, ensure_ascii=False) for msg in messages)
-            save_user_memory(user_id, user_input, '', 4) # 保留最近4条记录
+            save_user_memory(user_id+'_'+thread_id, user_input, '', '', 4) # 保留最近4条记录
             return Response(f'data: {json.dumps({"data": join_messages})}\n\n', mimetype='text/event-stream')
         elif user_input.startswith('#file'):
             filelist = get_files_with_prefix(user_id) or "没有文件上传。"
@@ -223,9 +223,9 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     finally:
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
-        user_input += '\n' + count_chars(join_message, user_id, messages)
+        info = count_chars(join_message, user_id, messages)
         if any(item in prompt_template[0] for item in ['文档', 'Chat']):
-            save_user_memory(user_id+'_'+thread_id, user_input, full_message)
+            save_user_memory(user_id+'_'+thread_id, user_input, full_message, info)
         rows = history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
         if rows != 0:
             print("精简前messages:", messages[-1])
@@ -266,7 +266,7 @@ def check_session():
 def load_memory():
     id = request.args.get('user_id') + '_' + request.args.get('thread_id')
     messages = get_user_memory(id)
-    messages = messages[-10:] # 显示5组问答
+    messages = messages[-5*3:] # 显示5组问答
     return messages
 
 @app.route('/get-threads')
@@ -276,7 +276,7 @@ def get_threads(directory='memory'):
     user_id = request.args.get('user_id')
     thread_length = request.args.get('length')    
     threads = []
-    
+
     def get_thread_name(user_id, thread_id, directory='memory'):
         try:
             with open(f'{directory}/{user_id}_{thread_id}_memory.json', 'r') as f:

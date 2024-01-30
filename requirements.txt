@@ -2,6 +2,7 @@ flask
 Openai
 tiktoken
 langchain
+langchain_openai
 weaviate-client
 pypdf
 docx2txt
