@@ -3,9 +3,9 @@ Openai
 tiktoken
 langchain
 langchain_openai
-# weaviate-client
+weaviate-client
 pypdf
 docx2txt
 google.generativeai
 flask_cors
-supabase
+# supabase
