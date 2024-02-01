@@ -4,7 +4,7 @@ from openai import OpenAI
 import json, threading
 from datetime import timedelta
 from db_process import *
-from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
+from RAG_with_langchain import get_cache, clear_cache, get_cache_serial, response_from_rag_chain, response_from_retriver
 from templates import *
 from utils import *
 from geminiai import gemini_response, gemini_response_key_words
@@ -106,12 +106,11 @@ def upload_file():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_id+'_'+filename))
         session['uploaded_filename'] = filename  # 将文件名保存到会话中
         print("\n#Session after file uploaded:", session)
-        save_doc_name(user_id, filename)
-        # 使用多线程执行create_vectorstore
-        def execute_create_vectorstore():
-            load_and_process_document(user_id, filename)         
-        # 启动新线程执行create_vectorstore
-        cache_thread = threading.Thread(target=execute_create_vectorstore)
+        # 使用多线程执行get_cache
+        def execute_get_cache():
+            get_cache(user_id+'_'+filename)         
+        # 启动新线程执行get_cache
+        cache_thread = threading.Thread(target=execute_get_cache)
         cache_thread.start()
 
         return 'File uploaded successfully', 200        
@@ -121,9 +120,9 @@ def upload_file():
 @app.route('/get-filenames', methods=['GET'])
 def get_filenames():
     user_id = request.args.get('user_id')
-    file_names = get_doc_names(user_id)   
+    file_names = get_cache_serial(user_id)   
     # 提取文件名作为列表
-    #file_names = list(file_names.values())
+    file_names = list(file_names.values())
 
     return jsonify(file_names)
     
@@ -132,7 +131,7 @@ def handle_message():
     # print(session)
     # user_id = session.get('user_id', 'test')       
     last_selected = session.get('selected_template', '0')
-    # uploaded_filename = session.get('uploaded_filename', '')
+    uploaded_filename = session.get('uploaded_filename', '')
 
     data = request.json
     print(data)
@@ -140,7 +139,9 @@ def handle_message():
     user_input = data['user_input']
     thread_id = data.get('thread_id')
     selected_template = data['prompt_template']  # 接收选择的模板编号
-    uploaded_filename = data.get('selected_file')  # 接收选择的上传文件
+    if data['selected_file']:  # 接收选择的上传文件
+        session['uploaded_filename'] = data['selected_file']
+        uploaded_filename = session.get('uploaded_filename')
     n = data.get('n', 3)
     print("接收信息后session：", session)
     # 判断是否用户变更模版，如果是则清空信息
@@ -164,16 +165,15 @@ def handle_message():
     else:
         if user_input.startswith('#clear'):
             clear_files_with_prefix(user_id)
-            #session['uploaded_filename'] = ''
+            session['uploaded_filename'] = ''
             #session['key_words'] = {}
             return Response('data: {"data": "Cleared."}\n\n', mimetype='text/event-stream')
         if user_input.startswith('#file'):
             filelist = get_files_with_prefix(user_id) or "没有文件上传。"
             return Response(f'data: {json.dumps({"data": filelist})}\n\n', mimetype='text/event-stream')
 
-        if not uploaded_filename:
-            return Response('data: {"data": "请先选择或上传文档。"}\n\n', mimetype='text/event-stream')
-        
+        if uploaded_filename == '' or is_file_in_directory(user_id + '_' + uploaded_filename) == False:
+            return Response('data: {"data": "请先上传文档。"}\n\n', mimetype='text/event-stream')
         if user_input.startswith(('总结', '写作')) and num_tokens(user_input) < 20:
             # 处理提取关键词逻辑
             try:
@@ -189,9 +189,9 @@ def handle_message():
             print(user_input)
         fullpath_filename = user_id + '_' + uploaded_filename
         if n==1:
-            response = response_from_rag_chain(user_id, thread_id, fullpath_filename, user_input, True)
+            response = response_from_rag_chain(fullpath_filename, user_input, True)
         else:
-            docs = response_from_retriver(user_id, fullpath_filename, user_input)
+            docs = response_from_retriver(fullpath_filename, user_input)
             if '模仿' in prompt_template[0]:
                 docchat_template = template_mimic
             else:
@@ -230,13 +230,10 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
 
 @app.route('/clear')
 def clear_file():
-    user_id = request.args.get('user_id') 
-    file_name = request.args.get('file_name') 
-    if file_name:
-        delete_doc_from_database(user_id, file_name)
-        # session['uploaded_filename'] = ''
+    user_id = request.args.get('user_id')       
+    session['uploaded_filename'] = ''
     # session['files'] = []
-    # clear_cache(user_id)
+    clear_cache(user_id)
     return "Files and cache cleared successfully"
 
 @app.route('/login', methods=['POST'])
