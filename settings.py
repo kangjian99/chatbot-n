@@ -9,10 +9,10 @@ model="gpt-3.5-turbo-1106"
 
 client = OpenAI(api_key = API_KEY)
 
-DB_URL: str = os.environ.get("SUPABASE_URL")
-DB_KEY: str = os.environ.get("SUPABASE_KEY")
-#WEAVIATE_URL = os.environ.get('WEAVIATE_URL')
-#WEAVIATE_API_KEY = os.environ.get('WEAVIATE_API_KEY')
+#DB_URL: str = os.environ.get("SUPABASE_URL")
+#DB_KEY: str = os.environ.get("SUPABASE_KEY")
+WEAVIATE_URL = os.environ.get('WEAVIATE_URL')
+WEAVIATE_API_KEY = os.environ.get('WEAVIATE_API_KEY')
 
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
 
