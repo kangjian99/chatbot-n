@@ -2,6 +2,9 @@ import hashlib
 import json
 import tiktoken
 from settings import *
+from supabase import create_client, Client
+
+supabase: Client = create_client(DB_URL, DB_KEY)
 
 def hash_password(password):
     # 使用 SHA-256 散列算法
@@ -9,61 +12,20 @@ def hash_password(password):
     return hashed
     
 def authenticate_user(username, password):
-    with open('checknm.txt', 'r') as file:
-        lines = file.readlines()
+    response = supabase.table('users').select('password').eq('username', username).execute()
 
-        for line in lines:
-            user_id, stored_hashed_password = line.strip().split(',')
-            hashed_password = hash_password(password)
+    if 'error' in response:
+        print('Error:', response.error)
+        return False
 
-            if user_id == username and stored_hashed_password == hashed_password:
-                return True
+    user_data = response.data
+
+    if user_data:
+        stored_password = user_data[0]['password']
+        if stored_password == password:
+            return True
 
     return False
-
-def insert_db(result, user_id=None, messages=[]):
-    # 连接到数据库
-    cnxn = pyodbc.connect(f'DRIVER={driver};SERVER={server};PORT=1433;DATABASE={database};UID={db_username};PWD={db_password}')
-    
-    # 获取要插入的结果数据
-    now = result.get('datetime')
-    user_id = result.get('user_id')
-    cn_char_count = result.get('cn_char_count')
-    en_char_count = result.get('en_char_count')
-    tokens = result.get('tokens')
-    
-    # 构建插入语句并执行
-    query = "INSERT INTO stats (user_id, datetime, cn_char_count, en_char_count, tokens) VALUES (?, ?, ?, ?, ?);"
-    params = (user_id, now, cn_char_count, en_char_count, tokens)
-    cursor = cnxn.cursor()
-    cursor.execute(query, params)
-    
-    if user_id:
-        messages_str = json.dumps(messages, ensure_ascii=False)
-        # 构建插入语句并执行
-        query = "INSERT INTO session (user_id, messages) VALUES (?, ?);"
-        params = (user_id, messages_str)
-        cursor = cnxn.cursor()
-        cursor.execute(query, params)
-        
-    cnxn.commit()
-    cnxn.close()
-    
-def read_table_data(table_name):
-    cnxn = pyodbc.connect(f'DRIVER={driver};SERVER={server};PORT=1433;DATABASE={database};UID={db_username};PWD={db_password}')
-    cursor = cnxn.cursor()
-
-    # 从表格中读取数据
-    cursor.execute(f"SELECT * FROM {table_name}")
-    rows = cursor.fetchall()
-
-    # 将数据转换为字典
-    prompts_dict = {row.name.strip('"'): row.prompt.strip('"') for row in rows}
-
-    cursor.close()
-    cnxn.close()
-
-    return prompts_dict
        
 def clear_messages(user_id):
     if not os.path.exists(DIRECTORY):
@@ -81,21 +43,26 @@ def get_user_messages(user_id, directory=DIRECTORY):
         return None
     return messages
 
-def get_user_memory(user_id, directory='memory'):
-    messages = []
-    try:
-        with open(f'{directory}/{user_id}_memory.json', 'r') as f:
-            for line in f.readlines():
-                data = json.loads(line.strip())
-                user_data = {"User": data["User"]}
-                assistant_data = {"Assistant": data["Assistant"]}
-                info_data = {"Info": data["Info"]}
-                messages.append(user_data)
-                messages.append(assistant_data)
-                messages.append(info_data)
-    except FileNotFoundError:
-        return []
-    return messages
+def get_user_memory(user_id, thread_id, limit=5, table='memory_by_thread'):
+    # 从Supabase中读取数据
+    response = supabase.table(table).select('history').eq('user_id', user_id).eq('thread_id', thread_id).execute()
+
+    # 检查结果
+    if 'error' in response:
+        print('Error:', response.error)
+    else:
+        messages = []
+        # 假设history字段是一个包含多个条目的jsonb数组
+        history = response.data[0]['history'] if response.data else []
+        for entry in history:
+            user_data = {"User": entry["user"]}
+            assistant_data = {"Assistant": entry["assistant"]}
+            info_data = {"Info": entry["info"]}
+            messages.append(user_data)
+            messages.append(assistant_data)
+            messages.append(info_data)
+
+    return messages[-limit*3:]
         
 def save_user_messages(user_id, messages, directory=DIRECTORY):
     if not os.path.exists(directory):
@@ -104,36 +71,40 @@ def save_user_messages(user_id, messages, directory=DIRECTORY):
         for message in messages:
             f.write(json.dumps(message, ensure_ascii=False) + '\n')
 
-def save_user_memory(user_id, user_input, messages, info, max_lines=0, directory='memory'):
-    if not os.path.exists(directory):
-        os.mkdir(directory)
+def save_user_memory(user_id, thread_id, user_input, messages, info, table='memory_by_thread'):
 
-    data = {
-        "User": user_input,
-        "Assistant": messages,
-        "Info": info
+    new_entry = {
+        "user": user_input,
+        "assistant": messages,
+        "info": info
     }
 
-    file_path = os.path.join(directory, f'{user_id}_memory.json')
+    # 检索现有记录
+    response = supabase.table(table).select('history', 'chat_name').eq('user_id', user_id).eq('thread_id', thread_id).execute()
 
-    if max_lines > 0:
-        # 读取文件中的行数
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-        except FileNotFoundError:
-            lines = []
-        # 如果超过max_lines，则删除旧的行
-        if len(lines) > max_lines:
-            lines = lines[-(max_lines):]
-            with open(file_path, 'w', encoding='utf-8') as f:
-                for line in lines:
-                    f.write(line)
+    if 'error' in response:
+        print('Error:', response.error)
+        return
 
+    # 检查是否已有记录
+    existing_records = response.data
+    if existing_records:
+        # 如果记录存在，更新history字段
+        history = existing_records[0]['history']
+        history.append(new_entry)
+        response = supabase.table(table).update({'history': history}).eq('user_id', user_id).eq('thread_id', thread_id).execute()
     else:
-        with open(file_path, 'a', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False)
-            f.write('\n')  # 添加换行符以分隔每次写入
+        # 如果记录不存在，插入新记录
+        record = {
+            "user_id": user_id,
+            "thread_id": thread_id,
+            "history": [new_entry],  # history字段是一个包含new_entry的列表
+            "chat_name": user_input[:20]  # chat_name字段是user_input的前20个字符
+        }
+        response = supabase.table(table).insert(record).execute()
+
+    if 'error' in response:
+        print('Error:', response.error)
 
 def history_messages(user_id, prompt_template):
     rows = 0
@@ -149,3 +120,53 @@ def num_tokens(string: str) -> int:
     encoding = tiktoken.encoding_for_model(model)
     num_tokens = len(encoding.encode(string))
     return num_tokens
+
+def get_doc_names(user_id, limit=9):
+    # 执行查询
+    table = "doc_names"
+    response = supabase.table(table).select('doc_name').eq('user_id', user_id).order('id', desc=True).limit(limit).execute()
+
+    # 检查查询结果是否成功
+    if 'error' in response:
+        return "error: Failed to fetch document names"
+    
+    # 提取文档名称并返回
+    doc_names = [row["doc_name"] for row in response.data]
+    if len(doc_names) > 1:
+        doc_names.insert(0, "多文档检索")
+    print("doc_names", doc_names)
+    return doc_names
+
+def save_doc_name(user_id, doc_name):
+
+    # 执行插入操作
+    table = "doc_names"
+    response = supabase.table(table).select('*').eq('user_id', user_id).eq('doc_name', doc_name).execute()
+    existing_record = response.data
+    if existing_record:
+        return "Error: Document already exists"
+    
+    data = {"user_id": user_id, "doc_name": doc_name}
+    response = supabase.table(table).insert(data).execute()
+    print("************", data, response)
+
+    # 检查插入结果是否成功
+    if 'error' in response:
+        return "error: Failed to insert document name"
+    else:
+        return "Document name inserted successfully"
+    
+def delete_doc_from_database(user_id, doc_name):
+    # 删除 doc_names 表中的记录
+    table = "doc_names"
+    response_doc_names = supabase.table(table).delete().eq('user_id', user_id).eq('doc_name', doc_name).execute()
+
+    # 删除 documents 表中匹配条件的元数据行
+    table = "documents"
+    response_documents = supabase.table(table).delete().like('metadata->>source', f'%{user_id}_{doc_name}').execute()
+
+    # 检查删除结果是否成功
+    if 'error' in response_doc_names or 'error' in response_documents:
+        return "error: Failed to delete document name or metadata"
+    else:
+        return "Document name and associated metadata deleted successfully"

@@ -4,7 +4,7 @@ from openai import OpenAI
 import json, threading
 from datetime import timedelta
 from db_process import *
-from RAG_with_langchain import get_cache, clear_cache, get_cache_serial, response_from_rag_chain, response_from_retriver
+from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
 from templates import *
 from utils import *
 from geminiai import gemini_response, gemini_response_key_words
@@ -106,11 +106,12 @@ def upload_file():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_id+'_'+filename))
         session['uploaded_filename'] = filename  # 将文件名保存到会话中
         print("\n#Session after file uploaded:", session)
-        # 使用多线程执行get_cache
-        def execute_get_cache():
-            get_cache(user_id+'_'+filename)         
-        # 启动新线程执行get_cache
-        cache_thread = threading.Thread(target=execute_get_cache)
+        save_doc_name(user_id, filename)
+        # 使用多线程执行create_vectorstore
+        def execute_create_vectorstore():
+            load_and_process_document(user_id, filename)         
+        # 启动新线程执行create_vectorstore
+        cache_thread = threading.Thread(target=execute_create_vectorstore)
         cache_thread.start()
 
         return 'File uploaded successfully', 200        
@@ -120,9 +121,9 @@ def upload_file():
 @app.route('/get-filenames', methods=['GET'])
 def get_filenames():
     user_id = request.args.get('user_id')
-    file_names = get_cache_serial(user_id)   
+    file_names = get_doc_names(user_id)   
     # 提取文件名作为列表
-    file_names = list(file_names.values())
+    #file_names = list(file_names.values())
 
     return jsonify(file_names)
     
@@ -131,7 +132,7 @@ def handle_message():
     # print(session)
     # user_id = session.get('user_id', 'test')       
     last_selected = session.get('selected_template', '0')
-    uploaded_filename = session.get('uploaded_filename', '')
+    # uploaded_filename = session.get('uploaded_filename', '')
 
     data = request.json
     print(data)
@@ -139,9 +140,7 @@ def handle_message():
     user_input = data['user_input']
     thread_id = data.get('thread_id')
     selected_template = data['prompt_template']  # 接收选择的模板编号
-    if data['selected_file']:  # 接收选择的上传文件
-        session['uploaded_filename'] = data['selected_file']
-        uploaded_filename = session.get('uploaded_filename')
+    uploaded_filename = data.get('selected_file')  # 接收选择的上传文件
     n = data.get('n', 3)
     print("接收信息后session：", session)
     # 判断是否用户变更模版，如果是则清空信息
@@ -165,45 +164,40 @@ def handle_message():
     else:
         if user_input.startswith('#clear'):
             clear_files_with_prefix(user_id)
-            session['uploaded_filename'] = ''
+            #session['uploaded_filename'] = ''
             #session['key_words'] = {}
             return Response('data: {"data": "Cleared."}\n\n', mimetype='text/event-stream')
-        elif user_input.startswith('#memory'):
-            messages = get_user_memory(user_id+'_'+thread_id)
-            join_messages = '\n\n'.join(json.dumps(msg, ensure_ascii=False) for msg in messages)
-            save_user_memory(user_id+'_'+thread_id, user_input, '', '', 4) # 保留最近4条记录
-            return Response(f'data: {json.dumps({"data": join_messages})}\n\n', mimetype='text/event-stream')
-        elif user_input.startswith('#file'):
+        if user_input.startswith('#file'):
             filelist = get_files_with_prefix(user_id) or "没有文件上传。"
             return Response(f'data: {json.dumps({"data": filelist})}\n\n', mimetype='text/event-stream')
 
-        elif uploaded_filename == '' or is_file_in_directory(user_id + '_' + uploaded_filename) == False:
-            return Response('data: {"data": "请先上传文档。"}\n\n', mimetype='text/event-stream')
+        if not uploaded_filename:
+            return Response('data: {"data": "请先选择或上传文档。"}\n\n', mimetype='text/event-stream')
+        
+        if user_input.startswith(('总结', '写作')) and num_tokens(user_input) < 20:
+            # 处理提取关键词逻辑
+            try:
+                response = response_from_retriver(user_id+'_'+uploaded_filename, uploaded_filename, 2)
+                key_words = gemini_response_key_words(f"提取以下信息的关键词，以/分隔显示，不超过5个：\n{response}")
+                #print("\n#Session after key words extracted:", session)        
+            except Exception as e:
+                # 提取失败时返回错误消息
+                key_words = uploaded_filename
+            user_input += '\n' + key_words  # 为用户提问增添关键词
+        #else:
+        #    user_input += '\n(' + uploaded_filename + ')' # 为用户提问增添补充信息
+            print(user_input)
+        fullpath_filename = user_id + '_' + uploaded_filename
+        if n==1:
+            response = response_from_rag_chain(user_id, thread_id, fullpath_filename, user_input, True)
         else:
-            if user_input.startswith(('总结', '写作')) and num_tokens(user_input) < 20:
-                # 处理提取关键词逻辑
-                try:
-                    response = response_from_retriver(user_id+'_'+uploaded_filename, uploaded_filename, 2)
-                    key_words = gemini_response_key_words(f"提取以下信息的关键词，以/分隔显示，不超过5个：\n{response}")
-                    #print("\n#Session after key words extracted:", session)        
-                except Exception as e:
-                    # 提取失败时返回错误消息
-                    key_words = uploaded_filename
-                user_input += '\n' + key_words  # 为用户提问增添关键词
-            #else:
-            #    user_input += '\n(' + uploaded_filename + ')' # 为用户提问增添补充信息
-                print(user_input)
-            uploaded_filename = user_id + '_' + uploaded_filename
-            if n==1:
-                response = response_from_rag_chain(uploaded_filename, user_input, True)
+            docs = response_from_retriver(user_id, fullpath_filename, user_input)
+            if '模仿' in prompt_template[0]:
+                docchat_template = template_mimic
             else:
-                docs = response_from_retriver(uploaded_filename, user_input)
-                if '模仿' in prompt_template[0]:
-                    docchat_template = template_mimic
-                else:
-                    docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
-                prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
-                response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n)
+                docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
+            prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
+            response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n)
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 
@@ -225,7 +219,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         join_message = "".join([str(msg["content"]) for msg in messages])
         info = count_chars(join_message, user_id, messages)
         if any(item in prompt_template[0] for item in ['文档', 'Chat']):
-            save_user_memory(user_id+'_'+thread_id, user_input, full_message, info)
+            save_user_memory(user_id, thread_id, user_input, full_message, info)
         rows = history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
         if rows != 0:
             print("精简前messages:", messages[-1])
@@ -236,10 +230,13 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
 
 @app.route('/clear')
 def clear_file():
-    user_id = request.args.get('user_id')       
-    session['uploaded_filename'] = ''
+    user_id = request.args.get('user_id') 
+    file_name = request.args.get('file_name') 
+    if file_name:
+        delete_doc_from_database(user_id, file_name)
+        # session['uploaded_filename'] = ''
     # session['files'] = []
-    clear_cache(user_id)
+    # clear_cache(user_id)
     return "Files and cache cleared successfully"
 
 @app.route('/login', methods=['POST'])
@@ -264,57 +261,32 @@ def check_session():
     
 @app.route('/memory')
 def load_memory():
-    id = request.args.get('user_id') + '_' + request.args.get('thread_id')
-    messages = get_user_memory(id)
-    messages = messages[-5*3:] # 显示5组问答
+    user_id = request.args.get('user_id')
+    thread_id = request.args.get('thread_id')
+    messages = get_user_memory(user_id, thread_id)
+    # messages = messages[-5*3:] # 显示5组问答
     return messages
 
 @app.route('/get-threads')
-def get_threads(directory='memory'):
-    if not os.path.exists(directory):
-        os.mkdir(directory)
+def get_threads(table='memory_by_thread'):
     user_id = request.args.get('user_id')
     thread_length = request.args.get('length')    
     threads = []
+    limit = 5 if thread_length == '0' else 1
 
-    def get_thread_name(user_id, thread_id, directory='memory'):
-        try:
-            with open(f'{directory}/{user_id}_{thread_id}_memory.json', 'r') as f:
-                line = f.readline()
-                if line:
-                    data = json.loads(line.strip())
-                else:
-                    return ''
-        except FileNotFoundError:
-            return ''
-        name = data.get("User", '')
-        return name[:20]
+    # Query the Supabase table for the latest five threads for the user
+    response = supabase.table(table).select('*').eq('user_id', user_id).order('id', desc=True).limit(limit).execute()
 
-    filenames = [filename for filename in os.listdir(directory) if filename.startswith(f"{user_id}_") and filename.endswith("_memory.json")]
-    # 按照修改时间降序排序文件名
-    sorted_filenames = sorted(filenames, key=lambda x: os.path.getmtime(os.path.join(directory, x)), reverse=True)
+    if 'error' in response:
+        print('Error:', response.error)
+        return []
 
-    selected_filenames = sorted_filenames[:5]
-
-    if thread_length == '0':
-        # 刷新页面情况下，遍历文件名，提取thread_id
-        for filename in selected_filenames:
-            match = re.match(rf'{user_id}_(\w+)_memory\.json', filename)
-            if match:
-                thread_id = match.group(1)
-                thread_name = get_thread_name(user_id, thread_id)
-                thread_data = {"id": thread_id, "name": thread_name}
-                threads.append(thread_data)
-    elif selected_filenames:
-        thread_id = selected_filenames[0].split('_')[1]
-        thread_name = get_thread_name(user_id, thread_id)     
+    # Process the response data
+    for record in response.data:
+        thread_id = record.get('thread_id')
+        thread_name = record.get('chat_name')
         thread_data = {"id": thread_id, "name": thread_name}
         threads.append(thread_data)
-
-    # 删除没有被选中的文件
-    for filename in filenames:
-        if filename not in selected_filenames:
-            os.remove(os.path.join(directory, filename))
 
     return jsonify(threads)
 
