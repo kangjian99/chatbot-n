@@ -12,7 +12,7 @@ const url = process.env.NEXT_PUBLIC_API_URL;
 const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFiles, onFileSelect, refreshTrigger, user_id }) => {
     const [files, setFiles] = useState<string[]>([]);
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
-    const fetchFilenames = async () => {
+    const fetchFilenames = async (skipPush = false) => {
         try {
             const response = await fetch(url + `get-filenames?user_id=${user_id}`, {
                 method: 'GET',
@@ -22,10 +22,14 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                 throw new Error('Network response was not ok');
             }
             const fileNames = await response.json(); // 直接使用返回的数组
+            // 如果有已上传的文件，将其最新内容添加到fileNames数组
+            if (!skipPush && uploadedFiles.length > 0) {
+                fileNames.push(uploadedFiles[uploadedFiles.length - 1]);
+            }
             setFiles(fileNames);
             if (uploadedFiles.length > 0) {
-                if (fileNames.length > 1) {
-                setSelectedFile(fileNames[1]);
+                if (fileNames.length > 0) {
+                setSelectedFile(fileNames[fileNames.length - 1]);
             }}
         } catch (error) {
             console.error('Error:', error);
@@ -39,7 +43,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
     const handleClear = async () => {
         try {
             // 向后端发送清除请求
-            const response = await fetch(url + `clear?user_id=${user_id}&file_name=${selectedFile}`, {
+            const response = await fetch(url + `clear?user_id=${user_id}`, {
                 method: 'GET', // 或者是 GET，取决于后端的实现
                 credentials: 'include'
             });
@@ -47,7 +51,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                 throw new Error('Network response was not ok');
             }
             // 请求成功后重新获取文件列表
-            fetchFilenames();
+            fetchFilenames(true);
         } catch (error) {
             console.error('Error:', error);
         }
