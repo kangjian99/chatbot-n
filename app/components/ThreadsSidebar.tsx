@@ -136,7 +136,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
                     </li>
                 ))}
             </ul>
-            <button onClick={handleNewThread} style={{ float: "right", fontSize: "12px", marginRight: "10px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }}>
+            <button onClick={handleNewThread} style={{ float: "right", fontSize: "12px", backgroundColor: "#eee", marginRight: "10px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }}>
                 新建对话</button>
         </div>
     );

@@ -36,7 +36,9 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
         fetchFilenames();
     }, [refreshTrigger]);
 
+    const [isClearing, setIsClearing] = useState(false);
     const handleClear = async () => {
+        setIsClearing(true); 
         try {
             // 向后端发送清除请求
             const response = await fetch(url + `clear?user_id=${user_id}&file_name=${selectedFile}`, {
@@ -50,6 +52,8 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
             fetchFilenames();
         } catch (error) {
             console.error('Error:', error);
+        } finally {
+            setIsClearing(false);
         }
     };
 
@@ -105,8 +109,8 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                 ))}
             </ul>
             {files.length > 0 && (
-            <button style={{ float: "left", fontSize: "12px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }} onClick={handleClear}>
-                清除文件
+            <button style={{ float: "left", fontSize: "12px", backgroundColor: "#eee", border: '1px solid red', borderRadius: '5px', padding: "5px 5px" }} onClick={handleClear}>
+                {isClearing ? '清除中' : '清除文件'}
             </button>
             )}
         </div>
