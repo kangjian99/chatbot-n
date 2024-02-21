@@ -252,16 +252,16 @@ const handleMemory = async () => {
             ) : (
                     <main className="main-container">
                     <header className="header">
-                        <div className="row">
+                        <div className="row" style={{ marginTop: '10px' }}>
                         <div className="col-12 text-center">
-                            <br></br><h3>AI-assisted Writer</h3>
+                            <h3>AI-assisted Writer</h3>
                         </div>
                         </div>
                     </header>
                     <nav className="left-sidebar">
                         <ThreadsSidebar onThreadSelect={handleThreadSelect} user_id={user_id} len={messages.length}/>
                     </nav>
-                    <div className="main-content" style={{ padding: '20px 25px' }}>
+                    <div className="main-content">
                     <MessageList
                             messages={messages}
                             messagesEndRef={messagesEndRef}
