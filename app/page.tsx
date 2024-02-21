@@ -308,7 +308,7 @@ const handleMemory = async () => {
                             {isSending ? '已发送' : '发送'}
                         </button>
                     </div>
-                    <div style={{ display: 'flex', paddingLeft: '80px', paddingRight: '80px', marginBottom: '0px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    <div style={{ display: 'flex', paddingLeft: '75px', paddingRight: '75px', marginBottom: '0px', alignItems: 'center', justifyContent: 'flex-end' }}>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                             <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
                                 <label style={{ marginRight: '10px', fontSize: '13px' }}>Choices</label>

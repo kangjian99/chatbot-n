@@ -60,8 +60,17 @@ body {
 .right-sidebar,
 .footer {
    padding: 20px;
-   background-color: #f4f0e7; /* Or your chosen content area color #e8ebec */
+   background-color: #f4f0e7; /* Or your chosen content area color #f0f2f5 #e8ebec */
    border: 1px solid #e0e0e0;
+}
+
+/* Responsive Considerations */
+@media (max-width: 768px) { 
+  .main-container {
+    grid-template-columns: 1fr; /* Stack on smaller screens */
+    grid-template-rows: auto; /* Elements flow naturally */
+  }
+  /* ...potentially move sidebar elements below main content */
 }
 
 .main-container {
@@ -99,7 +108,7 @@ body {
 
 .footer {
   grid-column: 1 / -1; /* Span all columns */
-  padding: 2px;
+  padding: 5px;
 }
 
 .message-list-container {
