@@ -4,7 +4,7 @@ from openai import OpenAI
 
 #load_dotenv()
 API_KEY = os.environ.get('OPENAI_API_KEY')
-model="gpt-3.5-turbo-1106"
+model="gpt-3.5-turbo-0125"
 #model="gpt-4-0125-preview"
 
 client = OpenAI(api_key = API_KEY)

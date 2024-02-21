@@ -4,8 +4,27 @@ import os, json
 
 genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
 
-model = genai.GenerativeModel('gemini-pro')
-#odel_v = genai.GenerativeModel('gemini-pro-vision')
+safety_settings = [
+    {
+        "category": "HARM_CATEGORY_HARASSMENT",
+        "threshold": "BLOCK_ONLY_HIGH"
+    },
+    {
+        "category": "HARM_CATEGORY_HATE_SPEECH",
+        "threshold": "BLOCK_ONLY_HIGH"
+    },
+    {
+        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "threshold": "BLOCK_ONLY_HIGH"
+    },
+    {
+        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+        "threshold": "BLOCK_ONLY_HIGH"
+    }
+]
+
+model = genai.GenerativeModel('gemini-pro', safety_settings)
+#model_v = genai.GenerativeModel('gemini-pro-vision', safety_settings)
 
 def gemini_response(query):
     response = model.generate_content(query, stream=True)

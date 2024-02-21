@@ -4,7 +4,7 @@ from openai import OpenAI
 import json, threading
 from datetime import timedelta
 from db_process import *
-from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
+from RAG_with_langchain_keyword import load_and_process_document, response_from_rag_chain, response_from_retriver
 from templates import *
 from utils import *
 from geminiai import gemini_response, gemini_response_key_words
@@ -26,7 +26,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 param_temperature = 0.5
 param_n = 3
-#max_k = 10
 
 def Chat_Completion(model, question, tem, messages, stream, n=param_n):
     try:
@@ -86,8 +85,8 @@ def Chat_Completion(model, question, tem, messages, stream, n=param_n):
 @app.route('/prompts')
 def get_prompts():
     prompts = get_prompt_templates()  # 获取 prompts 数据
-    prompts_keys = list(prompts.keys())  # 获取所有键
-    return jsonify(prompts_keys) #传递给前端
+    prompts_list = list(prompts.items())
+    return jsonify(prompts_list) #传递给前端
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -106,13 +105,13 @@ def upload_file():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_id+'_'+filename))
         session['uploaded_filename'] = filename  # 将文件名保存到会话中
         print("\n#Session after file uploaded:", session)
-        save_doc_name(user_id, filename)
-        # 使用多线程执行create_vectorstore
-        def execute_create_vectorstore():
-            load_and_process_document(user_id, filename)         
-        # 启动新线程执行create_vectorstore
-        cache_thread = threading.Thread(target=execute_create_vectorstore)
-        cache_thread.start()
+        if save_doc_name(user_id, filename):  # 如已存在相同文件则不执行
+            # 使用多线程执行create_vectorstore
+            def execute_create_vectorstore():
+                load_and_process_document(user_id, filename)         
+            # 启动新线程执行create_vectorstore
+            cache_thread = threading.Thread(target=execute_create_vectorstore)
+            cache_thread.start()
 
         return 'File uploaded successfully', 200        
     else:
@@ -121,7 +120,7 @@ def upload_file():
 @app.route('/get-filenames', methods=['GET'])
 def get_filenames():
     user_id = request.args.get('user_id')
-    file_names = get_doc_names(user_id)   
+    file_names = get_doc_names(user_id)
     # 提取文件名作为列表
     #file_names = list(file_names.values())
 
@@ -139,7 +138,7 @@ def handle_message():
     user_id = data.get('user_id')
     user_input = data['user_input']
     thread_id = data.get('thread_id')
-    selected_template = data['prompt_template']  # 接收选择的模板编号
+    selected_template = data['selected_template']  # 接收选择的模板编号
     uploaded_filename = data.get('selected_file')  # 接收选择的上传文件
     n = data.get('n', 3)
     print("接收信息后session：", session)
@@ -148,9 +147,8 @@ def handle_message():
         clear_messages(user_id)
         session['selected_template'] = selected_template
         #print("Session after template change:", session)
-
-    prompts = get_prompt_templates()
-    prompt_template = list(prompts.items())[int(selected_template)] #元组
+    
+    prompt_template = data.get('prompt_template')
     if '文档' not in prompt_template[0]:
         if 'Gemini' in prompt_template[0]: # 选择Google Gemini
             prompt = f"{prompt_template[1].format(question=user_input)!s}"                
@@ -198,6 +196,7 @@ def handle_message():
                 docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
             prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
             response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n)
+            #response = ""
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 

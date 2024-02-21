@@ -26,6 +26,17 @@ def authenticate_user(username, password):
             return True
 
     return False
+
+def read_table_data(table_name):
+    # 从表中读取数据
+    query = supabase.table(table_name).select("*").order("id.asc") # 按照id升序读取
+    response = query.execute()
+
+    # 检查错误
+    if 'error' in response:
+        raise RuntimeError(f"Error reading table {table_name}: {response.text}")
+
+    return response.data
        
 def clear_messages(user_id):
     if not os.path.exists(DIRECTORY):
@@ -138,23 +149,25 @@ def get_doc_names(user_id, limit=9):
     return doc_names
 
 def save_doc_name(user_id, doc_name):
-
-    # 执行插入操作
+    new_doc = True
     table = "doc_names"
     response = supabase.table(table).select('*').eq('user_id', user_id).eq('doc_name', doc_name).execute()
     existing_record = response.data
     if existing_record:
-        return "Error: Document already exists"
+        existing_record_id = existing_record[0]['id']  # 获取第一个记录的唯一标识符
+        # 删除重复项
+        delete_response = supabase.table(table).delete().eq('id', existing_record_id).execute()
+        new_doc = False
     
     data = {"user_id": user_id, "doc_name": doc_name}
     response = supabase.table(table).insert(data).execute()
-    print("************", data, response)
+    print("Inserted new record:", response)
 
     # 检查插入结果是否成功
     if 'error' in response:
         return "error: Failed to insert document name"
     else:
-        return "Document name inserted successfully"
+        return new_doc
     
 def delete_doc_from_database(user_id, doc_name):
     # 删除 doc_names 表中的记录

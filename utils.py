@@ -1,15 +1,14 @@
 import os, re, json
 from datetime import datetime
-from db_process import num_tokens
+from db_process import num_tokens, read_table_data
+from urllib.parse import unquote
 
 def get_prompt_templates():
-    filename = 'prompts.txt'
-    with open(filename, 'r') as f:
-        content = f.read()
-    lines = content.split('***\n')
-    prompts = {}
-    for i in range(0, len(lines)-1, 2):
-        prompts[lines[i].strip()] = lines[i+1].strip()
+    tablename = 'prompts'
+    data = read_table_data(tablename)
+    # 将数据转换为字典
+    prompts = {row["name"]: row["prompt"] for row in data}
+    
     return prompts
 
 def count_chars(text, user_id, messages=[]):
@@ -50,9 +49,11 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def safe_filename(file_name):
+    file_name = unquote(file_name)
+    
     # 移除或替换文件名中的特殊字符
     file_name = re.sub(r'[\\/*?:"<>|]', '', file_name)
-    
+
     # 避免路径遍历
     file_name = os.path.basename(file_name)
     
@@ -106,43 +107,3 @@ def get_files_with_prefix(prefix):
     except Exception as e:
         print(f"Error: {e}")
         return ""
-
-# 判断目录下是否存在指定文件
-def is_file_in_directory(filename):
-    try:
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        return os.path.isfile(file_path)
-
-    except Exception as e:
-        print(f"Error: {e}")
-        return False
-
-def match_file(user_input, cache_list):
-    match = re.match(r'#set#(\d+)', user_input)
-    if match:
-        number = int(match.group(1))
-        if 1 <= number <= len(cache_list):
-            return cache_list.get(number)
-        else:
-            print("数字超出范围")
-    else:
-        print("未找到匹配的数字")
-    return None
-
-"""
-def write_session_data(last_selected, uploaded_filename, user_id):
-    with open(f"{directory}/session_data({user_id}).txt", 'w') as file:
-        file.write(f'{last_selected}\n')
-        file.write(f'{uploaded_filename}\n')
-
-def read_session_data(user_id):
-    try:
-        with open(f"{directory}/session_data({user_id}).txt", 'r') as file:
-            lines = file.readlines()
-            last_selected = lines[0].strip() if len(lines) > 0 else '0'
-            uploaded_filename = lines[1].strip() if len(lines) > 1 else ''
-            return last_selected, uploaded_filename
-    except FileNotFoundError:
-        # 如果文件不存在，返回默认值
-        return '0', ''
-"""
