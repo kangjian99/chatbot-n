@@ -84,7 +84,7 @@ export default function Home() {
 
     // 增加状态变量用于跟踪选择的 prompt_template
     const [selectedTemplate, setSelectedTemplate] = useState('');
-    const [prompts, setPrompts] = useState({});
+    const [prompts, setPrompts] = useState([]);
 
     useEffect(() => {
         fetch(url + "prompts", {
@@ -199,7 +199,8 @@ const handleMemory = async () => {
                     user_id: user_id,
                     user_input: userInput,
                     thread_id: thread_id,
-                    prompt_template: selectedTemplate,
+                    selected_template: selectedTemplate,
+                    prompt_template: prompts[Number(selectedTemplate)],
                     selected_file: selectedFileName, // 将选中的文件名添加到请求中
                     n: nrangeValue
                 }), // 发送选择的模板
@@ -245,27 +246,31 @@ const handleMemory = async () => {
     }
     
     return (
-        <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+        <div>
             {!isLoggedIn ? (
                 <Login onLoginSuccess={handleLoginSuccess} />
             ) : (
-                <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                <ThreadsSidebar onThreadSelect={handleThreadSelect} user_id={user_id} len={messages.length}/>
-                <div style={{ width: '80%', maxWidth: '600px' }}>
-                <div className="row">
-                <div className="col-12 text-center">
-                    <br></br><h3>AI-assisted Writer</h3>
-                </div>
-                </div>
-                <MessageList
+                    <main className="main-container">
+                    <header className="header">
+                        <div className="row">
+                        <div className="col-12 text-center">
+                            <br></br><h3>AI-assisted Writer</h3>
+                        </div>
+                        </div>
+                    </header>
+                    <nav className="left-sidebar">
+                        <ThreadsSidebar onThreadSelect={handleThreadSelect} user_id={user_id} len={messages.length}/>
+                    </nav>
+                    <div className="main-content" style={{ padding: '20px 25px' }}>
+                    <MessageList
                             messages={messages}
                             messagesEndRef={messagesEndRef}
                         />{" "}
-                    <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', paddingLeft: '80px', paddingRight: '80px', marginBottom: '20px', alignItems: 'center' }}>
                         {/* 下拉选择列表 */}
-                        <select style={{width: "175px"}} value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)} className="custom-select" >
-                            {Object.entries(prompts).map(([key, value], index) => (
-                                <option key={key} value={index}>{typeof value === 'string' ? value : String(value)}</option>
+                        <select style={{width: "200px"}} value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)} className="custom-select" >
+                            {prompts.map(([key, value], index) => (
+                                <option key={key} value={index}>{key}</option>
                             ))}
                         </select>
                         {/* 输入框 */}
@@ -279,7 +284,8 @@ const handleMemory = async () => {
                             paddingLeft: '10px',
                             borderRadius: '5px',
                             border: '1px solid #ccc',
-                            marginRight: '5px',
+                            marginLeft: '10px',
+                            marginRight: '20px',
                         }}
                         disabled={isSending}
                         rows={3}
@@ -302,7 +308,7 @@ const handleMemory = async () => {
                             {isSending ? '已发送' : '发送'}
                         </button>
                     </div>
-                    <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    <div style={{ display: 'flex', paddingLeft: '80px', paddingRight: '80px', marginBottom: '0px', alignItems: 'center', justifyContent: 'flex-end' }}>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                             <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
                                 <label style={{ marginRight: '10px', fontSize: '13px' }}>Choices</label>
@@ -321,14 +327,20 @@ const handleMemory = async () => {
                         </div>
                         <FileUploader onUpload={handleFileUpload} />{" "}
                     </div>
-                </div>
-                <UploadedFilesSidebar 
-            uploadedFiles={uploadedFiles} 
-            onFileSelect={handleFileSelect} 
-            refreshTrigger={refreshTrigger} 
-            user_id={user_id} 
-            />
-            </ div>
+
+                    </div>
+                    <nav className="right-sidebar">
+                        <UploadedFilesSidebar 
+                        uploadedFiles={uploadedFiles} 
+                        onFileSelect={handleFileSelect} 
+                        refreshTrigger={refreshTrigger} 
+                        user_id={user_id} 
+                        />
+                    </nav>
+                    <footer className="footer">
+                        {/* Add footer content if needed */}
+                    </footer>
+                    </main>
         )}
     </div>
     );

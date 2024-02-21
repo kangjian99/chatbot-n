@@ -47,3 +47,53 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+body {
+  margin: 0; /* Remove browser default margins */
+  font-family: 'Arial', sans-serif; /* Set a pleasant font family */
+  background-color: #f8f9fa;  
+}
+
+/* Example styling for individual components - adjust as desired */
+.header,
+.left-sidebar,
+.right-sidebar,
+.footer {
+   padding: 20px;
+   background-color: #f4f0e7; /* Or your chosen content area color */
+   border: 1px solid #e0e0e0;
+}
+
+.main-content {
+  background-color: #fbfbf9;
+} 
+
+.main-container {
+  display: grid;
+  grid-template-columns: 20% 1fr 20%; /* Adjust sidebar widths as needed */
+  grid-template-rows: auto 1fr auto; /* Allow header/footer to take up content space */
+  height: 100vh;
+}
+
+.header {
+  grid-column: 1 / -1; /* Span all columns */
+}
+
+.left-sidebar {
+  grid-column: 1;
+  padding-left: 50px;
+}
+
+.main-content {
+  grid-column: 2;
+}
+
+.right-sidebar {
+  grid-column: 3;
+  padding-right: 50px;
+}
+
+.footer {
+  grid-column: 1 / -1; /* Span all columns */
+  padding: 5px;
+}

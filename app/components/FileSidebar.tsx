@@ -72,12 +72,13 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
     return (
         <div
             style={{
-                width: "220px",
-                borderRight: "1px solid #ccc",
-                padding: "20px",
+                // width: "220px",
+                // borderRight: "1px solid #ccc",
+                // padding: "20px",
+                // paddingRight: "50px"
             }}
         >
-            <h2 style={{ fontSize: "13px", marginBottom: "10px" }}>已上传文件</h2>
+            <h2 style={{ fontSize: "14px", marginTop: "20px", marginBottom: "10px" }}>已上传文件</h2>
             <ul
                 style={{
                     listStyle: "disc",
@@ -110,7 +111,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
             </ul>
             {files.length > 0 && (
             <button style={{ float: "left", fontSize: "12px", backgroundColor: "#eee", border: '1px solid red', borderRadius: '5px', padding: "5px 5px" }} onClick={handleClear}>
-                {isClearing ? '清除中' : '清除文件'}
+                {isClearing ? '清除中' : '清除选中文件'}
             </button>
             )}
         </div>

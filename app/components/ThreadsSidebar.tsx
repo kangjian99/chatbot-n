@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const url = process.env.NEXT_PUBLIC_API_URL;
-const max_threads = 5;
+const max_threads = 9;
 
 interface ThreadsSidebarProps {
     onThreadSelect: (thread: { id: string; name: string }) => void;
@@ -101,12 +101,13 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
     return (
         <div
             style={{
-                width: "220px",
-                borderRight: "1px solid #ccc",
-                padding: "20px",
+                // width: "220px",
+                // borderRight: "1px solid #ccc",
+                // padding: "20px",
+                // paddingLeft: "50px"
             }}
         >
-            <h2 style={{ fontSize: "13px", marginBottom: "10px" }}>对话记录</h2>
+            <h2 style={{ fontSize: "14px", marginTop: "20px", marginBottom: "10px" }}>对话记录</h2>
             <ul
                 style={{
                     padding: 10,
@@ -136,7 +137,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
                     </li>
                 ))}
             </ul>
-            <button onClick={handleNewThread} style={{ float: "right", fontSize: "12px", backgroundColor: "#eee", marginRight: "10px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }}>
+            <button onClick={handleNewThread} style={{ float: "right", fontSize: "12px", backgroundColor: "#BAE6FC", marginRight: "10px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }}>
                 新建对话</button>
         </div>
     );

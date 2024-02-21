@@ -96,7 +96,7 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
             accept={allowedExtensions.join(",")}
             onChange={handleFileChange}
             style={{
-                marginRight: "10px",
+                marginRight: "20px",
                 fontSize: "13px",
                 padding: "6px",
                 borderRadius: "5px",
@@ -137,7 +137,7 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
             onChange={handleUrlChange}
             placeholder="输入文件链接(支持docx/txt/pdf)"
             style={{
-                marginRight: "10px",
+                marginRight: "20px",
                 fontSize: "13px",
                 padding: "6px",
                 borderRadius: "5px",

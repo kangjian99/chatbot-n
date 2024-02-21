@@ -44,7 +44,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
                 background: msg.type === 'user' ? '#BAE6FC' : '#eee',
                 color: msg.type === 'user' ? 'black' : '#374151',
                 display: 'inline-block',
-                maxWidth: msg.type === 'user' ? '70%' : '80%',
+                maxWidth: msg.type === 'user' ? '60%' : '70%',
                 wordWrap: 'break-word',
                 fontSize: msg.role === 'system' ? '13px' : '15px',
                 fontStyle: msg.role === 'system' ? 'italic' : 'normal',
