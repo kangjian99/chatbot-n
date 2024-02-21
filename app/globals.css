@@ -78,6 +78,7 @@ body {
 .left-sidebar {
   grid-column: 1;
   padding-left: 40px;
+  overflow-y: auto; /* Allow scrolling */
 }
 
 .main-content {
@@ -91,6 +92,7 @@ body {
 .right-sidebar {
   grid-column: 3;
   padding-right: 40px;
+  overflow-y: auto; /* Allow scrolling */
 }
 
 .footer {
