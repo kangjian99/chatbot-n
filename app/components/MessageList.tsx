@@ -27,7 +27,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
   };
 
   return (
-    <div style={{ height: '450px', overflowY: 'auto', marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '8px', whiteSpace: 'pre-wrap', boxShadow: '0 3px 6px rgba(0, 0, 0, 0.1)', }}>
+    <div className="message-list-container">
       {messages.map((msg, index) => (
         <div key={index} style={{ textAlign: msg.type === 'user' ? 'right' : 'left', margin: '10px 5px' }}>
           {msg.type === 'image' ? (

@@ -60,7 +60,7 @@ body {
 .right-sidebar,
 .footer {
    padding: 20px;
-   background-color: #f4f0e7; /* Or your chosen content area color */
+   background-color: #f4f0e7; /* Or your chosen content area color #e8ebec */
    border: 1px solid #e0e0e0;
 }
 
@@ -87,6 +87,8 @@ body {
   padding: 20px 25px;
   max-height: 100vh; /* Allow to fill the screen */
   overflow-y: auto; /* Allow scrolling */
+  display: flex;
+  flex-direction: column;
 }
 
 .right-sidebar {
@@ -98,4 +100,15 @@ body {
 .footer {
   grid-column: 1 / -1; /* Span all columns */
   padding: 2px;
+}
+
+.message-list-container {
+  flex-grow: 1; /* Allow to fill the available space */
+  overflow-y: auto;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);  
 }
