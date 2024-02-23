@@ -10,6 +10,8 @@ import Login from "./components/Login";
 import { handleStreamResponse } from './components/handleStreamResponse';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
+const default_n = process.env.NEXT_PUBLIC_API_N || 2;
+const headline = process.env.NEXT_PUBLIC_API_HEADLINE || "AI知识库管理助手";
 
 interface Message {
   type: 'user' | 'system';
@@ -23,7 +25,7 @@ export default function Home() {
         {
           type: "system",
           role: "system",
-          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章指令，需以“写作”开头。",
+          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章指令，需以“写作”或“总结”开头。",
         },
       ];
     const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -36,7 +38,7 @@ export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
-    const [nrangeValue, setNrangeValue] = useState(3);
+    const [nrangeValue, setNrangeValue] = useState(Number(default_n));
     const [isLoggedIn, setIsLoggedIn] = useState(false); 
     const [isLoading, setIsLoading] = useState(true); // 新增状态来追踪加载状态
 
@@ -254,7 +256,7 @@ const handleMemory = async () => {
                     <header className="header">
                         <div className="row" style={{ marginTop: '10px' }}>
                         <div className="col-12 text-center">
-                            <h3>AI-assisted Writer</h3>
+                            <h3>{headline}</h3>
                         </div>
                         </div>
                     </header>
@@ -266,7 +268,7 @@ const handleMemory = async () => {
                             messages={messages}
                             messagesEndRef={messagesEndRef}
                         />{" "}
-                    <div style={{ display: 'flex', paddingLeft: '80px', paddingRight: '80px', marginBottom: '20px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', paddingLeft: '75px', paddingRight: '75px', marginBottom: '20px', alignItems: 'center' }}>
                         {/* 下拉选择列表 */}
                         <select style={{width: "200px"}} value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)} className="custom-select" >
                             {prompts.map(([key, value], index) => (
