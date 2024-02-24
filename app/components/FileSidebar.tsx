@@ -93,7 +93,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                     >
                         <span
                             style={{
-                                backgroundColor: selectedFile === file ? "#004080" : "#E5F5FF",
+                                backgroundColor: selectedFile === file ? "#004080" : "#e8eef6",
                                 color: selectedFile === file ? "white" : "black",
                                 padding: "5px 5px",
                                 borderRadius: "5px",
@@ -108,11 +108,13 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                     </li>
                 ))}
             </ul>
+            <div style={{ paddingLeft: "10px" }}>
             {files.length > 0 && (
             <button style={{ float: "left", fontSize: "12px", backgroundColor: "#eee", border: '1px solid red', borderRadius: '5px', padding: "5px 5px" }} onClick={handleClear}>
                 {isClearing ? '清除中' : '清除选中文件'}
             </button>
             )}
+            </div>
         </div>
     );
 };

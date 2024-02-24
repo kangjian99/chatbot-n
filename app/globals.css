@@ -93,7 +93,7 @@ body {
 }
 
 .sidebar-content {
-  background-color: #E5F5FF; /* 根据需要调整边栏颜色 */
+  background-color: #e8eef6; /* 根据需要调整边栏颜色 #d9dbe6 #e8eaf6 #eee #e7e7e7 */
   padding: 10px; /* 根据需要调整内边距 */
   height: 100%; /* 如果需要，可以调整高度 */
   overflow-y: auto; /* 如果内容很多需要滚动，可以保留 */
