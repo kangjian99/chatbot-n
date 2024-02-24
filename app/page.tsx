@@ -11,7 +11,7 @@ import { handleStreamResponse } from './components/handleStreamResponse';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 const default_n = process.env.NEXT_PUBLIC_API_N || 2;
-const headline = process.env.NEXT_PUBLIC_API_HEADLINE || "AI知识库管理助手";
+const headline = process.env.NEXT_PUBLIC_API_HEADLINE || "AI 知识库管理助手";
 
 interface Message {
   type: 'user' | 'system';
@@ -271,7 +271,7 @@ const handleMemory = async () => {
                             messages={messages}
                             messagesEndRef={messagesEndRef}
                         />{" "}
-                    <div style={{ display: 'flex', paddingLeft: '75px', paddingRight: '75px', marginBottom: '20px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', paddingLeft: '75px', paddingRight: '75px', marginBottom: '15px', alignItems: 'center' }}>
                         {/* 下拉选择列表 */}
                         <select style={{width: "200px"}} value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)} className="custom-select" >
                             {prompts.map(([key, value], index) => (

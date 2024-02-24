@@ -78,7 +78,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                 // paddingRight: "50px"
             }}
         >
-            <h2 style={{ fontSize: "14px", marginLeft: "10px", marginTop: "20px", marginBottom: "10px" }}>已上传文件 {files.length <= 1 ? files.length : files.length - 1}</h2>
+            <h2 style={{ fontSize: "14px", marginLeft: "10px", marginTop: "20px", marginBottom: "10px" }}>已上传知识库 {files.length <= 1 ? files.length : files.length - 1}</h2>
             <ul
                 style={{
                     padding: 10,

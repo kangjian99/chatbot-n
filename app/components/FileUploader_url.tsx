@@ -15,9 +15,9 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
         const selected = event.target.files?.[0];
 
         if (selected) {
-            const maxSize = 5 * 1024 * 1024; // 5MB
+            const maxSize = 10 * 1024 * 1024; // 10MB
             if (selected.size > maxSize) {
-                alert("文件大小不能超过5MB！");
+                alert("文件大小不能超过10MB！");
                 event.target.value = ""; // 清空文件输入，以便重新选择文件
                 setSelectedFile(null);
             } else {
@@ -61,9 +61,9 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
                     throw new Error('Network response was not ok');
                 }
                 const blob = await response.blob();
-                const maxSize = 5 * 1024 * 1024; // 5MB
+                const maxSize = 10 * 1024 * 1024; // 10MB
                 if (blob.size > maxSize) {
-                    alert("文件大小不能超过5MB！");
+                    alert("文件大小不能超过10MB！");
                     return; // 如果文件过大，不执行后续操作
                 }
                 const fileExt = fileUrl.split('.').pop();
