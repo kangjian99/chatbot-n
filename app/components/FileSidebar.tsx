@@ -78,27 +78,26 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                 // paddingRight: "50px"
             }}
         >
-            <h2 style={{ fontSize: "14px", marginTop: "20px", marginBottom: "10px" }}>已上传文件 {files.length <= 1 ? files.length : files.length - 1}</h2>
+            <h2 style={{ fontSize: "14px", marginLeft: "10px", marginTop: "20px", marginBottom: "10px" }}>已上传文件 {files.length <= 1 ? files.length : files.length - 1}</h2>
             <ul
                 style={{
-                    listStyle: "disc",
                     padding: 10,
-                    marginBottom: "5px"
+                    listStyle: "none"
                 }}
             >
                 {files.map((file, index) => (
                     <li
                         key={index}
-                        style={{ marginBottom: "5px", cursor: "pointer" }}
+                        style={{ marginBottom: "6px", cursor: "pointer" }}
                         onClick={() => handleFileClick(file)}
                     >
                         <span
                             style={{
-                                backgroundColor: selectedFile === file ? "#004080" : "#f9f9f9",
+                                backgroundColor: selectedFile === file ? "#004080" : "#E5F5FF",
                                 color: selectedFile === file ? "white" : "black",
                                 padding: "5px 5px",
                                 borderRadius: "5px",
-                                border: "1px solid #ccc", // 添加细外框
+                                border: "1px dashed #ccc", // 添加细外框
                                 display: "inline-block",
                                 wordBreak: 'break-word',  // 添加换行样式
                                 fontSize: "13px",

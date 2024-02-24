@@ -61,7 +61,7 @@ body {
 .footer {
    padding: 20px;
    background-color: #f7f1e2; /* Or your chosen content area color #f0f2f5 #e8ebec */
-   border: 1px solid #e0e0e0;
+   /* border: 1px solid #e0e0e0; */
 }
 
 /* Responsive Considerations */
@@ -82,27 +82,51 @@ body {
 
 .header {
   grid-column: 1 / -1; /* Span all columns */
+  padding-bottom: 0px;
 }
 
 .left-sidebar {
   grid-column: 1;
   padding-left: 40px;
+  padding-right: 10px;
   overflow-y: auto; /* Allow scrolling */
 }
 
+.sidebar-content {
+  background-color: #E5F5FF; /* 根据需要调整边栏颜色 */
+  padding: 10px; /* 根据需要调整内边距 */
+  height: 100%; /* 如果需要，可以调整高度 */
+  overflow-y: auto; /* 如果内容很多需要滚动，可以保留 */
+  border-radius: 10px; /* 圆角的大小，根据需要调整 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果，根据需要调整 */
+}
+
 .main-content {
-  background-color: #fbfbf9;
   grid-column: 2;
-  padding: 20px 25px;
+  background-color: #f7f1e2;
+  padding: 20px 20px;
   max-height: 100vh; /* Allow to fill the screen */
   overflow-y: auto; /* Allow scrolling */
   display: flex;
   flex-direction: column;
 }
 
+.content-area {
+  background-color: #fbfbf9; /* 设置主内容区域的背景颜色 */
+  padding: 10px 20px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-grow: 1; /* 如果你希望它填充可用空间 */
+}
+
 .right-sidebar {
   grid-column: 3;
   padding-right: 40px;
+  padding-left: 10px;
   overflow-y: auto; /* Allow scrolling */
 }
 

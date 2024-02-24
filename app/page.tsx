@@ -25,7 +25,7 @@ export default function Home() {
         {
           type: "system",
           role: "system",
-          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章指令，需以“写作”或“总结”开头。",
+          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章，指令需以“写作”或“总结”开头。",
         },
       ];
     const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -261,9 +261,12 @@ const handleMemory = async () => {
                         </div>
                     </header>
                     <nav className="left-sidebar">
+                    <div className="sidebar-content">
                         <ThreadsSidebar onThreadSelect={handleThreadSelect} user_id={user_id} len={messages.length}/>
+                    </div>
                     </nav>
                     <div className="main-content">
+                    <div className="content-area">
                     <MessageList
                             messages={messages}
                             messagesEndRef={messagesEndRef}
@@ -329,15 +332,18 @@ const handleMemory = async () => {
                         </div>
                         <FileUploader onUpload={handleFileUpload} />{" "}
                     </div>
+                    </div>
 
                     </div>
                     <nav className="right-sidebar">
+                    <div className="sidebar-content">
                         <UploadedFilesSidebar 
                         uploadedFiles={uploadedFiles} 
                         onFileSelect={handleFileSelect} 
                         refreshTrigger={refreshTrigger} 
                         user_id={user_id} 
                         />
+                    </div>
                     </nav>
                     <footer className="footer">
                         {/* Add footer content if needed */}
