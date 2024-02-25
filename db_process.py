@@ -54,7 +54,7 @@ def get_user_messages(user_id, directory=DIRECTORY):
         return None
     return messages
 
-def get_user_memory(user_id, thread_id, limit=5, table='memory_by_thread'):
+def get_user_memory(user_id, thread_id, limit=10, table='memory_by_thread'):
     # 从Supabase中读取数据
     response = supabase.table(table).select('history').eq('user_id', user_id).eq('thread_id', thread_id).execute()
 
@@ -110,7 +110,7 @@ def save_user_memory(user_id, thread_id, user_input, messages, info, table='memo
             "user_id": user_id,
             "thread_id": thread_id,
             "history": [new_entry],  # history字段是一个包含new_entry的列表
-            "chat_name": user_input[:20]  # chat_name字段是user_input的前20个字符
+            "chat_name": user_input[:25]  # chat_name字段是user_input的前25个字符
         }
         response = supabase.table(table).insert(record).execute()
 

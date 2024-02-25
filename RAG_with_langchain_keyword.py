@@ -12,7 +12,7 @@ from settings import API_KEY, model
 from utils import UPLOAD_FOLDER, count_chars
 import tiktoken
 from templates import *
-from db_process import supabase, save_user_memory
+from db_process import supabase, save_user_memory, read_table_data
 from mmr_patch import max_marginal_relevance_search
 from langchain.chains import LLMChain
 #import pandas as pd
@@ -38,28 +38,41 @@ text_splitter = RecursiveCharacterTextSplitter(
 
 llm = ChatOpenAI(openai_api_key = API_KEY, model_name = model, temperature = tem)
 
-# 结构化方式提取关键词
-keyword_list = "英仕派/艾力绅/HR-V/问界"
-keyword_schema = ResponseSchema(name="auto_name", description=f"提取车型关键词, must be one of {keyword_list}, if not exists leave blank")
-response_schemas = [keyword_schema]
-output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
-format_instructions = output_parser.get_format_instructions()
-#print(format_instructions)
+def get_keywords(user_id):
+    tablename = 'keywords'
+    data = read_table_data(tablename)
+    target_row = next((row for row in data if row['user_id'] == user_id), None)
+    print("keyword list:", target_row)
+    return target_row
 
-KEYWORD_PROMPT = PromptTemplate(
-    input_variables=["question"],
-    template="""You are an AI language model assistant. Your task is to extract keywords from the given user question.
-    User question: {question}
-    RESPONSE: {format_instructions}""",
-    partial_variables={"format_instructions": format_instructions}
-)
+def get_expansion_queries(user_id, query):
+    # 结构化方式提取关键词
+    #keyword_list = "英仕派/艾力绅/HR-V/问界"
+    row = get_keywords(user_id)
+    if row:
+        name = row['name']
+        keyword_list = row['keywords']
+    else:
+        return ""
+    keyword_schema = ResponseSchema(name=f"{name}", description=f"提取{name}关键词, must be one of {keyword_list}, if not exists leave blank")
+    response_schemas = [keyword_schema]
+    output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
+    format_instructions = output_parser.get_format_instructions()
+    #print(format_instructions)
 
-def get_expansion_queries(query):
+    KEYWORD_PROMPT = PromptTemplate(
+        input_variables=["question"],
+        template="""You are an AI language model assistant. Your task is to extract keywords from the given user question.
+        User question: {question}
+        RESPONSE: {format_instructions}""",
+        partial_variables={"format_instructions": format_instructions}
+    )
+
     llm_chain = LLMChain(llm=llm, prompt=KEYWORD_PROMPT)
     queries = llm_chain.invoke(input={"question" : query})
     keywords = output_parser.parse(queries.get("text"))
-    print("keywords:", keywords)
-    return keywords
+    print("keywords extracted:", keywords)
+    return keywords[f"{name}"]
 
 def format_docs(docs):
     #df = pd.DataFrame([doc.page_content for doc in docs], columns=["content"])
@@ -116,11 +129,11 @@ def load_and_process_document(user_id, file_name):
     documents[0].page_content = re.sub(r'\n+', '\n', documents[0].page_content) #去除多余换行符
     # print(documents[0].page_content[:200]) # 打印文档的第一页内容的前200个字符
 
-    keywords = get_expansion_queries(file_name)
-    keyword = keywords['auto_name']
+    keyword_extracted = get_expansion_queries(user_id, file_name)
+    #keyword = keywords['auto_name']
     # 分割文档
     chunks = text_splitter.split_documents(documents)
-    chunks = chunks_process(user_id, chunks, file_path, keyword)
+    chunks = chunks_process(user_id, chunks, file_path, keyword_extracted)
     print("Chunks length:", len(chunks))
 
     # 创建向量存储
