@@ -27,7 +27,7 @@ Copy whole paragraphs from context.
 {context}
 ## [End of Context]
 
-## Assistant starts writing:
+## Assistant starts writing in Chinese:
 """ # 
 
 template_mimic = """你是一位专业的写作专家，Use the following pieces of context to rewrite an detailed article in Chinese.

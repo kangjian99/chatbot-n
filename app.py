@@ -7,7 +7,8 @@ from db_process import *
 from RAG_with_langchain_keyword import load_and_process_document, response_from_rag_chain, response_from_retriver
 from templates import *
 from utils import *
-from geminiai import gemini_response, gemini_response_key_words
+#from geminiai import gemini_response, gemini_response_key_words
+from perp import perplexity_response
 #from werkzeug.utils import secure_filename
 #from pypinyin import lazy_pinyin
 
@@ -15,7 +16,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config['SECRET_KEY'] = SESSION_SECRET_KEY
 app.config['SESSION_PERMANENT'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=12)  # 无交互session过期（重登录）时间
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)  # 无交互session过期（重登录）时间
 # 全局设置会话cookie的属性（仅为Azure部署需求）
 app.config.update(
     SESSION_COOKIE_SECURE=True,     # cookie只能通过HTTPS协议发送，如果标记了SameSite=None，则必须同时设置Secure属性
@@ -150,9 +151,9 @@ def handle_message():
     
     prompt_template = data.get('prompt_template')
     if '文档' not in prompt_template[0]:
-        if 'Gemini' in prompt_template[0]: # 选择Google Gemini
+        if 'Model' in prompt_template[0]: # 选择其它模型
             prompt = f"{prompt_template[1].format(question=user_input)!s}"                
-            response = gemini_response(prompt)
+            response = perplexity_response(prompt, True)
         else: 
             messages = get_user_messages(user_id) if 'Chat' in prompt_template[0] else []
             prompt = f"{prompt_template[1].format(question=user_input)!s}" if messages == [] else user_input
@@ -176,7 +177,7 @@ def handle_message():
             # 处理提取关键词逻辑
             try:
                 response = response_from_retriver(user_id+'_'+uploaded_filename, uploaded_filename, 2)
-                key_words = gemini_response_key_words(f"提取以下信息的关键词，以/分隔显示，不超过5个：\n{response}")
+                key_words = perplexity_response(f"提取以下信息的关键词，以/分隔显示，不超过5个：\n{response}")
                 #print("\n#Session after key words extracted:", session)        
             except Exception as e:
                 # 提取失败时返回错误消息
@@ -195,7 +196,8 @@ def handle_message():
             else:
                 docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
             prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
-            response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n)
+            #response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n)
+            response = interact_with_mistral(user_id, thread_id, user_input, prompt, prompt_template, n)
             #response = ""
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
@@ -226,6 +228,23 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
                 messages = messages[-rows:] #对话仅保留最新rows条
             save_user_messages(user_id, messages) # 清空历史记录
         # session['messages'] = messages
+
+def interact_with_mistral(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
+    messages = [] if messages is None else messages
+    data = None
+    full_message = ''
+
+    try:
+        for data in perplexity_response(prompt, True):
+            json_data = data[data.find('{'):]
+            full_message += json.loads(json_data)["data"]
+            yield data
+    finally:
+        messages.append({"role": "assistant", "content": full_message})
+        join_message = "".join([str(msg["content"]) for msg in messages])
+        info = count_chars(join_message, user_id, messages)
+        if any(item in prompt_template[0] for item in ['文档', 'Chat']):
+            save_user_memory(user_id, thread_id, user_input, full_message, info)
 
 @app.route('/clear')
 def clear_file():
