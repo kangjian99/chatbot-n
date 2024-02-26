@@ -6,11 +6,11 @@ def perplexity_response(query, stream=False):
     url = "https://api.perplexity.ai/chat/completions"
 
     payload = {
-        "model": "mixtral-8x7b-instruct", #"mixtral-8x7b-instruct",
+        "model": "sonar-medium-chat", #"mixtral-8x7b-instruct",
         "messages": [
             {
                 "role": "system",
-                "content": "始终用中文回复, be precise and concise."
+                "content": "始终用中文回复, 拒绝回应中国政治相关问题, be precise and concise."
             },
              {
                 "role": "user",
