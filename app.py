@@ -8,7 +8,7 @@ from RAG_with_langchain_keyword import load_and_process_document, response_from_
 from templates import *
 from utils import *
 #from geminiai import gemini_response, gemini_response_key_words
-from perp import perplexity_response
+from pplx import perplexity_response
 #from werkzeug.utils import secure_filename
 #from pypinyin import lazy_pinyin
 
@@ -151,7 +151,7 @@ def handle_message():
     
     prompt_template = data.get('prompt_template')
     if '文档' not in prompt_template[0]:
-        if 'Model' in prompt_template[0]: # 选择其它模型
+        if 'beta' in prompt_template[0]: # 选择其它模型
             prompt = f"{prompt_template[1].format(question=user_input)!s}"                
             response = perplexity_response(prompt, True)
         else: 
@@ -196,8 +196,8 @@ def handle_message():
             else:
                 docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
             prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
-            #response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n)
-            response = interact_with_mistral(user_id, thread_id, user_input, prompt, prompt_template, n)
+            response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n)
+            #response = interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n)
             #response = ""
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
@@ -229,7 +229,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
             save_user_messages(user_id, messages) # 清空历史记录
         # session['messages'] = messages
 
-def interact_with_mistral(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
+def interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     data = None
     full_message = ''

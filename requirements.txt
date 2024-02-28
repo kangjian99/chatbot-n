@@ -9,4 +9,3 @@ docx2txt
 #google.generativeai
 flask_cors
 supabase
-requests

@@ -15,3 +15,5 @@ RAG_with_langchain_multifile.py
 *.csv
 RAG_with_langchain_SelfQuery.py
 RAG_with_langchain_expansion.py
+/table-PDF
+llamaParse.py

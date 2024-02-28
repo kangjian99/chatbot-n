@@ -15,6 +15,9 @@ from templates import *
 from db_process import supabase, save_user_memory, read_table_data
 from mmr_patch import max_marginal_relevance_search
 from langchain.chains import LLMChain
+
+#from langchain.docstore.document import Document
+#from llamaParse import parsed_from_pdf
 #import pandas as pd
 
 #cache = {}
@@ -29,7 +32,7 @@ def length_function(text: str) -> int:
 
 text_splitter = RecursiveCharacterTextSplitter(
                 #separators=['\n\n','\n'],
-                chunk_size=350,
+                chunk_size=500,
                 chunk_overlap=50,
                 length_function=length_function,
                 add_start_index = True,)
@@ -123,6 +126,8 @@ def load_and_process_document(user_id, file_name):
     elif file_extension == '.pdf':
         loader = PyPDFLoader(file_path)
         documents = loader.load_and_split()
+        #documents = [Document(page_content="", metadata={"source": file_path})]
+        #documents[0].page_content = parsed_from_pdf(file_path)
     else:
         raise ValueError("Unsupported file extension")
     
