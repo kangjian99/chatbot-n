@@ -25,7 +25,7 @@ export default function Home() {
         {
           type: "system",
           role: "system",
-          text: "请提问，文档问答请先选择文件并上传；根据文档内容撰写文章，指令需以“写作”或“总结”开头。",
+          text: "请提问，文档问答请先选择文件并上传；\n根据文档内容撰写文章，提示词需以“写作”或“总结”开头。\n【举例】 \n总结这篇文章主要内容，1000字\n写作：xxxx",
         },
       ];
     const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -117,7 +117,7 @@ export default function Home() {
 
             if (response.ok) {
                 alert("文件上传成功！较长文档需等待系统处理10秒以上再检索。");
-                setSelectedTemplate('1')  // 直接设定模板为文档问答
+                setSelectedTemplate('0')  // 直接设定模板为文档问答
                 if (!uploadedFiles.includes(file.name)) {
                     setUploadedFiles(prevFiles => [...prevFiles, file.name]); // 更新上传文件列表
                 }
@@ -133,7 +133,7 @@ export default function Home() {
 
     const handleFileSelect = (fileName: string) => {
         setSelectedFileName(fileName);
-        setSelectedTemplate('1')  // 直接设定模板为文档问答
+        setSelectedTemplate('0')  // 直接设定模板为文档问答
     };    
 
 const handleMemory = async () => {
