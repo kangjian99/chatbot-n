@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // 导入 Bootstrap
 import MessageList from "./components/MessageList"; // 导入新的组件
-import FileUploader from "./components/FileUploader_url";
+import FileUploader from "./components/FileUploader";
 import UploadedFilesSidebar from "./components/FileSidebar";
 import ThreadsSidebar from "./components/ThreadsSidebar";
 import Login from "./components/Login";
@@ -265,8 +265,8 @@ const handleMemory = async () => {
                         <ThreadsSidebar onThreadSelect={handleThreadSelect} user_id={user_id} len={messages.length}/>
                     </div>
                     </nav>
+                    <div className="center-container">
                     <div className="main-content">
-                    <div className="content-area">
                     <MessageList
                             messages={messages}
                             messagesEndRef={messagesEndRef}
@@ -302,11 +302,11 @@ const handleMemory = async () => {
                                 padding: '5px', 
                                 borderRadius: '5px', 
                                 border: '1px solid #ccc', 
-                                background: isSending ? '#ccc' : '#007bff', 
+                                background: isSending ? '#ccc' : '#0D6FFE', 
                                 color: isSending ? '#666' : 'white',
                                 width: '70px',
                                 marginRight: "5px",
-                                fontSize: "14px",
+                                fontSize: "13px",
                             }}
                             disabled={isSending}
                         >

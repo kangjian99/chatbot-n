@@ -7,15 +7,15 @@ interface FileUploaderProps {
 const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isUploaded, setIsUploaded] = useState<boolean>(false);
-    const allowedExtensions = [".txt", ".docx", ".pdf"];
+    const allowedExtensions = ["docx", "txt", "pdf"];
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selected = event.target.files?.[0];
 
         if (selected) {
-            const maxSize = 5 * 1024 * 1024; // 5MB
+            const maxSize = 10 * 1024 * 1024; // 10MB
             if (selected.size > maxSize) {
-                alert("文件大小不能超过5MB！");
+                alert("文件大小不能超过10MB！");
                 event.target.value = ""; // 清空文件输入，以便重新选择文件
                 setSelectedFile(null);
             } else {
@@ -38,43 +38,49 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
         }
     };
 
+
     return (
-<div
-    style={{
-        display: "flex",
-        justifyContent: "flex-end",
-        alignItems: "center",
-        marginBottom: "10px",
-    }}
->
-    <input
-        type="file"
-        accept={allowedExtensions.join(",")}
-        onChange={handleFileChange}
+<div style={{ marginBottom: "10px" }}>
+    {/* Section 1: Local File Upload */}
+    <div
         style={{
-            marginRight: "10px",
-            fontSize: "13px",
-            padding: "6px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-        }}
-        title={`支持格式: ${allowedExtensions.map(ext => `${ext}`).join("/")}`}
-    />
-    <button
-        onClick={handleFileUpload}
-        style={{
-            padding: "6px 10px",
-            marginRight: "5px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            background: isUploaded ? "#ccc" : "#004080",
-            color: "white",
-            fontSize: "14px",
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
         }}
     >
-        {isUploaded ? '文件处理' : '上传文件'}
-    </button>
+        <input
+            type="file"
+            accept={allowedExtensions.join(",")}
+            onChange={handleFileChange}
+            style={{
+                marginRight: "20px",
+                fontSize: "13px",
+                padding: "6px",
+                borderRadius: "5px",
+                border: "1px solid #aaa", // 更浅的边框颜色，以便在深色背景上更清晰
+                backgroundColor: "#004080", // 深色背景
+                color: "#fff", // 白色文字
+                outline: "none" // 可选，移除聚焦时的边框
+            }}
+            title={`支持格式: ${allowedExtensions.map(ext => `${ext}`).join("/")}`}
+        />
+        <button
+            onClick={handleFileUpload}
+            style={{
+                padding: "6px 10px",
+                marginRight: "5px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                background: isUploaded ? "#ccc" : "#004080",
+                color: "white",
+                fontSize: "13px",
+                cursor: "pointer",
+            }}
+        >
+            {isUploaded ? '文件处理' : '上传文件'}
+        </button>
+    </div>
 </div>
     );
 };

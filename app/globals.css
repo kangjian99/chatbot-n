@@ -101,7 +101,7 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果，根据需要调整 */
 }
 
-.main-content {
+.center-container {
   grid-column: 2;
   background-color: #f7f1e2;
   padding: 20px 20px;
@@ -111,7 +111,7 @@ body {
   flex-direction: column;
 }
 
-.content-area {
+.main-content {
   background-color: #fbfbf9; /* 设置主内容区域的背景颜色 */
   padding: 10px 20px;
   height: 100%;
@@ -135,10 +135,11 @@ body {
   padding: 5px;
 }
 
+/* 对话框 */
 .message-list-container {
   flex-grow: 1; /* Allow to fill the available space */
   overflow-y: auto;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
