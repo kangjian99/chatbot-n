@@ -8,7 +8,7 @@ from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 import os, json, re
-from settings import API_KEY, model
+from settings import API_KEY, API_KEY_HUB, model, hub, BASE_URL
 from utils import UPLOAD_FOLDER, count_chars
 import tiktoken
 from templates import *
@@ -18,11 +18,11 @@ from langchain.chains import LLMChain
 
 #from langchain.docstore.document import Document
 #from llamaParse import parsed_from_pdf
-#import pandas as pd
+import pandas as pd
 
 #cache = {}
 #max_cache_size = 10
-tem = 0
+tem = 0.3
 top_k = 4
 max_k = 10
 
@@ -39,7 +39,10 @@ text_splitter = RecursiveCharacterTextSplitter(
 
 #prompt = ChatPromptTemplate.from_template(template)
 
-llm = ChatOpenAI(openai_api_key = API_KEY, model_name = model, temperature = tem)
+if hub:
+    llm = ChatOpenAI(openai_api_key = API_KEY_HUB, openai_api_base = BASE_URL, model_name = model, temperature = tem)
+else:
+    llm = ChatOpenAI(openai_api_key = API_KEY, model_name = model, temperature = tem)
 
 def get_keywords(user_id):
     tablename = 'keywords'
@@ -58,7 +61,7 @@ def get_expansion_queries(user_id, query):
     else:
         return ""
     keyword_schema = ResponseSchema(name=f"{name}", description=f"提取{name}关键词, must be one of {keyword_list}, if not exists leave blank")
-    response_schemas = [keyword_schema]
+    response_schemas = [keyword_schema] # 可以多个元素
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
     format_instructions = output_parser.get_format_instructions()
     #print(format_instructions)
@@ -78,15 +81,15 @@ def get_expansion_queries(user_id, query):
     return keywords[f"{name}"]
 
 def format_docs(docs):
-    #df = pd.DataFrame([doc.page_content for doc in docs], columns=["content"])
-    #print(df)
-    #df.to_csv("search_results.csv")    
+    df = pd.DataFrame([doc.page_content for doc in docs], columns=["content"])
+    print(df)
+    df.to_csv("search_results.csv")    
     return "\n\n".join(doc.page_content for doc in docs)
 
 def chunks_process(user_id, chunks, file_path, keyword):
-    #df = pd.DataFrame(columns=["source", "chunk_no", "content"])
-    #filename = os.path.basename(file_path)
-    #i = 0
+    df = pd.DataFrame(columns=["source", "chunk_no", "content"])
+    filename = os.path.basename(file_path)
+    i = 0
     for chunk in chunks:
         metadata = {
             "user_id": user_id,
@@ -94,8 +97,8 @@ def chunks_process(user_id, chunks, file_path, keyword):
         chunk.metadata.update(metadata)
         if keyword and keyword not in chunk.page_content:
             chunk.page_content = keyword + '\n' + chunk.page_content
-        #i += 1
-        #df = pd.concat([df, pd.DataFrame({"source": filename, "chunk_no": i, "content": chunk.page_content}, index=[0])])
+        i += 1
+        df = pd.concat([df, pd.DataFrame({"source": filename, "chunk_no": i, "content": chunk.page_content}, index=[0])])
 
     if length_function(chunks[-1].page_content) < 100:
         chunks[-2].page_content += chunks[-1].page_content
@@ -104,9 +107,9 @@ def chunks_process(user_id, chunks, file_path, keyword):
     # df["ID"] = df["source"].str.replace(".txt", "", regex=False) + "-" + df["chunk_no"].astype(str)
     # df = df[["ID", "source", "chunk_no", "content"]]
 
-    #df = df.reset_index(drop=True)
-    #print(df.head(3))
-    #df.to_csv("chunks.csv")
+    df = df.reset_index(drop=True)
+    print(df.head(3))
+    df.to_csv("chunks.csv")
     
     return chunks
 
@@ -126,6 +129,7 @@ def load_and_process_document(user_id, file_name):
     elif file_extension == '.pdf':
         loader = PyPDFLoader(file_path)
         documents = loader.load_and_split()
+        # llamaParse
         #documents = [Document(page_content="", metadata={"source": file_path})]
         #documents[0].page_content = parsed_from_pdf(file_path)
     else:
@@ -134,11 +138,11 @@ def load_and_process_document(user_id, file_name):
     documents[0].page_content = re.sub(r'\n+', '\n', documents[0].page_content) #去除多余换行符
     # print(documents[0].page_content[:200]) # 打印文档的第一页内容的前200个字符
 
-    keyword_extracted = get_expansion_queries(user_id, file_name)
-    #keyword = keywords['auto_name']
+    #keyword_extracted = get_expansion_queries(user_id, file_name) # 直接返回关键词
+    #keyword = keywords['auto_name'] # 如果返回字典，分别提取关键词
     # 分割文档
     chunks = text_splitter.split_documents(documents)
-    chunks = chunks_process(user_id, chunks, file_path, keyword_extracted)
+    chunks = chunks_process(user_id, chunks, file_path, keyword_extracted='')
     print("Chunks length:", len(chunks))
 
     # 创建向量存储

@@ -4,13 +4,16 @@ from openai import OpenAI
 import json, threading
 from datetime import timedelta
 from db_process import *
-from RAG_with_langchain_keyword import load_and_process_document, response_from_rag_chain, response_from_retriver
+from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
+from webloader import *
 from templates import *
 from utils import *
-#from geminiai import gemini_response, gemini_response_key_words
-from pplx import perplexity_response
 #from werkzeug.utils import secure_filename
 #from pypinyin import lazy_pinyin
+
+#from geminiai import gemini_response, gemini_response_key_words
+from pplx import perplexity_response, interact_with_pplx
+from claude import claude_response_stream, interact_with_claude
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -150,21 +153,28 @@ def handle_message():
         #print("Session after template change:", session)
     
     prompt_template = data.get('prompt_template')
+    if claude_model:
+        interact_func = interact_with_claude
+    else:
+        interact_func = interact_with_openai
+
     if '文档' not in prompt_template[0]:
         if 'beta' in prompt_template[0]: # 选择其它模型
             prompt = f"{prompt_template[1].format(question=user_input)!s}"                
-            response = perplexity_response(prompt, True)
+            response = claude_response_stream(prompt)
+        elif '总结' in prompt_template[0]:
+            content = url_process(user_input, model)
+            prompt = f"{prompt_template[1].format(question=content)!s}"                
+            response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
         else: 
             messages = get_user_messages(user_id) if 'Chat' in prompt_template[0] else []
             prompt = f"{prompt_template[1].format(question=user_input)!s}" if messages == [] else user_input
             # 添加与OpenAI交互的逻辑
             n = 1
-            response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n, messages)
+            response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n, messages)
     else:
         if user_input.startswith('#clear'):
             clear_files_with_prefix(user_id)
-            #session['uploaded_filename'] = ''
-            #session['key_words'] = {}
             return Response('data: {"data": "Cleared."}\n\n', mimetype='text/event-stream')
         if user_input.startswith('#file'):
             filelist = get_files_with_prefix(user_id) or "没有文件上传。"
@@ -176,7 +186,7 @@ def handle_message():
         if user_input.startswith(('总结', '写作')) and num_tokens(user_input) < 20:
             # 处理提取关键词逻辑
             try:
-                response = response_from_retriver(user_id+'_'+uploaded_filename, uploaded_filename, 2)
+                response = response_from_retriver(user_id, user_id + '_' + uploaded_filename, uploaded_filename, 2)
                 key_words = perplexity_response(f"提取以下信息的关键词，以/分隔显示，不超过5个：\n{response}")
                 #print("\n#Session after key words extracted:", session)        
             except Exception as e:
@@ -187,18 +197,18 @@ def handle_message():
         #    user_input += '\n(' + uploaded_filename + ')' # 为用户提问增添补充信息
             print(user_input)
         fullpath_filename = user_id + '_' + uploaded_filename
-        if n==1:
-            response = response_from_rag_chain(user_id, thread_id, fullpath_filename, user_input, True)
-        else:
-            docs = response_from_retriver(user_id, fullpath_filename, user_input)
-            if '模仿' in prompt_template[0]:
-                docchat_template = template_mimic
-            else:
-                docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
-            prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
-            response = interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n)
-            #response = interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n)
-            #response = ""
+        #if n==1:
+        #    response = response_from_rag_chain(user_id, thread_id, fullpath_filename, user_input, True)
+        #else:
+        docs = response_from_retriver(user_id, fullpath_filename, user_input)
+        #if '模仿' in prompt_template[0]:
+        #    docchat_template = template_mimic
+        #else:
+        docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
+        prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
+        response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
+        #response = interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n)
+        #response = ""
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 
@@ -219,7 +229,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
         info = count_chars(join_message, user_id, messages)
-        if any(item in prompt_template[0] for item in ['文档', 'Chat']):
+        if any(item in prompt_template[0] for item in ['文档', '总结']):
             save_user_memory(user_id, thread_id, user_input, full_message, info)
         rows = history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
         if rows != 0:
@@ -228,23 +238,6 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
                 messages = messages[-rows:] #对话仅保留最新rows条
             save_user_messages(user_id, messages) # 清空历史记录
         # session['messages'] = messages
-
-def interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
-    messages = [] if messages is None else messages
-    data = None
-    full_message = ''
-
-    try:
-        for data in perplexity_response(prompt, True):
-            json_data = data[data.find('{'):]
-            full_message += json.loads(json_data)["data"]
-            yield data
-    finally:
-        messages.append({"role": "assistant", "content": full_message})
-        join_message = "".join([str(msg["content"]) for msg in messages])
-        info = count_chars(join_message, user_id, messages)
-        if any(item in prompt_template[0] for item in ['文档', 'Chat']):
-            save_user_memory(user_id, thread_id, user_input, full_message, info)
 
 @app.route('/clear')
 def clear_file():

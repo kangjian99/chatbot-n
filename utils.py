@@ -1,7 +1,12 @@
 import os, re, json
 from datetime import datetime
-from db_process import num_tokens, read_table_data
+from db_process import read_table_data
 from urllib.parse import unquote
+import tiktoken
+
+enc = tiktoken.get_encoding("cl100k_base") # 以 token 计算文本块长度
+def num_tokens(text: str) -> int:
+    return len(enc.encode(text))
 
 def get_prompt_templates():
     tablename = 'prompts'

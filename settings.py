@@ -1,13 +1,22 @@
 import os
 from openai import OpenAI
 #from dotenv import load_dotenv
-
 #load_dotenv()
+
 API_KEY = os.environ.get('OPENAI_API_KEY')
+API_KEY_HUB = os.environ.get('OPENAI_API_KEY_HUB')   # 中转
+
 model="gpt-3.5-turbo-0125"
 #model="gpt-4-0125-preview"
+#BASE_URL = "https://openai.ehco-relay.cc/v1"
+claude_model = False
 
-client = OpenAI(api_key = API_KEY)
+hub = bool(os.environ.get('HUB'))
+BASE_URL = "https://api.moonshot.cn/v1"
+if hub:
+    model="moonshot-v1-8k"
+
+client = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if hub else OpenAI(api_key = API_KEY)
 
 DB_URL: str = os.environ.get("SUPABASE_URL")
 DB_KEY: str = os.environ.get("SUPABASE_KEY")
