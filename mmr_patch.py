@@ -22,14 +22,21 @@ def max_marginal_relevance_search(
 
     matched_documents, scores, matched_embeddings = zip(*filtered_tuple) # 分别赋值为元组的第一个、第二个和第三个元素
 
-    mmr_selected = maximal_marginal_relevance(
-        np.array([embedding], dtype=np.float32),
-        matched_embeddings,
-        k=k,
-        lambda_mult=lambda_mult,
-    )
+    if len(matched_documents) > k:
+        mmr_selected = maximal_marginal_relevance(
+            np.array([embedding], dtype=np.float32),
+            matched_embeddings,
+            k=k,
+            lambda_mult=lambda_mult,
+        )
 
-    docs = [matched_documents[i] for i in mmr_selected]
-    print(scores, mmr_selected, [scores[i] for i in mmr_selected])
+        #docs = [matched_documents[i] for i in mmr_selected]
+
+        mmr_with_sml = list(set(mmr_selected) | set(range(min(10, k))))
+        docs = [matched_documents[i] for i in mmr_with_sml]
+
+        print(scores, mmr_with_sml, mmr_selected, [scores[i] for i in mmr_selected])
+    else:
+        docs = matched_documents
        
     return docs

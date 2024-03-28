@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, Response, session, render_template
 from flask_cors import CORS
 from openai import OpenAI
-import json, threading
+import json, threading, random
 from datetime import timedelta
 from db_process import *
 from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
@@ -12,8 +12,9 @@ from utils import *
 #from pypinyin import lazy_pinyin
 
 #from geminiai import gemini_response, gemini_response_key_words
-from pplx import perplexity_response, interact_with_pplx
-from claude import claude_response_stream, interact_with_claude
+#from pplx import perplexity_response, interact_with_pplx
+#from test_LLMs import multi_LLM_response
+from claude import claude_response_stream, interact_with_claude, claude_response
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -29,22 +30,30 @@ app.config.update(
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 param_temperature = 0.5
-param_n = 3
+param_n = 1
 
-def Chat_Completion(model, question, tem, messages, stream, n=param_n):
+def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n=param_n):
     try:
+        messages.append({"role": "assistant", "content": "最近我的输出有简略化的不良倾向，我会在这次输出中改进"})
         messages.append({"role": "user", "content": question})
-        print("generate_text:", messages)
-        response = client.chat.completions.create(
-        model= model,
-        messages= messages,
-        temperature=tem,
-        stream=stream,
-        top_p=1.0,
-        n=n,
-        frequency_penalty=0,
-        presence_penalty=0
-        )
+        print("generate_text:", messages[-1]["content"][:250])
+        if hub and BASE_URL == "https://burn.hair/v1":
+            tem += round(random.uniform(-0.1, 0.1), 2)
+            
+        params = {
+            "model": model,
+            "messages": messages,
+            "temperature": tem,
+            "stream": stream,
+            "top_p": 1.0,
+            "n": n,
+            "frequency_penalty": 0,
+            "presence_penalty": 0
+        }
+        if model.startswith(("moonshot" ,"yi")):
+            params["max_tokens"] = max_output_tokens
+        response = client.chat.completions.create(**params)
+        
         if not stream:
             print(f"{response.usage}\n")
             session['tokens'] = response.usage.total_tokens
@@ -71,13 +80,13 @@ def Chat_Completion(model, question, tem, messages, stream, n=param_n):
                     # print(choice.index, text[choice.index])
                     chunk_count += 1
                     if chunk_count > 6:
-                        yield {'content': "\n***请等待全部输出完毕***"}
+                        yield {'content': "\n*-*请等待全部输出完毕*-*"}
 
                 if choice.finish_reason == "stop":
                     break
         # 在所有响应处理完毕后，输出暂存变量中的内容
         if text[1]:
-            combined_content = '\n'.join([f"{'-'*10}\n回复 {n+2}：\n{choice}" for n, choice in enumerate(text[1:])])
+            combined_content = '\n'.join([f"{'*'*3}\n回复 {n+2}：\n{choice}" for n, choice in enumerate(text[1:])])
             yield {'content': '\n'+combined_content}
         return response
         
@@ -144,7 +153,9 @@ def handle_message():
     thread_id = data.get('thread_id')
     selected_template = data['selected_template']  # 接收选择的模板编号
     uploaded_filename = data.get('selected_file')  # 接收选择的上传文件
-    n = data.get('n', 3)
+    n = data.get('n', param_n)
+    max_k = data.get('max_k', 10)
+    prompt_template = data.get('prompt_template')
     print("接收信息后session：", session)
     # 判断是否用户变更模版，如果是则清空信息
     if last_selected != selected_template:
@@ -152,7 +163,6 @@ def handle_message():
         session['selected_template'] = selected_template
         #print("Session after template change:", session)
     
-    prompt_template = data.get('prompt_template')
     if claude_model:
         interact_func = interact_with_claude
     else:
@@ -163,7 +173,7 @@ def handle_message():
             prompt = f"{prompt_template[1].format(question=user_input)!s}"                
             response = claude_response_stream(prompt)
         elif '总结' in prompt_template[0]:
-            content = url_process(user_input, model)
+            content = url_process(user_input, MODEL)
             prompt = f"{prompt_template[1].format(question=content)!s}"                
             response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
         else: 
@@ -183,24 +193,28 @@ def handle_message():
         if not uploaded_filename:
             return Response('data: {"data": "请先选择或上传文档。"}\n\n', mimetype='text/event-stream')
         
-        if user_input.startswith(('总结', '写作')) and num_tokens(user_input) < 20:
-            # 处理提取关键词逻辑
+        if user_input.startswith(('总结', '写作')):
+            if num_tokens(user_input) <= 20:
+                # 处理提取关键词逻辑
+                try:
+                    response = response_from_retriver(user_id, user_id + '_' + uploaded_filename, uploaded_filename, max_k, 2)
+                    key_words = claude_response(f"提取以下内容的关键词，以/分隔显示，不超过5个：\n{response}")
+                    #print("\n#Session after key words extracted:", session)        
+                except Exception as e:
+                    key_words = uploaded_filename
+                user_input += '\n' + key_words  # 为用户提问增添关键词
+        else:
             try:
-                response = response_from_retriver(user_id, user_id + '_' + uploaded_filename, uploaded_filename, 2)
-                key_words = perplexity_response(f"提取以下信息的关键词，以/分隔显示，不超过5个：\n{response}")
-                #print("\n#Session after key words extracted:", session)        
-            except Exception as e:
-                # 提取失败时返回错误消息
-                key_words = uploaded_filename
-            user_input += '\n' + key_words  # 为用户提问增添关键词
-        #else:
-        #    user_input += '\n(' + uploaded_filename + ')' # 为用户提问增添补充信息
-            print(user_input)
+                key_words = claude_response(f"提取下面句子中人名和企业名称之外的关键词，关键词只可能是名词或动词，仅输出关键词：\n{user_input}")
+                user_input += '\n' + key_words
+            except:
+                pass
+
         fullpath_filename = user_id + '_' + uploaded_filename
         #if n==1:
         #    response = response_from_rag_chain(user_id, thread_id, fullpath_filename, user_input, True)
         #else:
-        docs = response_from_retriver(user_id, fullpath_filename, user_input)
+        docs = response_from_retriver(user_id, fullpath_filename, user_input, max_k)
         #if '模仿' in prompt_template[0]:
         #    docchat_template = template_mimic
         #else:
@@ -208,7 +222,7 @@ def handle_message():
         prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
         response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
         #response = interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n)
-        #response = ""
+        #response = multi_LLM_response(user_id, thread_id, user_input, prompt) #""
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 
@@ -216,14 +230,28 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     messages = [] if messages is None else messages
     res = None
     full_message = ''
+    max_output_tokens = 4096
+    
+    if hub and BASE_URL == "https://api.moonshot.cn/v1":
+        input_tokens = num_tokens(prompt)
+        print(input_tokens)
+        if input_tokens <= 6200:
+            model = model_8k
+            max_output_tokens = 8000-input_tokens
+            if n > 1 and max_output_tokens<3000:
+                n = 1
+        else:
+            model = model_32k
+    else:
+        model = MODEL
 
     try:
-        for res in Chat_Completion(model, prompt, param_temperature, messages, True, n):
+        for res in Chat_Completion(model, prompt, param_temperature, messages, max_output_tokens, True, n):
             if 'content' in res and res['content']:
                 markdown_message = res['content']  # generate_markdown_message(res['content'])
                 # print(f"Yielding markdown_message: {markdown_message}")  # 添加这一行
                 # token_counter += 1
-                full_message += res['content'] if not res['content'].lstrip().startswith('***') else ''
+                full_message += res['content'] if not res['content'].lstrip().startswith('*-*') else ''
                 yield f"data: {json.dumps({'data': markdown_message})}\n\n" # 将数据序列化为JSON字符串
     finally:
         messages.append({"role": "assistant", "content": full_message})

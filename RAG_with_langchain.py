@@ -7,7 +7,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
 import os, json, re
-from settings import API_KEY, API_KEY_HUB, model, hub, BASE_URL
+from settings import API_KEY, API_KEY_HUB, MODEL, hub, BASE_URL
 from utils import UPLOAD_FOLDER, count_chars
 import tiktoken
 from templates import *
@@ -23,12 +23,12 @@ from mmr_patch import max_marginal_relevance_search
 #max_cache_size = 10
 tem = 0.3
 top_k = 4
-max_k = 10
+#max_k = 15
 
 if hub:
-    llm = ChatOpenAI(openai_api_key = API_KEY_HUB, openai_api_base = BASE_URL, model_name = model, temperature = tem)
+    llm = ChatOpenAI(openai_api_key = API_KEY_HUB, openai_api_base = BASE_URL, model_name = MODEL, temperature = tem)
 else:
-    llm = ChatOpenAI(openai_api_key = API_KEY, model_name = model, temperature = tem)
+    llm = ChatOpenAI(openai_api_key = API_KEY, model_name = MODEL, temperature = tem)
 
 llm_parse = ChatOpenAI(openai_api_key = API_KEY, model_name = "gpt-3.5-turbo-0125", temperature = 0)
 
@@ -37,7 +37,7 @@ def length_function(text: str) -> int:
     return len(enc.encode(text))
 
 text_splitter = RecursiveCharacterTextSplitter(
-                #separators=['\n\n','\n'],
+                separators=['\n\n','\n'],
                 chunk_size=500,
                 chunk_overlap=50,
                 length_function=length_function,
@@ -48,7 +48,7 @@ text_splitter = RecursiveCharacterTextSplitter(
 def format_docs(docs):
     #df = pd.DataFrame([doc.page_content for doc in docs], columns=["content"])
     #print(df)
-    #df.to_csv("search_results.csv")    
+    #df.to_csv("search_results.csv")
     return "\n\n".join(doc.page_content for doc in docs)
 
 def chunks_process(user_id, chunks, file_path, keyword):
@@ -158,7 +158,7 @@ def response_from_rag_chain(user_id, thread_id, file_name, query, stream=False):
         finally:
             save_user_memory(user_id, thread_id, query, full_message, count_chars(query+full_message, user_id))
 
-def response_from_retriver(user_id, file_name, query, k=top_k):
+def response_from_retriver(user_id, file_name, query, max_k, k=top_k):
     vectorstore = SupabaseVectorStore(
         client=supabase,    
         embedding=OpenAIEmbeddings(openai_api_key=API_KEY, model="text-embedding-3-small"),
@@ -169,8 +169,9 @@ def response_from_retriver(user_id, file_name, query, k=top_k):
     filter = { "user_id": user_id } if file_name.endswith("_多文档检索") else { "source": os.path.join(UPLOAD_FOLDER, file_name) }
 
     if query.startswith(('总结', '写作')):
-        #docs = vectorstore.max_marginal_relevance_search(query, k=top_k, filter={ "user_id": user_id })
+        #docs = vectorstore.max_marginal_relevance_search(query, k=top_k, filter=)
         docs = max_marginal_relevance_search(vectorstore, query=query, k=top_k, filter=filter) # 返回最大边际相关性检索结果
+        docs = sorted(docs, key=lambda doc: (doc.metadata.get('page', 0), doc.metadata.get('start_index', 0)))
     else:
         docs = vectorstore.similarity_search(query, k=top_k, filter=filter) # 返回检索结果
         #docs = vectorstore.max_marginal_relevance_search(query, k=top_k, filter={ "source": file_name })
