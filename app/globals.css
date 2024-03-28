@@ -39,6 +39,9 @@
 }
 */
 body {
+  margin: 0; /* Remove browser default margins */
+  font-family: 'Arial', sans-serif; /* Set a pleasant font family */
+  background-color: #f8f9fa;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -46,12 +49,6 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-}
-
-body {
-  margin: 0; /* Remove browser default margins */
-  font-family: 'Arial', sans-serif; /* Set a pleasant font family */
-  background-color: #f8f9fa;  
 }
 
 /* Example styling for individual components - adjust as desired */
@@ -145,4 +142,63 @@ body {
   border-radius: 8px;
   white-space: pre-wrap;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);  
+}
+
+.markdown-content table {
+  border-collapse: collapse; /* 折叠边框为单一线条 */
+  width: 100%; /* 可选，根据需要调整 */
+  margin-bottom: 1em; /* 可选，根据需要调整 */
+}
+
+/* 为表格的单元格(td)和表头(th)设置边框 */
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid #ccc; /* 设置边框颜色和宽度 */
+  padding: 8px; /* 设置内边距 */
+  text-align: left; /* 设置文本对齐方式 */
+}
+
+/* 为表格的表头(th)设置背景颜色，可选 */
+.markdown-content th {
+  background-color: #dde8f5; /* 设置背景颜色 */
+}
+
+.markdown-content h1 {
+  color: #2c3e50; /* 字体颜色 */
+  font-size: 1.5em; /* 字体大小 */
+  margin-bottom: 0.5em; /* 下边距 */
+}
+
+.markdown-content h2 {
+  color: #2c3e50; /* 字体颜色 */
+  font-size: 1.3em; /* 字体大小 */
+  margin-bottom: 0.4em; /* 下边距 */
+}
+
+.markdown-content h3 {
+  color: #34495e; /* 字体颜色 */
+  font-size: 1.1em; /* 字体大小 */
+  margin-bottom: 0.2em; /* 下边距 */
+}
+
+.markdown-content h4 {
+  color: #34495e; /* 字体颜色 */
+  font-size: 1em; /* 字体大小 */
+  margin-bottom: 0.1em; /* 下边距 */
+}
+
+.markdown-content hr {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.markdown-content p {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-top: -15px;
+  margin-bottom: -15px;
 }

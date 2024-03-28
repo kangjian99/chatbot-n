@@ -40,8 +40,8 @@ export const handleStreamResponse = async (
                 });
 
                 // 以下是多个回复的特殊处理
-                const pattern = /\n\*\*\*[^*]+?\*\*\*(?=\n|$)/g; // 匹配所有单独一行的“*** ***”
-                const dashPattern = /-----/; // 检查是否存在“-----”
+                const pattern = /\n\*-\*[^*]+?\*-\*(?=\n|$)/g; // 匹配所有单独一行的“*-* *-*”
+                const dashPattern = /\*\*\*/; // 检查是否存在“-----”
             
                 if (pattern.test(accumulatedData)) {
                     if (dashPattern.test(accumulatedData)) {
@@ -57,7 +57,7 @@ export const handleStreamResponse = async (
                             }
                         }
                     }
-                } else { accumulatedData = accumulatedData.replace(/\n\*\*\*[^*]+?\*\*\*/, '');
+                } else { accumulatedData = accumulatedData.replace(/\n\*-\*[^*]+?\*-\*/, '');
                 }
 
                 // 更新“思考中...”消息

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm';
 
 interface Message {
   type: 'user' | 'system' | 'image';
@@ -25,6 +27,18 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
       (err) => console.error('Could not copy text: ', err)
     );
   };
+  const containsMarkdownTable = (text: string) => {
+    // 匹配表格：查找是否有行以|开头和结尾，且至少有一行是分隔行（只包含|, -, 和空格）
+    const lines = text.split('\n');
+    const hasTableBorders = lines.some(line => line.trim().startsWith('|') && line.trim().endsWith('|'));
+    const hasSeparatorLine = lines.some(line => /^[\|\-\s]+$/.test(line.trim()));
+    return hasTableBorders && hasSeparatorLine;
+  };
+  const processText = (text: string) => {
+    return text
+      .replace(/(<br\s*\/?>\s*)+/gi, '\n') // Replace consecutive <br> tags with a single \n
+      .replace(/\n\n+/g, '\n') // Replace two or more consecutive \n with a single \n
+  };
 
   return (
     <div className="message-list-container">
@@ -44,7 +58,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
                 background: msg.type === 'user' ? '#BAE6FC' : '#eee',
                 color: msg.type === 'user' ? 'black' : '#374151',
                 display: 'inline-block',
-                maxWidth: msg.type === 'user' ? '60%' : '70%',
+                maxWidth: msg.type === 'user' ? '60%' : containsMarkdownTable(msg.text) ? '90%' : '70%',
                 wordWrap: 'break-word',
                 fontSize: msg.role === 'system' ? '13px' : '15px',
                 fontStyle: msg.role === 'system' ? 'italic' : 'normal',
@@ -52,9 +66,9 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
               }}
               onClick={() => copyToClipboard(msg.text)} // 添加点击事件处理器
             >
-          {/* 使用 dangerouslySetInnerHTML 渲染包含 HTML 的消息文本
-          <div dangerouslySetInnerHTML={{ __html: msg.text }} /> */}
-              {msg.text}
+                <div className="markdown-content">
+                <ReactMarkdown remarkPlugins={[gfm]}>{processText(msg.text)}</ReactMarkdown>
+                </div>
             </span>
           )}
         </div>

@@ -11,7 +11,6 @@ import { handleStreamResponse } from './components/handleStreamResponse';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 const default_n = process.env.NEXT_PUBLIC_API_N || 2;
-const default_k = process.env.NEXT_PUBLIC_API_MAX_K || 10;
 const headline = process.env.NEXT_PUBLIC_API_HEADLINE || "AI 知识库管理助手";
 
 interface Message {
@@ -39,7 +38,7 @@ export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
-    const [krangeValue, setKrangeValue] = useState(Number(default_k));
+    const [nrangeValue, setNrangeValue] = useState(Number(default_n));
     const [isLoggedIn, setIsLoggedIn] = useState(false); 
     const [isLoading, setIsLoading] = useState(true); // 新增状态来追踪加载状态
 
@@ -205,7 +204,7 @@ const handleMemory = async () => {
                     selected_template: selectedTemplate,
                     prompt_template: prompts[Number(selectedTemplate)],
                     selected_file: selectedFileName, // 将选中的文件名添加到请求中
-                    max_k: krangeValue
+                    n: nrangeValue
                 }), // 发送选择的模板
                 credentials: "include",
             });
@@ -317,18 +316,18 @@ const handleMemory = async () => {
                     <div style={{ display: 'flex', paddingLeft: '75px', paddingRight: '75px', marginBottom: '0px', alignItems: 'center', justifyContent: 'flex-end' }}>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                             <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
-                                <label style={{ marginRight: '10px', fontSize: '13px' }}>max_k</label>
+                                <label style={{ marginRight: '10px', fontSize: '13px' }}>Choices</label>
                                     <input
                                         type="range"
-                                        min="10"
-                                        max="15"
-                                        value={krangeValue}
-                                        onChange={(e) => setKrangeValue(Number(e.target.value))}
+                                        min="1"
+                                        max="3"
+                                        value={nrangeValue}
+                                        onChange={(e) => setNrangeValue(Number(e.target.value))}
                                         className="form-range"
                                         style={{ marginRight: '10px', width: "80px" }}
-                                        title={'max top_k'}
+                                        title={'回复数量1~3'}
                                     />
-                                <span style={{ marginRight: '45px', fontSize: '13px' }}>{krangeValue}</span>
+                                <span style={{ marginRight: '45px', fontSize: '13px' }}>{nrangeValue}</span>
                             </div>
                         </div>
                         <FileUploader onUpload={handleFileUpload} />{" "}
