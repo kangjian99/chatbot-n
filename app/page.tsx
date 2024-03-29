@@ -26,7 +26,7 @@ export default function Home() {
         {
           type: "system",
           role: "system",
-          text: "请提问，文档问答请先选择文件并上传；\n根据文档内容撰写文章，提示词需以“写作”或“总结”开头。\n【举例】 \n总结这篇文章主要内容，1000字\n写作：xxxx",
+          text: "请提问，文档问答请先选择文件并上传；\n根据文档内容撰写文章，提示词需以“写作”或“总结”开头。\n【举例】 \n写作：xxxxxx (提示词要素包括且不限于：文章主题、核心信息/内容关键词、字数等)",
         },
       ];
     const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -44,7 +44,7 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(true); // 新增状态来追踪加载状态
 
     useEffect(() => {
-        document.title = `文档助手Chatbot - ${user_id}`;
+        document.title = `${headline} - ${user_id}`;
       }, [user_id]); // 空依赖数组意味着这个效果仅在组件挂载时运行，非空则在user_id更新后执行
 
     useEffect(() => {
