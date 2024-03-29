@@ -30,7 +30,7 @@ app.config.update(
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 param_temperature = 0.5
-param_n = 1
+param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
 
 def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n=param_n):
     try:
@@ -163,7 +163,7 @@ def handle_message():
         session['selected_template'] = selected_template
         #print("Session after template change:", session)
     
-    if claude_model:
+    if claude_model or user_input.startswith(('总结', '写作')) and MODEL != "gpt-4-0125-preview":
         interact_func = interact_with_claude
     else:
         interact_func = interact_with_openai
@@ -194,6 +194,7 @@ def handle_message():
             return Response('data: {"data": "请先选择或上传文档。"}\n\n', mimetype='text/event-stream')
         
         if user_input.startswith(('总结', '写作')):
+            key_words = user_input
             if num_tokens(user_input) <= 20:
                 # 处理提取关键词逻辑
                 try:
@@ -202,19 +203,19 @@ def handle_message():
                     #print("\n#Session after key words extracted:", session)        
                 except Exception as e:
                     key_words = uploaded_filename
-                user_input += '\n' + key_words  # 为用户提问增添关键词
-        else:
+                key_words = user_input + '\n' + key_words  # 为用户提问增添关键词
+        else:   # 对于文档检索需求用key_words获取信息
             try:
-                key_words = claude_response(f"提取下面句子中人名和企业名称之外的关键词，关键词只可能是名词或动词，仅输出关键词：\n{user_input}")
-                user_input += '\n' + key_words
+                key_words = claude_response(f"提取下面句子中的关键词，关键词只可能是名词或动词，不要把完整的词拆开，仅输出关键词：\n{user_input}")
+                print("关键词：", key_words)
             except:
-                pass
+                key_words = user_input
 
         fullpath_filename = user_id + '_' + uploaded_filename
         #if n==1:
         #    response = response_from_rag_chain(user_id, thread_id, fullpath_filename, user_input, True)
         #else:
-        docs = response_from_retriver(user_id, fullpath_filename, user_input, max_k)
+        docs = response_from_retriver(user_id, fullpath_filename, key_words, max_k)
         #if '模仿' in prompt_template[0]:
         #    docchat_template = template_mimic
         #else:
@@ -243,7 +244,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         else:
             model = model_32k
     else:
-        model = MODEL
+        model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_16k
 
     try:
         for res in Chat_Completion(model, prompt, param_temperature, messages, max_output_tokens, True, n):

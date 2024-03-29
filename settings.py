@@ -6,18 +6,22 @@ from openai import OpenAI
 API_KEY = os.environ.get('OPENAI_API_KEY')
 API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
 BASE_URL = "https://api.moonshot.cn/v1"
-API_KEY_HUB = os.environ.get('OPENAI_API_KEY_HUB')   # 中转 测试句
-BASE_URL = "https://burn.hair/v1"    # 测试句
+#API_KEY_HUB = os.environ.get('OPENAI_API_KEY_HUB')   # 中转 测试句
+#BASE_URL = "https://burn.hair/v1"    # 测试句
 
-MODEL="gpt-3.5-turbo-0125"
+MODEL_16k="gpt-3.5-turbo-0125"
+MODEL=os.getenv('GPT_MODEL') or MODEL_16k
 #MODEL="gpt-4-0125-preview"
 model_8k = "moonshot-v1-8k"
 model_32k = "moonshot-v1-32k"
 
-claude_model = os.environ.get('CLAUDE_MODEL', '').lower() == 'true'
-#claude_model = False   # 测试句
+claude_model = os.environ.get('CLAUDE', '').lower() == 'true'   # 全局采用Claude模型
+claude_model = False   # 测试句
 
-hub = bool(os.environ.get('HUB'))
+hub = bool(os.environ.get('HUB'))   # 是否用原生OpenAI方式
+if os.environ.get('HUB') == "burn":
+    API_KEY_HUB = os.environ.get('OPENAI_API_KEY_HUB')
+    BASE_URL = "https://burn.hair/v1"
 
 #BASE_URL = "https://api.lingyiwanwu.com/v1"
 #MODEL="yi-34b-chat-200k"
