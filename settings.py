@@ -16,7 +16,7 @@ model_8k = "moonshot-v1-8k"
 model_32k = "moonshot-v1-32k"
 
 claude_model = os.environ.get('CLAUDE', '').lower() == 'true'   # 全局采用Claude模型
-claude_model = False   # 测试句
+#claude_model = False   # 测试句
 
 hub = bool(os.environ.get('HUB'))   # 是否用原生OpenAI方式
 if os.environ.get('HUB') == "burn":

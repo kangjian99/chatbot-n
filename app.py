@@ -34,7 +34,7 @@ param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
 
 def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n=param_n):
     try:
-        messages.append({"role": "assistant", "content": "最近我的输出有简略化的不良倾向，我会在这次输出中改进"})
+        messages.append({"role": "system", "content": "避免输出简略化。"})
         messages.append({"role": "user", "content": question})
         print("generate_text:", messages[-1]["content"][:250])
         if hub and BASE_URL == "https://burn.hair/v1":
@@ -163,7 +163,7 @@ def handle_message():
         session['selected_template'] = selected_template
         #print("Session after template change:", session)
     
-    if claude_model or user_input.startswith(('总结', '写作')) and MODEL != "gpt-4-0125-preview":
+    if claude_model or user_input.startswith(('总结', '写作')) and (not MODEL.startswith("gpt-4")) and max_k != 11:
         interact_func = interact_with_claude
     else:
         interact_func = interact_with_openai

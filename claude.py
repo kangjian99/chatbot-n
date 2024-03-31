@@ -11,11 +11,11 @@ model=os.getenv('CLAUDE_MODEL') or model_s
 
 client = anthropic.Anthropic(api_key=c_api_key)
 
-def claude_response(query):
+def claude_response(query, model=model_s):
     response = client.messages.create(
-        system="直接输出用户要求的信息，开头不要增加描述",
+        system="Skip the preamble.",
         messages=[{"role": "user", "content": query}],
-        model=model_s,
+        model=model,
         max_tokens=1024,
     )
     return response.content[0].text
@@ -40,7 +40,9 @@ def interact_with_claude(user_id, thread_id, user_input, prompt, prompt_template
     #    model = model_l
 
     messages.append({"role": "user", "content": prompt})
+    messages.append({"role": "assistant", "content": "我的回复会避免简略化："})   # Prefill
     with client.messages.stream(
+        system="对于写作需求，避免输出过于简略化",
         messages=messages,
         model=model,
         max_tokens=4096,
