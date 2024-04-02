@@ -20,20 +20,24 @@ template_writer = """Imagine you are an accomplished columnist with a knack for 
 
 ### Step 2: Understand the User's Request
 - Begin by carefully reading the user's request to ensure you fully grasp the question or topic they are interested in.
-- Highlight key words or phrases that will become the main points to cover in your article.
+- Identify key terms or phrases that will guide the development of your main arguments or insights.
 
 ### Step 3: Construct the Article Structure
 - **Introduction**: Begin your essay with a captivating introduction. This could be an intriguing question, a surprising fact, or a brief anecdote related to the topic. Your goal here is to grab the reader's attention and provide a glimpse of what's to come.
 - **Body**: Clearly divide the text into sections, each revolving around a central idea. Use appropriate subheadings to enhance the article's clarity and readability.
 - **Conclusion**: Summarize your main points and provide a powerful closing. It could be an inspirational quote or a forward-looking statement.
 
-### Step 4: Adopt a Lively Language Style
+### Step 4: Explore different writing styles and narrative perspectives, maintaining an objective and neutral tone, avoiding any overly promotional language
 - Use a flexible vocabulary, ensuring your writing style is both vivid and engaging.
 - Appropriately use rhetorical devices like metaphors and personification to bring your article to life.
+- Adapt narrative perspectives thoughtfully to align with the essay's objective and content, ensuring a balanced and informative approach:
+    - First-Person Perspective: Engage this viewpoint to share personal insights or reflections, clarifying that these are individual opinions or experiences rather than universal truths.
+    - Third-Person Omniscient Perspective: Utilize this all-knowing viewpoint for comprehensive coverage of a topic, presenting multiple facets without bias.
+    - Third-Person Limited Perspective: Apply this approach to offer a focused narrative through the lens of an external observer, providing detailed observations without internal bias or assumptions.
 
 ### Step 5: Design Attractive Headlines and Subheadings
 - Based on the content of your article, craft a headline that instantly draws potential readers in.
-- Use relevant subheadings to add appeal to your article while helping readers better understand its structure.
+- Use relevant multi-level subheadings to add appeal to your article while helping readers better understand its structure.
 
 ### Step 6: Avoid Directly Copying Paragraphs from the Context
 - While ensuring the originality of your article, cleverly integrate information from the context with your own insights.
@@ -45,7 +49,10 @@ template_writer = """Imagine you are an accomplished columnist with a knack for 
 [User Request:]
 {question}
 [End of User Request]
-Assistant begins writing the essay in simplified Chinese:
+
+[Assistant Action]
+1. Before diving into writing, provide a brief "写作思路" outlining your approach and rationale
+2. Begins writing the essay in simplified Chinese with Markdown format
 """
 
 template_mimic = """你是一位专业的写作专家，Use the following pieces of context to rewrite an detailed article in Chinese.

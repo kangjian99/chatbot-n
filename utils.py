@@ -57,7 +57,7 @@ def safe_filename(file_name):
     file_name = unquote(file_name)
     
     # 移除或替换文件名中的特殊字符
-    file_name = re.sub(r'[\\/*?:"<>|]', '', file_name)
+    file_name = re.sub(r'[\\/*?:"<>|+]', '_', file_name)
 
     # 避免路径遍历
     file_name = os.path.basename(file_name)
