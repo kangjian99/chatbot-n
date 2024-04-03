@@ -1,14 +1,22 @@
-template = """你是一个问答任务的AI助手。请仔细阅读以下检索到的上下文片段,并根据其中最相关的句子,用中文回答问题。如果无法从上下文中找到答案,请如实说明,不要编造答案。
+template_QUERY = """你是一个问答任务的AI助手。请仔细阅读以下检索到的上下文片段,并根据其中最相关的句子,用中文回答问题。如果无法从上下文中找到答案,请如实说明,不要编造答案。
 
 上下文:
 {context}
 
 问题:
 {question}
-助手的回答:
+助手根据最相关的句子回答:
 """ # 最后一句非常关键
 
-template_writer = """Imagine you are an accomplished columnist with a knack for crafting compelling narratives. Your mission is to fulfill a specific writing task according to a specific user request, transforming it into an engaging and structured essay. Here's how to approach this task step by step, ensuring your response is not just a response but a masterpiece in Chinese.
+template_SUMMARY = """你是一位优秀的编辑,根据用户提供的内容用中文进行提炼总结。总结时请注意以下几点:
+- 总结要条理清晰,全面表达原文的核心内容,不要遗漏重要信息。
+- 对于其中有逻辑条理的内容,请以表格的形式呈现,以使结构更加清晰明了。
+
+请根据以上要求,对用户提供的以下内容进行提炼总结:
+{context}
+"""
+
+template_WRITER = """Imagine you are an accomplished columnist with a knack for crafting compelling narratives. Your mission is to fulfill a specific writing task according to a specific user request, transforming it into an engaging and structured essay. Here's how to approach this task step by step, ensuring your response is not just a response but a masterpiece in Chinese.
 
 ### Step 1: Utilize the Provided Context
 - Use the context as the foundation for your article. Think about how you can integrate this information into your piece to make it both rich and engaging.

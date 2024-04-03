@@ -125,10 +125,12 @@ def handle_message():
 
         if not uploaded_filename:
             return Response('data: {"data": "请先选择或上传文档。"}\n\n', mimetype='text/event-stream')
-        
+        if uploaded_filename=='多文档检索' and user_input.startswith('总结'):
+            return Response('data: {"data": "请选择需要总结的对应文档。"}\n\n', mimetype='text/event-stream')
+                
         if user_input.startswith(('总结', '写作')):
             key_words = user_input
-            if num_tokens(user_input) <= 20:
+            if user_input.startswith('写作') and (num_tokens(user_input) <= 20):
                 # 处理提取关键词逻辑
                 try:
                     response = response_from_retriver(user_id, user_id + '_' + uploaded_filename, uploaded_filename, max_k, 2)
@@ -152,8 +154,12 @@ def handle_message():
         #if '模仿' in prompt_template[0]:
         #    docchat_template = template_mimic
         #else:
-        docchat_template = template_writer if user_input.startswith(('总结', '写作')) else template
-        prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
+        docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
+        if user_input.startswith('总结'):
+            prompt = f"{template_SUMMARY.format(context=docs)!s}"
+        else:
+            prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
+
         response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
         #response = interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n)
         #response = multi_LLM_response(user_id, thread_id, user_input, prompt)
