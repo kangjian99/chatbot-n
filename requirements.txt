@@ -10,3 +10,4 @@ flask_cors
 #google.generativeai
 anthropic
 supabase
+beautifulsoup4
