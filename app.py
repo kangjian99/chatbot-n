@@ -22,9 +22,9 @@ app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)  # 无交互session过期（重登录）时间
 # 全局设置会话cookie的属性（仅为Azure部署需求）
 app.config.update(
-    SESSION_COOKIE_SECURE=True,     # cookie只能通过HTTPS协议发送，如果标记了SameSite=None，则必须同时设置Secure属性
+    #SESSION_COOKIE_SECURE=True,     # cookie只能通过HTTPS协议发送，如果标记了SameSite=None，则必须同时设置Secure属性
     SESSION_COOKIE_HTTPONLY=True,   # cookie不能通过客户端脚本访问
-    SESSION_COOKIE_SAMESITE='None',  # cookie将在所有上下文中发送，包括跨站点请求。跨域AJAX请求中发送cookie这是必需的。
+    #SESSION_COOKIE_SAMESITE='None',  # cookie将在所有上下文中发送，包括跨站点请求。跨域AJAX请求中发送cookie这是必需的。
     SESSION_COOKIE_DOMAIN='.azurewebsites.net'  # 同一主域下视为第一方Cookie
 )
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
