@@ -25,6 +25,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "/home/site/wwwroot/node_modules/next/dist/bin/next",
+    "startLocal" : "next start"
   }
 }
