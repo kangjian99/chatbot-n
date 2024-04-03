@@ -146,21 +146,26 @@ body {
 
 .markdown-content table {
   border-collapse: collapse; /* 折叠边框为单一线条 */
-  width: 100%; /* 可选，根据需要调整 */
-  margin-bottom: 1em; /* 可选，根据需要调整 */
+  width: 98%; /* 可选，根据需要调整 */
+  margin: 0 auto 1em; /* 表格在页面中居中 */
 }
 
 /* 为表格的单元格(td)和表头(th)设置边框 */
 .markdown-content th,
 .markdown-content td {
-  border: 1px solid #ccc; /* 设置边框颜色和宽度 */
+  border: 0.8px solid #ccc; /* 设置边框颜色和宽度 */
   padding: 8px; /* 设置内边距 */
-  text-align: left; /* 设置文本对齐方式 */
 }
 
 /* 为表格的表头(th)设置背景颜色，可选 */
 .markdown-content th {
   background-color: #dde8f5; /* 设置背景颜色 */
+  text-align: center; /* 设置文本对齐方式 */
+}
+
+.markdown-content td {
+  background-color: #f4f4f4;
+  text-align: left; /* 设置文本对齐方式 */
 }
 
 .markdown-content h1 {
