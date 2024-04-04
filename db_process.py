@@ -57,7 +57,7 @@ def get_user_messages(user_id, directory=DIRECTORY):
 def get_user_memory(user_id, thread_id, limit=10, table='memory_by_thread'):
     # 从Supabase中读取数据
     response = supabase.table(table).select('history').eq('user_id', user_id).eq('thread_id', thread_id).execute()
-
+    # print(len(response.data[0]['history']))
     # 检查结果
     if 'error' in response:
         print('Error:', response.error)
@@ -82,7 +82,7 @@ def save_user_messages(user_id, messages, directory=DIRECTORY):
         for message in messages:
             f.write(json.dumps(message, ensure_ascii=False) + '\n')
 
-def save_user_memory(user_id, thread_id, user_input, messages, info, table='memory_by_thread'):
+def save_user_memory(user_id, thread_id, user_input, messages, info, table='memory_by_thread', max_entries=10):
 
     new_entry = {
         "user": user_input,
@@ -102,6 +102,8 @@ def save_user_memory(user_id, thread_id, user_input, messages, info, table='memo
     if existing_records:
         # 如果记录存在，更新history字段
         history = existing_records[0]['history']
+        if len(history) >= max_entries:
+            history = history[-(max_entries-1):]
         history.append(new_entry)
         response = supabase.table(table).update({'history': history}).eq('user_id', user_id).eq('thread_id', thread_id).execute()
     else:
