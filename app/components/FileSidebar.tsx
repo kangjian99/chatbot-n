@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { saveToLocalStorage, loadFromLocalStorage } from './localStorageUtil';
 
 interface UploadedFilesSidebarProps {
     uploadedFiles: string[];
@@ -23,6 +24,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
             }
             const fileNames = await response.json(); // 直接使用返回的数组
             setFiles(fileNames);
+            saveToLocalStorage('files', fileNames);
             if (uploadedFiles.length > 0) {
                 if (fileNames.length > 1) {
                 setSelectedFile(fileNames[1]);
@@ -31,6 +33,13 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
             console.error('Error:', error);
         }
     };
+
+    useEffect(() => {
+        const cachedFileNames = loadFromLocalStorage('files');
+        if (cachedFileNames) {
+            setFiles(cachedFileNames);
+        }
+    }, []);
 
     useEffect(() => {
         fetchFilenames();
