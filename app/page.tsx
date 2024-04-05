@@ -8,6 +8,7 @@ import UploadedFilesSidebar from "./components/FileSidebar";
 import ThreadsSidebar from "./components/ThreadsSidebar";
 import Login from "./components/Login";
 import { handleStreamResponse } from './components/handleStreamResponse';
+import { saveToLocalStorage, loadFromLocalStorage, cleanUpExpiredLocalStorage } from './components/localStorageUtil';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 const default_n = process.env.NEXT_PUBLIC_API_N || 2;
@@ -42,40 +43,53 @@ export default function Home() {
     const [krangeValue, setKrangeValue] = useState(Number(default_k));
     const [isLoggedIn, setIsLoggedIn] = useState(false); 
     const [isLoading, setIsLoading] = useState(true); // 新增状态来追踪加载状态
+    const [memoryLoading, setMemoryLoading] = useState(true);
 
     useEffect(() => {
         document.title = `${headline} - ${user_id}`;
       }, [user_id]); // 空依赖数组意味着这个效果仅在组件挂载时运行，非空则在user_id更新后执行
-
-    useEffect(() => {
-        // 检查用户是否已登录
-        const checkSession = async () => {
-            try {
-                const response = await fetch(url + "check_session", {
-                    credentials: "include",
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setIsLoggedIn(true);
-                    if (data.user_id) {
-                        setUser_id(data.user_id);
+        
+      useEffect(() => {
+        // 尝试从localStorage加载登录状态
+        const sessionInfo = loadFromLocalStorage('session');
+        if (sessionInfo && sessionInfo.isLoggedIn && sessionInfo.user_id) {
+            setIsLoggedIn(true);
+            setUser_id(sessionInfo.user_id);
+            setIsLoading(false);
+        } else {
+            // 如果本地没有有效的登录信息，则检查会话状态
+            const checkSession = async () => {
+                try {
+                    const response = await fetch(url + "check_session", {
+                        credentials: "include",
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        setIsLoggedIn(true);
+                        if (data.user_id) {
+                            setUser_id(data.user_id);
+                            // 保存会话信息到localStorage
+                            saveToLocalStorage('session', { isLoggedIn: true, user_id: data.user_id });
+                        }
+                    } else {
+                        setIsLoggedIn(false);
                     }
-                } else {
-                    setIsLoggedIn(false);
+                } catch (error) {
+                    console.error("检查会话失败:", error);
+                } finally {
+                    setIsLoading(false); // 检查完成后取消加载状态
                 }
-            } catch (error) {
-                console.error("检查会话失败:", error);
-            } finally {
-                setIsLoading(false); // 检查完成后取消加载状态
-            }
-        };
-        checkSession();
-    }, []);
+            };
+            checkSession();
+        }
+    }, []);    
 
     const handleLoginSuccess = (username: string) => {
-        setIsLoggedIn(true); // 处理登录成功的逻辑
+        setIsLoggedIn(true);
         setUser_id(username);
-    };
+        // 登录成功后，保存用户ID和登录状态
+        saveToLocalStorage('session', { isLoggedIn: true, user_id: username });
+    };    
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
@@ -90,19 +104,29 @@ export default function Home() {
     const [prompts, setPrompts] = useState([]);
 
     useEffect(() => {
+        // 尝试从localStorage加载prompts
+        const cachedPrompts = loadFromLocalStorage('prompts');
+        if (cachedPrompts) {
+            setPrompts(cachedPrompts);
+        }
         fetch(url + "prompts", {
             credentials: "include",
         })
             .then(response => response.json())
             .then(data => {
                 setPrompts(data);
-                // 设置默认选中的模板（如果有）
+                saveToLocalStorage('prompts', data); // 保存到localStorage
                 if (data && Object.keys(data).length > 0) {
                     setSelectedTemplate(Object.keys(data)[0]);
                 }
             })
             .catch(error => console.error('Error fetching prompts:', error));
     }, []);
+
+    useEffect(() => {
+        cleanUpExpiredLocalStorage();
+      }, []);
+
     // 新增文件上传逻辑
     const handleFileUpload = async (file: File) => {
         const formData = new FormData();
@@ -137,17 +161,37 @@ export default function Home() {
         setSelectedTemplate('0')  // 直接设定模板为文档问答
     };    
 
-const handleMemory = async () => {
-    try {
-        const response = await fetch(`${url}memory?user_id=${encodeURIComponent(user_id)}&thread_id=${thread_id}`, {
-            credentials: 'include',
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+    const handleMemory = async () => {
+        // 尝试从本地存储中加载记忆数据
+        const cachedEventData = loadFromLocalStorage(`memory-${user_id}-${thread_id}`);
+        if (cachedEventData) {
+            // 如果找到了本地数据，先用它更新UI
+            updateMessagesUI(cachedEventData);
         }
-
-        const eventData = await response.json();
+    
+        try {
+            setMemoryLoading(true)
+            const response = await fetch(`${url}memory?user_id=${encodeURIComponent(user_id)}&thread_id=${thread_id}`, {
+                credentials: 'include',
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            const eventData = await response.json();
+            updateMessagesUI(eventData);
+            // 更新本地存储
+            saveToLocalStorage(`memory-${user_id}-${thread_id}`, eventData);
+            //saveToLocalStorage('memory', eventData); // thread_id没有本地存储
+            setMemoryLoading(false)
+        } catch (error) {
+            console.error('Error occurred:', error);
+        }
+    };
+    
+    // 抽离更新UI的逻辑到一个单独的函数
+    const updateMessagesUI = (eventData: any[]) => {
         const newMessages = eventData.map((data: any, index: number) => {
             try {
                 const newMessageId = Date.now() + index; // 使用时间戳和索引作为唯一ID
@@ -162,17 +206,31 @@ const handleMemory = async () => {
                 console.error('Error parsing JSON:', error, 'in message:', data);
                 return null; // 如果解析失败，返回 null 或者忽略该消息
             }
-        }).filter((message:string): message is NonNullable<typeof message> => message !== null); // 过滤掉解析失败的消息
-
+        }).filter((message: any): message is NonNullable<typeof message> => message !== null); // 过滤掉解析失败的消息
+    
         setMessages((prevMessages) => [
             ...prevMessages,
             ...newMessages,
         ]);
-    } catch (error) {
-        console.error('Error occurred:', error);
-    }
-};
-
+    };
+{/* // thread_id没有本地存储
+    useEffect(() => {
+        const cachedEventData = loadFromLocalStorage('memory');
+        if (cachedEventData) {
+            updateMessagesUI(cachedEventData);
+        }
+    }, []);
+*/}
+    useEffect(() => {
+        if (!thread_id) return;
+        if (thread_name != '新对话') {
+            setMessages([])
+            handleMemory();
+        } else {
+            setMessages(initialMessages)
+        }
+    }, [thread_id]);
+    
     const sendMessage = async () => {
         const newMessageId = Date.now(); // 使用时间戳作为简单的唯一ID
         // 检查用户输入是否为空
@@ -234,16 +292,6 @@ const handleMemory = async () => {
         setThread_name(thread.name);
     };
 
-    useEffect(() => {
-        if (!thread_id) return;
-        if (thread_name != '新对话') {
-            setMessages([])
-            handleMemory();
-        } else {
-            setMessages(initialMessages)
-        }
-    }, [thread_id]);
-
     if (isLoading) {
         return <div>Loading...</div>; // 或者一个旋转器/加载器组件
     }
@@ -303,13 +351,13 @@ const handleMemory = async () => {
                                 padding: '5px', 
                                 borderRadius: '5px', 
                                 border: '1px solid #ccc', 
-                                background: isSending ? '#ccc' : '#0D6FFE', 
-                                color: isSending ? '#666' : 'white',
+                                background: isSending || memoryLoading ? '#ccc' : '#0D6FFE', 
+                                color: isSending || memoryLoading ? '#666' : 'white',
                                 width: '70px',
                                 marginRight: "5px",
                                 fontSize: "13px",
                             }}
-                            disabled={isSending}
+                            disabled={isSending || memoryLoading}
                         >
                             {isSending ? '已发送' : '发送'}
                         </button>

@@ -37,7 +37,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
   const processText = (text: string) => {
     return text
       .replace(/(<br\s*\/?>\s*)+/gi, '\n') // Replace consecutive <br> tags with a single \n
-      .replace(/(?<!\|)\n\n+/g, '\n') // Replace two or more consecutive \n with a single \n
+      .replace(/\n\n+(?=\d)/g, '\n');
   };
 
   return (

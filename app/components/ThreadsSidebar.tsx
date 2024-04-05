@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { saveToLocalStorage, loadFromLocalStorage } from './localStorageUtil';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 const max_threads = 9;
@@ -28,6 +29,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
             if (threadsData.length === 0) {
                 setThreads([{ id: 'initial', name: '新对话' }]);
                 setSelectedThread('initial');
+                saveToLocalStorage('threads', [{ id: 'initial', name: '新对话' }])
             } else {
                 if (threads.length > 0) {
                   // 非刷新页面，后端仅返回一个元素，替换最开头的“新对话”元素
@@ -39,6 +41,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
                 setThreads(threadsData);
                 }
                 setSelectedThread(threadsData[0].id);
+                saveToLocalStorage('threads', threadsData)
             }
         } catch (error) {
             console.error('Error:', error);
@@ -46,6 +49,11 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
     };
 
     useEffect(() => {
+        const cachedThreads = loadFromLocalStorage('threads');
+        if (cachedThreads) {
+            setThreads(cachedThreads);
+            setSelectedThread(cachedThreads[0].id);
+        }
         fetchThreads();
     }, []);
     
