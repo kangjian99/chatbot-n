@@ -43,7 +43,7 @@ export default function Home() {
     const [krangeValue, setKrangeValue] = useState(Number(default_k));
     const [isLoggedIn, setIsLoggedIn] = useState(false); 
     const [isLoading, setIsLoading] = useState(true); // 新增状态来追踪加载状态
-    const [memoryLoading, setMemoryLoading] = useState(true);
+    const [memoryLoading, setMemoryLoading] = useState(false);
 
     useEffect(() => {
         document.title = `${headline} - ${user_id}`;
@@ -101,7 +101,7 @@ export default function Home() {
 
     // 增加状态变量用于跟踪选择的 prompt_template
     const [selectedTemplate, setSelectedTemplate] = useState('');
-    const [prompts, setPrompts] = useState([]);
+    const [prompts, setPrompts] = useState<[string, string][]>([]);
 
     useEffect(() => {
         // 尝试从localStorage加载prompts
@@ -165,28 +165,28 @@ export default function Home() {
         // 尝试从本地存储中加载记忆数据
         const cachedEventData = loadFromLocalStorage(`memory-${user_id}-${thread_id}`);
         if (cachedEventData) {
-            // 如果找到了本地数据，先用它更新UI
-            updateMessagesUI(cachedEventData);
+            updateMessagesUI(cachedEventData);  // 如果找到了本地数据，先用它更新UI
         }
+        else {
+          try {
+              setMemoryLoading(true)
+              const response = await fetch(`${url}memory?user_id=${encodeURIComponent(user_id)}&thread_id=${thread_id}`, {
+                  credentials: 'include',
+              });
     
-        try {
-            setMemoryLoading(true)
-            const response = await fetch(`${url}memory?user_id=${encodeURIComponent(user_id)}&thread_id=${thread_id}`, {
-                credentials: 'include',
-            });
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
     
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-    
-            const eventData = await response.json();
-            updateMessagesUI(eventData);
-            // 更新本地存储
-            saveToLocalStorage(`memory-${user_id}-${thread_id}`, eventData);
-            //saveToLocalStorage('memory', eventData); // thread_id没有本地存储
-            setMemoryLoading(false)
-        } catch (error) {
-            console.error('Error occurred:', error);
+              const eventData = await response.json();
+              updateMessagesUI(eventData);
+              // 更新本地存储
+              saveToLocalStorage(`memory-${user_id}-${thread_id}`, eventData);
+              //saveToLocalStorage('memory', eventData); // thread_id没有本地存储
+              setMemoryLoading(false)
+          } catch (error) {
+              console.error('Error occurred:', error);
+          }
         }
     };
     
@@ -250,37 +250,57 @@ export default function Home() {
             setIsSending(true);
         }
 
-        try {
-            const response = await fetch(url + "message", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    user_id: user_id,
-                    user_input: userInput,
-                    thread_id: thread_id,
-                    selected_template: selectedTemplate,
-                    prompt_template: prompts[Number(selectedTemplate)],
-                    selected_file: selectedFileName, // 将选中的文件名添加到请求中
-                    max_k: krangeValue
-                }), // 发送选择的模板
-                credentials: "include",
-            });
+        if (userInput == "refresh") {
+            saveToLocalStorage(`memory-${user_id}-${thread_id}`, "")
+            handleMemory()
+        }
+        else {
+            try {
+                const response = await fetch(url + "message", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        user_id: user_id,
+                        user_input: userInput,
+                        thread_id: thread_id,
+                        selected_template: selectedTemplate,
+                        prompt_template: prompts[Number(selectedTemplate)],
+                        selected_file: selectedFileName, // 将选中的文件名添加到请求中
+                        max_k: krangeValue
+                    }), // 发送选择的模板
+                    credentials: "include",
+                });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                // 处理流式响应
+                // console.log(response, response.body)
+                if (response.body) {
+                    try {
+                        const reader = response.body.getReader();
+                        const accumulatedData = await handleStreamResponse(reader, setMessages, newMessageId);
+                        if (accumulatedData) {
+                            const keywords = ['文档', '总结', '写', '润色'];
+                            if (keywords.some(keyword => prompts[Number(selectedTemplate)][0].includes(keyword))) {
+                                let cachedEventData = loadFromLocalStorage(`memory-${user_id}-${thread_id}`) || [];
+                                const formattedTime = new Date().toLocaleString("zh-CN", {timeZone: "Asia/Shanghai"}).slice(0, -3);
+                                cachedEventData.push({ User: userInput }, { Assistant: accumulatedData }, { Info: formattedTime });
+                                if (cachedEventData.length > 60) cachedEventData = cachedEventData.slice(-60); // 保留20条对话记录
+                                saveToLocalStorage(`memory-${user_id}-${thread_id}`, cachedEventData);
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error handling stream response:", error);
+                    }
+                } else {
+                    console.error("Response body is null");
+                }
+            } catch (error) {
+                console.error("Error sending message:", error);
             }
-            // 处理流式响应
-            // console.log(response, response.body)
-            if (response.body) {
-                const reader = response.body.getReader();
-                handleStreamResponse(reader, setMessages, newMessageId);
-            } else {
-                console.error("Response body is null");
-            }
-        } catch (error) {
-            console.error("Error sending message:", error);
         }
         setUserInput("");
         setIsSending(false);
