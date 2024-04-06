@@ -55,6 +55,18 @@ export const cleanUpExpiredLocalStorage = (): void => {
     keys.forEach((key) => {
       if (key.startsWith('memory')) {
         removeIfExpired(key);
+/*
+        // 限制每个项的value中的项数至多为30个
+        const itemStr = localStorage.getItem(key);
+        if (itemStr) {
+          let item = JSON.parse(itemStr);
+          if (Array.isArray(item.value) && item.value.length > 30) {
+            // 保留数组中最新的30个元素
+            item.value = item.value.slice(-30);
+            localStorage.setItem(key, JSON.stringify(item));
+          }
+        }
+*/
       }
     });
   };

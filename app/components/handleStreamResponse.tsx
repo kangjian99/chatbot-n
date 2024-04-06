@@ -73,4 +73,5 @@ export const handleStreamResponse = async (
             }
         }
     }
+    return accumulatedData;
 };

@@ -160,13 +160,18 @@ body {
 /* 为表格的表头(th)设置背景颜色，可选 */
 .markdown-content th {
   background-color: #dde8f5; /* 设置背景颜色 */
-  text-align: center; /* 设置文本对齐方式 */
+  text-align: left; /* 设置文本对齐方式 */
 }
 
 .markdown-content td {
   background-color: #f4f4f4;
   text-align: left; /* 设置文本对齐方式 */
 }
+
+/* 单独为表格的第一列设置字体颜色 
+.markdown-content td:nth-child(1) {
+  color: #2678C5;
+}*/
 
 .markdown-content h1 {
   color: #2c3e50; /* 字体颜色 */
