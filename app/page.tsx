@@ -283,14 +283,11 @@ export default function Home() {
                         const reader = response.body.getReader();
                         const accumulatedData = await handleStreamResponse(reader, setMessages, newMessageId);
                         if (accumulatedData) {
-                            const keywords = ['文档', '总结', '写', '润色'];
-                            if (keywords.some(keyword => prompts[Number(selectedTemplate)][0].includes(keyword))) {
-                                let cachedEventData = loadFromLocalStorage(`memory-${user_id}-${thread_id}`) || [];
-                                const formattedTime = new Date().toLocaleString("zh-CN", {timeZone: "Asia/Shanghai"}).slice(0, -3);
-                                cachedEventData.push({ User: userInput }, { Assistant: accumulatedData }, { Info: formattedTime });
-                                if (cachedEventData.length > 60) cachedEventData = cachedEventData.slice(-60); // 保留20条对话记录
-                                saveToLocalStorage(`memory-${user_id}-${thread_id}`, cachedEventData);
-                            }
+                            let cachedEventData = loadFromLocalStorage(`memory-${user_id}-${thread_id}`) || [];
+                            const formattedTime = new Date().toLocaleString("zh-CN", {timeZone: "Asia/Shanghai"}).slice(0, -3);
+                            cachedEventData.push({ User: userInput }, { Assistant: accumulatedData }, { Info: formattedTime });
+                            if (cachedEventData.length > 60) cachedEventData = cachedEventData.slice(-60); // 保留20条对话记录
+                            saveToLocalStorage(`memory-${user_id}-${thread_id}`, cachedEventData);                           
                         }
                     } catch (error) {
                         console.error("Error handling stream response:", error);
