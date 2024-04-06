@@ -58,7 +58,9 @@ export const handleStreamResponse = async (
         // 使用函数式更新，避免依赖外部的accumulatedData变量
         setMessages(prevMessages =>
             prevMessages.map(msg =>
-                msg.id === newMessageId ? { ...msg, text: accumulatedData === data ? data : msg.text + data, role: 'assistant' } : msg
+                msg.id === newMessageId ? { ...msg, text: 
+                    accumulatedData === data ? data : msg.text + data, role: 'assistant' } 
+                    : msg
             )
         );
     }
