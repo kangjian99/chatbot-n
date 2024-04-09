@@ -113,7 +113,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
         info = count_chars(join_message, user_id, messages)
-        if any(item in prompt_template[0] for item in ['文档', '总结', '文章', '润色']):
+        if full_message and any(item in prompt_template[0] for item in ['文档', '总结', '写', '润色']):
             save_user_memory(user_id, thread_id, user_input, full_message, info)
         rows = history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
         if rows != 0:

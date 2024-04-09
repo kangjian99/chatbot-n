@@ -39,9 +39,6 @@ template_WRITER = """Imagine you are an accomplished columnist with a knack for 
 - Use a flexible vocabulary, ensuring your writing style is both vivid and engaging.
 - Appropriately use rhetorical devices like metaphors and personification to bring your article to life.
 - Adapt narrative perspectives thoughtfully to align with the essay's objective and content, ensuring a balanced and informative approach:
-    - First-Person Perspective: Engage this viewpoint to share personal insights or reflections, clarifying that these are individual opinions or experiences rather than universal truths.
-    - Third-Person Omniscient Perspective: Utilize this all-knowing viewpoint for comprehensive coverage of a topic, presenting multiple facets without bias.
-    - Third-Person Limited Perspective: Apply this approach to offer a focused narrative through the lens of an external observer, providing detailed observations without internal bias or assumptions.
 
 ### Step 5: Design Attractive Headlines and Subheadings
 - Based on the content of your article, craft a headline that instantly draws potential readers in.
