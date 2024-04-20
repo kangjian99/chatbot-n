@@ -13,6 +13,7 @@ from claude import claude_response_stream, interact_with_claude, claude_response
 
 #from geminiai import gemini_response, gemini_response_key_words
 #from pplx import perplexity_response, interact_with_pplx
+from groq_func import groq_response, groq_response_stream, interact_with_groq
 #from test_LLMs import multi_LLM_response
 
 app = Flask(__name__)
@@ -105,7 +106,7 @@ def handle_message():
     if '文档' not in prompt_template[0]:
         if 'beta' in prompt_template[0]: # 选择其它模型
             prompt = f"{prompt_template[1].format(question=user_input)!s}"                
-            response = claude_response_stream(prompt)
+            response = groq_response_stream(prompt)
         elif '总结' in prompt_template[0]:
             content = url_process(user_input, MODEL)
             prompt = f"{prompt_template[1].format(question=content)!s}"                
@@ -164,7 +165,8 @@ def handle_message():
         response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
         #response = interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n)
         #response = multi_LLM_response(user_id, thread_id, user_input, prompt)
-        #response = ""
+        #response = gemini_response(prompt)
+        #response = groq_response_stream(prompt)
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 

@@ -11,7 +11,7 @@ BASE_URL = "https://api.moonshot.cn/v1"
 
 MODEL_16k="gpt-3.5-turbo-0125"
 MODEL=os.getenv('GPT_MODEL') or MODEL_16k
-#MODEL="gpt-4-0125-preview"
+#MODEL="gpt-4-turbo"
 model_8k = "moonshot-v1-8k"
 model_32k = "moonshot-v1-32k"
 

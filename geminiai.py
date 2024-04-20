@@ -23,7 +23,9 @@ safety_settings = [
     }
 ]
 
-model = genai.GenerativeModel('gemini-pro', safety_settings)
+model = genai.GenerativeModel(model_name='gemini-1.5-pro-latest', 
+                              system_instruction="你是语言分析与写作专家，避免输出过于简略化", 
+                              safety_settings=safety_settings)
 #model_v = genai.GenerativeModel('gemini-pro-vision', safety_settings)
 
 def gemini_response(query):
