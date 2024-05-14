@@ -9,7 +9,7 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
     const [isUploaded, setIsUploaded] = useState<boolean>(false);
     const [fileUrl, setFileUrl] = useState<string>("");
     const [isUrlUploaded, setIsUrlUploaded] = useState<boolean>(false);
-    const allowedExtensions = ["docx", "txt", "pdf"];
+    const allowedExtensions = ["docx", "txt", "pdf", "csv", "md"];
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selected = event.target.files?.[0];
