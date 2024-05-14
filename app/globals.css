@@ -212,3 +212,12 @@ body {
   margin-top: -15px;
   margin-bottom: -30px;
 }
+
+.markdown-content pre {
+  background-color: #f6f8fa;  /* 浅灰色背景 */
+  border: 1px solid #ccc;     /* 边框 */
+  border-radius: 3px;         /* 边角圆滑 */
+  padding: 10px;              /* 内边距 */
+  overflow: auto;             /* 溢出滚动 */
+  font-family: 'Courier New', Courier, monospace; /* 使用等宽字体 */
+}

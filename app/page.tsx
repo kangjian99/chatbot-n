@@ -1,18 +1,19 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // 导入 Bootstrap
 import MessageList from "./components/MessageList"; // 导入新的组件
-import FileUploader from "./components/FileUploader_url";
+import FileUploader from "./components/FileUploader";
 import UploadedFilesSidebar from "./components/FileSidebar";
 import ThreadsSidebar from "./components/ThreadsSidebar";
 import Login from "./components/Login";
 import { handleStreamResponse } from './components/handleStreamResponse';
 import { saveToLocalStorage, loadFromLocalStorage, cleanUpExpiredLocalStorage } from './components/localStorageUtil';
+import { useRouter } from 'next/navigation';
+import { ConfigurationContext } from './ContextProvider';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 const default_n = process.env.NEXT_PUBLIC_API_N || 2;
-const default_k = process.env.NEXT_PUBLIC_API_MAX_K || 10;
 const headline = process.env.NEXT_PUBLIC_API_HEADLINE || "AI 知识库管理助手";
 
 interface Message {
@@ -40,10 +41,11 @@ export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
-    const [krangeValue, setKrangeValue] = useState(Number(default_k));
     const [isLoggedIn, setIsLoggedIn] = useState(false); 
     const [isLoading, setIsLoading] = useState(true); // 新增状态来追踪加载状态
     const [memoryLoading, setMemoryLoading] = useState(false);
+    const { krangeValue, kValue, userModel, selectedTemplate, setSelectedTemplate } = useContext(ConfigurationContext);
+    const router = useRouter();
 
     useEffect(() => {
         document.title = `${headline} - ${user_id}`;
@@ -100,7 +102,6 @@ export default function Home() {
     }, [messages]);
 
     // 增加状态变量用于跟踪选择的 prompt_template
-    const [selectedTemplate, setSelectedTemplate] = useState('');
     const [prompts, setPrompts] = useState<[string, string][]>([]);
 
     useEffect(() => {
@@ -109,6 +110,7 @@ export default function Home() {
         if (cachedPrompts) {
             setPrompts(cachedPrompts);
         }
+        if (!selectedTemplate) {
         fetch(url + "prompts", {
             credentials: "include",
         })
@@ -121,6 +123,7 @@ export default function Home() {
                 }
             })
             .catch(error => console.error('Error fetching prompts:', error));
+        }
     }, []);
 
     useEffect(() => {
@@ -133,6 +136,13 @@ export default function Home() {
         formData.append("file", file);
         formData.append("user_id", user_id);
 
+        const updateSysMessages = (newMessage: string) => {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              { type: "system", text: newMessage, role: "system" },
+            ]);
+          };
+
         try {
             const response = await fetch(url + "upload", {
                 method: "POST",
@@ -141,7 +151,8 @@ export default function Home() {
             });
 
             if (response.ok) {
-                alert("文件上传成功！较长文档需等待系统处理10秒以上再检索。");
+                const responseData = await response.text(); // 获取后端返回的字符串数据
+                updateSysMessages(responseData); 
                 setSelectedTemplate('0')  // 直接设定模板为文档问答
                 if (!uploadedFiles.includes(file.name)) {
                     setUploadedFiles(prevFiles => [...prevFiles, file.name]); // 更新上传文件列表
@@ -268,7 +279,9 @@ export default function Home() {
                         selected_template: selectedTemplate,
                         prompt_template: prompts[Number(selectedTemplate)],
                         selected_file: selectedFileName, // 将选中的文件名添加到请求中
-                        max_k: krangeValue
+                        max_k: krangeValue,
+                        k: kValue,
+                        user_model: userModel
                     }), // 发送选择的模板
                     credentials: "include",
                 });
@@ -380,21 +393,21 @@ export default function Home() {
                         </button>
                     </div>
                     <div style={{ display: 'flex', paddingLeft: '75px', paddingRight: '75px', marginBottom: '0px', alignItems: 'center', justifyContent: 'flex-end' }}>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                             <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
-                                <label style={{ marginRight: '10px', fontSize: '13px' }}>max_k</label>
-                                    <input
-                                        type="range"
-                                        min="10"
-                                        max="15"
-                                        value={krangeValue}
-                                        onChange={(e) => setKrangeValue(Number(e.target.value))}
-                                        className="form-range"
-                                        style={{ marginRight: '10px', width: "80px" }}
-                                        title={'max top_k'}
-                                    />
-                                <span style={{ marginRight: '45px', fontSize: '13px' }}>{krangeValue}</span>
-                            </div>
+                            <button
+                                onClick={() => router.push('/dashboard')}
+                                className="btn btn-secondary"
+                                style={{
+                                    fontSize: '12px',
+                                    padding: '5px',
+                                    color: '#6c757d', // 设置较淡的文字颜色
+                                    backgroundColor: '#eee', // 设置较浅的背景色
+                                }}
+                                disabled={isSending || memoryLoading} >
+                                参数配置
+                            </button>
+                        </div>
                         </div>
                         <FileUploader onUpload={handleFileUpload} />{" "}
                     </div>

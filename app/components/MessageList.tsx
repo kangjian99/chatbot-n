@@ -27,12 +27,13 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
       (err) => console.error('Could not copy text: ', err)
     );
   };
-  const containsMarkdownTable = (text: string) => {
+  const containsMarkdownTableOrCodeBlock = (text: string) => {
+    const hasCodeBlock = text.includes("```");
     // 匹配表格：查找是否有行以|开头和结尾，且至少有一行是分隔行（只包含|, -, 和空格）
     const lines = text.split('\n');
     const hasTableBorders = lines.some(line => line.trim().startsWith('|') && line.trim().endsWith('|'));
     const hasSeparatorLine = lines.some(line => /^[\|\-\s]+$/.test(line.trim()));
-    return hasTableBorders && hasSeparatorLine;
+    return hasTableBorders && hasSeparatorLine || hasCodeBlock;
   };
   const processText = (text: string) => {
     return text
@@ -58,7 +59,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
                 background: msg.type === 'user' ? '#BAE6FC' : '#eee',
                 color: msg.type === 'user' ? 'black' : '#374151',
                 display: 'inline-block',
-                maxWidth: msg.type === 'user' ? '60%' : containsMarkdownTable(msg.text) ? '90%' : '70%',
+                maxWidth: msg.type === 'user' ? '60%' : containsMarkdownTableOrCodeBlock(msg.text) ? '90%' : '70%',
                 wordWrap: 'break-word',
                 fontSize: msg.role === 'system' ? '13px' : '15px',
                 fontStyle: msg.role === 'system' ? 'italic' : 'normal',
