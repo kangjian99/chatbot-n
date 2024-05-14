@@ -258,7 +258,7 @@ export default function Home() {
                 } else {
                     // Finding the last capital letter at the start of a line
                     const matches = [...text.substring(start, end).matchAll(/(?<=\n)[A-Z]/g)];
-                    if (matches.length > 0) {
+                    if (matches && matches.length > 0) {
                         end = start + matches[matches.length - 1].index;
                     }
                 }
