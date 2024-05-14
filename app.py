@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, Response, session, render_template
 from flask_cors import CORS
 #from openai import OpenAI
-import json, threading
+import json
 from datetime import timedelta
 from db_process import *
 from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
@@ -11,7 +11,7 @@ from utils import *
 from openai_func import interact_with_openai, param_n
 from claude import claude_response_stream, interact_with_claude, claude_response
 
-#from geminiai import gemini_response, gemini_response_key_words
+#from geminiai import gemini_response, gemini_response_stream
 #from pplx import perplexity_response, interact_with_pplx
 from groq_func import groq_response, groq_response_stream, interact_with_groq
 #from test_LLMs import multi_LLM_response
@@ -53,13 +53,19 @@ def upload_file():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_id+'_'+filename))
         session['uploaded_filename'] = filename  # 将文件名保存到会话中
         print("\n#Session after file uploaded:", session)
-        if save_doc_name(user_id, filename):  # 如已存在相同文件则不执行
+        new_doc = save_doc_name(user_id, filename)
+        if new_doc == True:  # 如已存在相同文件则不执行
             # 使用多线程执行create_vectorstore
-            def execute_create_vectorstore():
-                load_and_process_document(user_id, filename)         
+            #def execute_create_vectorstore():
+            info = load_and_process_document(user_id, filename)
+            return Response(f'\u2705 文档上传成功 ("{filename}" {info})，较长文档需等待系统预处理10秒以上再检索。', mimetype='text/plain')
             # 启动新线程执行create_vectorstore
-            cache_thread = threading.Thread(target=execute_create_vectorstore)
-            cache_thread.start()
+            #cache_thread = threading.Thread(target=execute_create_vectorstore)
+            #cache_thread.start()
+        elif new_doc == False:
+            return Response(f'\u2757 同名文档已存在无法上传："{filename}"，如需覆盖请先清除已上传文档。', mimetype='text/plain')
+        else:
+            return Response('\u274C 文档上传失败，请重新操作。', mimetype='text/plain')
 
         return 'File uploaded successfully', 200        
     else:
@@ -90,6 +96,8 @@ def handle_message():
     uploaded_filename = data.get('selected_file')  # 接收选择的上传文件
     n = data.get('n', param_n)
     max_k = data.get('max_k', 10)
+    k = data.get('k', 4)
+    user_model = data.get('user_model')
     prompt_template = data.get('prompt_template')
     print("接收信息后session：", session)
     # 判断是否用户变更模版，如果是则清空信息
@@ -98,18 +106,17 @@ def handle_message():
         session['selected_template'] = selected_template
         #print("Session after template change:", session)
     
-    if claude_model or user_input.startswith(('总结', '写作')) and (not MODEL.startswith("gpt-4")) and max_k != 11:
+    if user_model == "Claude" or user_input.startswith(('总结', '写作')) and (not MODEL.startswith("gpt-4")) and user_model == "default":
         interact_func = interact_with_claude
+    elif user_model == "Llama3":
+        interact_func = interact_with_groq
     else:
         interact_func = interact_with_openai
 
     if '文档' not in prompt_template[0]:
-        if 'beta' in prompt_template[0]: # 选择其它模型
-            prompt = f"{prompt_template[1].format(question=user_input)!s}"                
-            response = groq_response_stream(prompt)
-        elif '总结' in prompt_template[0]:
+        if '总结' in prompt_template[0]:
             content = url_process(user_input, MODEL)
-            prompt = f"{prompt_template[1].format(question=content)!s}"                
+            prompt = f"{prompt_template[1].format(question=content)!s}"
             response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
         else: 
             messages = get_user_messages(user_id) if 'Chat' in prompt_template[0] else []
@@ -122,13 +129,13 @@ def handle_message():
             clear_files_with_prefix(user_id)
             return Response('data: {"data": "Cleared."}\n\n', mimetype='text/event-stream')
         if user_input.startswith('#file'):
-            filelist = get_files_with_prefix(user_id) or "没有文件上传。"
+            filelist = get_files_with_prefix(user_id) or "\u2757 没有文件上传。"
             return Response(f'data: {json.dumps({"data": filelist})}\n\n', mimetype='text/event-stream')
 
         if not uploaded_filename:
-            return Response('data: {"data": "请先选择或上传文档。"}\n\n', mimetype='text/event-stream')
+            return Response('data: {"data": "\u2757 请先选择或上传文档。"}\n\n', mimetype='text/event-stream')
         if uploaded_filename=='多文档检索' and user_input.startswith('总结'):
-            return Response('data: {"data": "请选择需要总结的对应文档。"}\n\n', mimetype='text/event-stream')
+            return Response('data: {"data": "\u2757 请选择需要总结的对应文档。"}\n\n', mimetype='text/event-stream')
                 
         if user_input.startswith(('总结', '写作')):
             key_words = user_input
@@ -152,7 +159,7 @@ def handle_message():
         #if n==1:
         #    response = response_from_rag_chain(user_id, thread_id, fullpath_filename, user_input, True)
         #else:
-        docs = response_from_retriver(user_id, fullpath_filename, key_words, max_k)
+        docs = response_from_retriver(user_id, fullpath_filename, key_words, max_k, k)
         #if '模仿' in prompt_template[0]:
         #    docchat_template = template_mimic
         #else:
@@ -165,8 +172,7 @@ def handle_message():
         response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
         #response = interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n)
         #response = multi_LLM_response(user_id, thread_id, user_input, prompt)
-        #response = gemini_response(prompt)
-        #response = groq_response_stream(prompt)
+        #response = gemini_response_stream(prompt)
 
     return Response(response, mimetype='text/event-stream') #流式必须要用Response
 

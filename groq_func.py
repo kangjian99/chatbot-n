@@ -51,6 +51,7 @@ def interact_with_groq(user_id, thread_id, user_input, prompt, prompt_template, 
         choice = chunk.choices[0]
         content = choice.delta.content if choice.delta.content else ""
         if content:
+            full_message += content
             yield f"data: {json.dumps({'data': content})}\n\n"
 
         if choice.finish_reason == "stop":

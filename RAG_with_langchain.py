@@ -6,9 +6,9 @@ from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
-import os, json, re
+import os, json, re, threading
 from settings import API_KEY, API_KEY_HUB, MODEL, hub, BASE_URL
-from utils import UPLOAD_FOLDER, count_chars
+from utils import UPLOAD_FOLDER, count_chars, csv_to_markdown
 import tiktoken
 from templates import *
 from db_process import supabase, save_user_memory
@@ -37,7 +37,7 @@ def length_function(text: str) -> int:
     return len(enc.encode(text))
 
 text_splitter = RecursiveCharacterTextSplitter(
-                separators=['\n\n','\n'],
+                separators=['\n\n','\n', '\u3002'],
                 chunk_size=500,
                 chunk_overlap=50,
                 length_function=length_function,
@@ -59,6 +59,8 @@ def chunks_process(user_id, chunks, file_path, keyword):
         metadata = {
             "user_id": user_id,
         }
+        if file_path.endswith('.csv'):
+            metadata["source"] = file_path
         chunk.metadata.update(metadata)
         if keyword and keyword not in chunk.page_content:
             chunk.page_content = keyword + '\n' + chunk.page_content
@@ -85,7 +87,11 @@ def load_and_process_document(user_id, file_name):
     file_extension = file_extension.lower()
 
     # 根据文件扩展名选择合适的加载器
-    if file_extension == '.txt':
+    if file_extension == '.csv':
+        head = csv_to_markdown(file_path, file_path + '.md')  # 提前转化为markdown格式并返回表头
+        loader = TextLoader(file_path + '.md')
+        documents = loader.load()
+    elif file_extension in ['.txt', '.md']:
         loader = TextLoader(file_path)
         documents = loader.load()
     elif file_extension == '.docx':
@@ -97,6 +103,8 @@ def load_and_process_document(user_id, file_name):
         # llamaParse
         #documents = [Document(page_content="", metadata={"source": file_path})]
         #documents[0].page_content = parsed_from_pdf(file_path)
+        # llamaparse方法二
+        #documents = parsed_from_pdf(file_path)
     else:
         raise ValueError("Unsupported file extension")
     
@@ -105,20 +113,24 @@ def load_and_process_document(user_id, file_name):
 
     #keyword_extracted = get_expansion_queries(user_id, file_name, llm_parse) # 直接返回关键词
     #keyword = keywords['auto_name'] # 如果返回字典，分别提取关键词
+    #keyword = head if file_extension == '.csv'else '' # 如提取关键词，调整最后一个参数名称
     # 分割文档
     chunks = text_splitter.split_documents(documents)
     chunks = chunks_process(user_id, chunks, file_path, '') # 如提取关键词，调整最后一个参数名称
     print("Chunks length:", len(chunks))
 
     # 创建向量存储
-    vectorstore = SupabaseVectorStore.from_documents(
-        client=supabase,    
-        documents=chunks,
-        embedding=OpenAIEmbeddings(openai_api_key=API_KEY, model="text-embedding-3-small"),
-        table_name="documents",
-        query_name="match_documents",
-    )
-    return vectorstore
+    def create_vectorstore():
+        vectorstore = SupabaseVectorStore.from_documents(
+            client=supabase,    
+            documents=chunks,
+            embedding=OpenAIEmbeddings(openai_api_key=API_KEY, model="text-embedding-3-small"),
+            table_name="documents",
+            query_name="match_documents",
+        )
+    threading.Thread(target=create_vectorstore).start()
+
+    return f"{len(chunks)} chunks"
 
 def retrieve(prompt, top_k, vectorstore, filter):
     # 创建检索器

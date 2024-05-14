@@ -1,4 +1,4 @@
-import os, re, json
+import os, re, json, csv
 from datetime import datetime
 from db_process import read_table_data
 from urllib.parse import unquote
@@ -42,7 +42,7 @@ def count_chars(text, user_id, messages=[]):
 
 # 设置文件上传的目录
 UPLOAD_FOLDER = './docs'
-ALLOWED_EXTENSIONS = {'txt', 'docx', 'pdf'}
+ALLOWED_EXTENSIONS = {'txt', 'docx', 'pdf', 'csv', 'md'}
 # FILE_PATH = 'lushanriji.docx'
 
 # 确保上传的目录存在
@@ -112,3 +112,23 @@ def get_files_with_prefix(prefix):
     except Exception as e:
         print(f"Error: {e}")
         return ""
+    
+def csv_to_markdown(csv_file, md_file):
+    with open(csv_file, 'r', newline='', encoding='utf-8') as csvfile, \
+         open(md_file, 'w') as md_fp:
+
+        csvreader = csv.reader(csvfile)
+        first_row = True
+
+        for row in csvreader:
+            # Clean and format row directly:
+            row = [item.replace('\r\n', '') for item in row] 
+            md_line = '| ' + ' | '.join(row) + ' |\n'
+            
+            md_fp.write(md_line)
+            if first_row and (',,,' not in ','.join(row)):  # 排除表格上方有标题文字的情况
+                head = md_line
+                md_fp.write('|' + ' --- |' * len(row) + '\n')
+                first_row = False
+    
+    return head

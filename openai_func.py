@@ -1,4 +1,4 @@
-from settings import client, hub, BASE_URL, MODEL, MODEL_16k, model_8k, model_32k
+from settings import client, client_alt, hub, MODEL, MODEL_base, model_alt
 import json, random
 from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
@@ -7,7 +7,7 @@ from utils import num_tokens, count_chars
 param_temperature = 0.5
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
 
-def gpt_response(question, model=MODEL_16k):
+def gpt_response(question, model=MODEL_base):
     messages = [{"role": "user", "content": question}]
     response = client.chat.completions.create(
     model= model,
@@ -19,12 +19,13 @@ def gpt_response(question, model=MODEL_16k):
     )
     return response.choices[0].message.content
 
-def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n=param_n):
+def Chat_Completion(client, model, question, tem, messages, max_output_tokens, stream, n=param_n):
     try:
-        messages.append({"role": "system", "content": "原则：避免输出简略化。"})
+        ChatGPT_system = "You are ChatGPT, a large language model trained by OpenAI. " if not hub or hub == "burn" else ""
+        messages.append({"role": "system", "content": ChatGPT_system + "原则：避免输出简略化。"})
         messages.append({"role": "user", "content": question})
         print("generate_text:", messages[-1]["content"][:250])
-        if hub and BASE_URL == "https://burn.hair/v1":
+        if hub == "burn":
             tem += round(random.uniform(-0.1, 0.1), 2)
             
         params = {
@@ -88,21 +89,24 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     max_output_tokens = 4096
     tem = 0.8 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写' '脚本']) else param_temperature
 
-    if hub and BASE_URL == "https://api.moonshot.cn/v1":
-        input_tokens = num_tokens(prompt)
-        print(input_tokens)
-        if input_tokens <= 6400:
-            model = model_8k
-            max_output_tokens = 8000-input_tokens
-            if n > 1 and max_output_tokens<3000:
-                n = 1
-        else:
-            model = model_32k
+    client_act = client
+    if not hub or hub == "burn":
+        model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_base
     else:
-        model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_16k
+        model = MODEL_base
+        if model.startswith("moonshot"):
+            input_tokens = num_tokens(prompt)
+            print(input_tokens)
+            if input_tokens <= 6200:
+                max_output_tokens = 7800-input_tokens
+                if n > 1 and max_output_tokens<3000:
+                    n = 1
+            else:
+                model = model_alt
+                client_act = client_alt
 
     try:
-        for res in Chat_Completion(model, prompt, tem, messages, max_output_tokens, True, n):
+        for res in Chat_Completion(client_act, model, prompt, tem, messages, max_output_tokens, True, n):
             if 'content' in res and res['content']:
                 markdown_message = res['content']  # generate_markdown_message(res['content'])
                 # print(f"Yielding markdown_message: {markdown_message}")  # 添加这一行

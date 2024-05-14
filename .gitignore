@@ -10,13 +10,13 @@ backend.code-workspace
 prompts_perp.txt
 app_perp.py
 app_多文档.py
-RAG_with_langchain_multifile.py
+RAG_with_langchain_*.py
 /memory
 *.csv
-RAG_with_langchain_SelfQuery.py
-RAG_with_langchain_expansion.py
 /table-PDF
 llamaParse.py
 meta_keywords.py
 test_LLMs.py
 app_subwriter.py
+app_beta_gemini.py
+deepseek_func.py
