@@ -3,6 +3,7 @@ Openai
 tiktoken
 langchain
 langchain_openai
+langchain_community
 # weaviate-client
 pypdf
 docx2txt
