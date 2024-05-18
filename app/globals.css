@@ -60,7 +60,7 @@ body {
 .left-sidebar,
 .right-sidebar,
 .footer {
-   padding: 20px;
+   padding: 10px;
    background-color: #f7f1e2; /* Or your chosen content area color #f0f2f5 #e8ebec */
    /* border: 1px solid #e0e0e0; */
 }
@@ -83,6 +83,7 @@ body {
 
 .header {
   grid-column: 1 / -1; /* Span all columns */
+  padding-top: 20px;
   padding-bottom: 0px;
 }
 
@@ -105,7 +106,7 @@ body {
 .center-container {
   grid-column: 2;
   background-color: #f7f1e2;
-  padding: 20px 20px;
+  padding: 10px 20px;
   max-height: 100vh; /* Allow to fill the screen */
   overflow-y: auto; /* Allow scrolling */
   display: flex;

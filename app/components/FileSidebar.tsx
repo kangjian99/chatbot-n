@@ -72,7 +72,14 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
 //            setSelectedFile(files[files.length - 1]);
 //        }
 //    }, [files]);
-    
+
+function truncateFileName(fileName: String, maxLength = 30) {
+    if (fileName.length <= maxLength) return fileName;
+    const start = fileName.slice(0, Math.ceil(maxLength / 2));
+    const end = fileName.slice(-Math.floor(maxLength / 2));
+    return `${start}...${end}`;
+  }
+     
     const handleFileClick = (fileName: string) => {
         setSelectedFile(fileName);
         onFileSelect(fileName);
@@ -111,8 +118,9 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                                 wordBreak: 'break-word',  // 添加换行样式
                                 fontSize: "13px",
                             }}
+                            title={file} // 悬停显示全名
                         >
-                            {file}
+                            {truncateFileName(file)}
                         </span>
                     </li>
                 ))}
