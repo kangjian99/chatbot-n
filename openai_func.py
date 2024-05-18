@@ -87,7 +87,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     res = None
     full_message = ''
     max_output_tokens = 4096
-    tem = 0.8 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写' '脚本']) else param_temperature
+    tem = 0.8 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写', '脚本']) else param_temperature
 
     client_act = client
     if not hub or hub == "burn":
@@ -104,7 +104,9 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
             else:
                 model = model_alt
                 client_act = client_alt
-
+        if model.startswith("deepseek"):
+            tem += 0.3
+            
     try:
         for res in Chat_Completion(client_act, model, prompt, tem, messages, max_output_tokens, True, n):
             if 'content' in res and res['content']:

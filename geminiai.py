@@ -27,7 +27,7 @@ generation_config = {
     "max_output_tokens": 8192,
 }
 """
-model = genai.GenerativeModel(model_name='gemini-1.5-pro-latest', 
+model = genai.GenerativeModel(model_name='gemini-1.5-flash-latest', 
                               #system_instruction="你是语言分析与写作专家，避免输出过于简略化", 
                               safety_settings=safety_settings)
 #model_v = genai.GenerativeModel('gemini-pro-vision', safety_settings)
@@ -43,3 +43,23 @@ def gemini_response_stream(query):
 def gemini_response(query):
     response = model.generate_content(query)
     return response.text
+
+from db_process import save_user_memory
+from utils import count_chars
+
+def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template, n, messages=None):
+    messages = [] if messages is None else messages
+    full_message = ''
+    messages.append({"role": "user", "content": query})
+
+    response = model.generate_content(query, stream=True)
+
+    for chunk in response:
+        full_message += chunk.text
+        yield(f"data: {json.dumps({'data': chunk.text})}\n\n")
+
+    if full_message and any(item in prompt_template[0] for item in ['文档', '总结', '写', '润色']):
+        messages.append({"role": "assistant", "content": full_message})
+        join_message = "".join([str(msg["content"]) for msg in messages])
+        info = count_chars(join_message, user_id)
+        save_user_memory(user_id, thread_id, user_input, full_message, info)
