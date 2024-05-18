@@ -13,10 +13,14 @@
   font-size: 14px;
   padding: 5px;
   padding-left: 10px;
-  margin-right: 10px;
+  margin-right: 20px;
   border-radius: 5px;
   border: 1px solid #ccc;
   background-color: #f2f2f2;
+}
+.custom-select:hover {
+  background-color: #e9e9e9; /* 设置悬停时的背景颜色 */
+  border-color: #b3b3b3;     /* 可选：设置悬停时的边框颜色 */
 }
 
 .right-align-container {

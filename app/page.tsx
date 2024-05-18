@@ -7,10 +7,12 @@ import FileUploader from "./components/FileUploader";
 import UploadedFilesSidebar from "./components/FileSidebar";
 import ThreadsSidebar from "./components/ThreadsSidebar";
 import Login from "./components/Login";
-import { handleStreamResponse } from './components/handleStreamResponse';
-import { saveToLocalStorage, loadFromLocalStorage, cleanUpExpiredLocalStorage } from './components/localStorageUtil';
+import { sendMessage } from './utils/sendMessage';
+import { saveToLocalStorage, loadFromLocalStorage, cleanUpExpiredLocalStorage } from './utils/localStorageUtil';
 import { useRouter } from 'next/navigation';
 import { ConfigurationContext } from './ContextProvider';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGear, faSync, faArrowRightLong } from '@fortawesome/free-solid-svg-icons';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 const default_n = process.env.NEXT_PUBLIC_API_N || 2;
@@ -241,80 +243,6 @@ export default function Home() {
             setMessages(initialMessages)
         }
     }, [thread_id]);
-    
-    const sendMessage = async () => {
-        const newMessageId = Date.now(); // 使用时间戳作为简单的唯一ID
-        // 检查用户输入是否为空
-        if (!userInput.trim()) {
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                { type: "system", text: "发送信息不能为空...", role: "system", id: newMessageId },
-            ]);
-            return;
-        } else {
-            // 将用户输入和“思考中...”消息添加到消息列表
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                { type: "user", text: userInput },
-                { type: "system", text: "思考中......", role: "system", id: newMessageId },
-            ]);
-            setIsSending(true);
-        }
-
-        if (userInput == "refresh") {
-            saveToLocalStorage(`memory-${user_id}-${thread_id}`, "")
-            handleMemory()
-        }
-        else {
-            try {
-                const response = await fetch(url + "message", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        user_id: user_id,
-                        user_input: userInput,
-                        thread_id: thread_id,
-                        selected_template: selectedTemplate,
-                        prompt_template: prompts[Number(selectedTemplate)],
-                        selected_file: selectedFileName, // 将选中的文件名添加到请求中
-                        max_k: krangeValue,
-                        k: kValue,
-                        user_model: userModel
-                    }), // 发送选择的模板
-                    credentials: "include",
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                // 处理流式响应
-                // console.log(response, response.body)
-                if (response.body) {
-                    try {
-                        const reader = response.body.getReader();
-                        const accumulatedData = await handleStreamResponse(reader, setMessages, newMessageId);
-                        if (accumulatedData) {
-                            let cachedEventData = loadFromLocalStorage(`memory-${user_id}-${thread_id}`) || [];
-                            const formattedTime = new Date().toLocaleString("zh-CN", {timeZone: "Asia/Shanghai"}).slice(0, -3);
-                            cachedEventData.push({ User: userInput }, { Assistant: accumulatedData }, { Info: formattedTime });
-                            if (cachedEventData.length > 60) cachedEventData = cachedEventData.slice(-60); // 保留20条对话记录
-                            saveToLocalStorage(`memory-${user_id}-${thread_id}`, cachedEventData);                           
-                        }
-                    } catch (error) {
-                        console.error("Error handling stream response:", error);
-                    }
-                } else {
-                    console.error("Response body is null");
-                }
-            } catch (error) {
-                console.error("Error sending message:", error);
-            }
-        }
-        setUserInput("");
-        setIsSending(false);
-    };
 
     const handleThreadSelect = (thread: any) => {
         // Handle the thread selection, perhaps by setting state or performing an action
@@ -350,7 +278,7 @@ export default function Home() {
                             messages={messages}
                             messagesEndRef={messagesEndRef}
                         />{" "}
-                    <div style={{ display: 'flex', paddingLeft: '75px', paddingRight: '75px', marginBottom: '15px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', paddingLeft: '60px', paddingRight: '60px', marginBottom: '15px', alignItems: 'center' }}>
                         {/* 下拉选择列表 */}
                         <select style={{width: "200px"}} value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)} className="custom-select" >
                             {prompts.map(([key, value], index) => (
@@ -376,36 +304,58 @@ export default function Home() {
                         placeholder="在此输入..."
                     />
                         <button 
-                            onClick={sendMessage} 
-                            style={{ 
-                                padding: '5px', 
-                                borderRadius: '5px', 
-                                border: '1px solid #ccc', 
-                                background: isSending || memoryLoading ? '#ccc' : '#0D6FFE', 
-                                color: isSending || memoryLoading ? '#666' : 'white',
-                                width: '70px',
-                                marginRight: "5px",
-                                fontSize: "13px",
-                            }}
-                            disabled={isSending || memoryLoading}
+                        onClick={() => sendMessage({ userInput, user_id, thread_id, url, prompts, selectedTemplate, selectedFileName, krangeValue, kValue, userModel, setMessages, setUserInput, setIsSending })} 
+                        style={{ 
+                            padding: '5px', // 增加padding使按钮更大
+                            borderRadius: '50%', // 圆形按钮
+                            border: '1px solid #eee', 
+                            background: isSending || memoryLoading ? '#eee' : userInput ? '#20808D' : '#eee', 
+                            color: isSending || memoryLoading ? '#666' : userInput ? 'white' : '#666',
+                            width: '40px',
+                            height: '40px', // 使按钮变为圆形
+                            marginRight: "5px",
+                            fontSize: "14px",
+                            display: 'flex', // 使用flexbox对齐内容
+                            alignItems: 'center', // 垂直居中
+                            justifyContent: 'center', // 水平居中
+                        }}
+                            disabled={isSending || memoryLoading || !userInput}
                         >
-                            {isSending ? '已发送' : '发送'}
+                            <FontAwesomeIcon icon={faArrowRightLong} />
                         </button>
                     </div>
-                    <div style={{ display: 'flex', paddingLeft: '75px', paddingRight: '75px', marginBottom: '0px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    <div style={{ display: 'flex', paddingLeft: '60px', paddingRight: '60px', marginBottom: '0px', alignItems: 'center', justifyContent: 'flex-end' }}>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                             <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
+                            <button
+                                onClick={() => {
+                                    saveToLocalStorage(`memory-${user_id}-${thread_id}`, "");
+                                    handleMemory();
+                                }}
+                                className="btn btn-secondary"
+                                style={{
+                                    fontSize: '12px',
+                                    padding: '3px 6px',
+                                    border: '1px solid #ccc', 
+                                    color: '#6c757d',
+                                    backgroundColor: '#eee',
+                                    marginRight: '20px',
+                                }}
+                                disabled={isSending || memoryLoading} >
+                                <FontAwesomeIcon icon={faSync} />
+                            </button>
                             <button
                                 onClick={() => router.push('/dashboard')}
                                 className="btn btn-secondary"
                                 style={{
                                     fontSize: '12px',
-                                    padding: '5px',
+                                    padding: '3px 6px',
+                                    border: '1px solid #ccc', 
                                     color: '#6c757d', // 设置较淡的文字颜色
                                     backgroundColor: '#eee', // 设置较浅的背景色
                                 }}
                                 disabled={isSending || memoryLoading} >
-                                参数配置
+                                <FontAwesomeIcon icon={faGear} />
                             </button>
                         </div>
                         </div>
