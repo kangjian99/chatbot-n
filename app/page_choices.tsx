@@ -7,7 +7,7 @@ import FileUploader from "./components/FileUploader";
 import UploadedFilesSidebar from "./components/FileSidebar";
 import ThreadsSidebar from "./components/ThreadsSidebar";
 import Login from "./components/Login";
-import { handleStreamResponse } from './components/handleStreamResponse';
+import { handleStreamResponse } from './utils/handleStreamResponse';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 const default_n = process.env.NEXT_PUBLIC_API_N || 2;

@@ -56,7 +56,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
               style={{
                 padding: '6px 10px',  // 上下 6px，左右 10px
                 borderRadius: '10px',
-                background: msg.type === 'user' ? '#BAE6FC' : '#eee',
+                background: msg.type === 'user' ? '#BAE6FC' : '#F2F1F2',
                 color: msg.type === 'user' ? 'black' : '#374151',
                 display: 'inline-block',
                 maxWidth: msg.type === 'user' ? '60%' : containsMarkdownTableOrCodeBlock(msg.text) ? '90%' : '70%',

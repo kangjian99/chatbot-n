@@ -36,3 +36,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+app/utils/sendMessage_l.ts
+app/utils/splitText.ts

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { saveToLocalStorage, loadFromLocalStorage } from './localStorageUtil';
+import { saveToLocalStorage, loadFromLocalStorage } from '../utils/localStorageUtil';
 
 interface UploadedFilesSidebarProps {
     uploadedFiles: string[];
@@ -102,7 +102,7 @@ const UploadedFilesSidebar: React.FC<UploadedFilesSidebarProps> = ({ uploadedFil
                     >
                         <span
                             style={{
-                                backgroundColor: selectedFile === file ? "#004080" : "#e8eef6",
+                                backgroundColor: selectedFile === file ? "#3A6A9A" : "#e8eef6",
                                 color: selectedFile === file ? "white" : "black",
                                 padding: "5px 5px",
                                 borderRadius: "5px",
