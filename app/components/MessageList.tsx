@@ -37,7 +37,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
   };
   const processText = (text: string) => {
     return text
-      .replace(/(<br\s*\/?>\s*)+/gi, '\n') // Replace consecutive <br> tags with a single \n
+      //.replace(/(<br\s*\/?>\s*)+/gi, '\n') // Replace consecutive <br> tags with a single \n
+      .replace(/(<br\s*\/?>\s*)+-/gi, '|\n||-') // Replace consecutive <br>- tags with 
       .replace(/\n\n+(?=\d)/g, '\n');
   };
 
@@ -59,7 +60,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
                 background: msg.type === 'user' ? '#BAE6FC' : '#F2F1F2',
                 color: msg.type === 'user' ? 'black' : '#374151',
                 display: 'inline-block',
-                maxWidth: msg.type === 'user' ? '60%' : containsMarkdownTableOrCodeBlock(msg.text) ? '90%' : '70%',
+                maxWidth: msg.type === 'user' ? '60%' : containsMarkdownTableOrCodeBlock(msg.text) ? '80%' : '70%',
                 wordWrap: 'break-word',
                 fontSize: msg.role === 'system' ? '13px' : '15px',
                 fontStyle: msg.role === 'system' ? 'italic' : 'normal',

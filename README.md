@@ -39,7 +39,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## Env Configeration:
 
 NEXT_PUBLIC_API_URL=http://localhost:5858/   #必须
-NEXT_PUBLIC_API_N=3
+
+NEXT_PUBLIC_API_N=3    #忽略
+
 NEXT_PUBLIC_API_MAX_K=10
+
 NEXT_PUBLIC_API_HEADLINE=AI知识库管理助手 #AI-assisted Writer
+
 NEXT_PUBLIC_API_EXPIRY_HOUR=36
+
+NEXT_PUBLIC_API_USER_MODEL=default
