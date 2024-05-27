@@ -368,13 +368,13 @@ export default function Home() {
                                 padding: '5px',
                                 borderRadius: '5px',
                                 border: '1px solid #ccc',
-                                background: '#eee',
+                                background: '#F2F2F2',
                                 color: '#444',
                                 marginRight: '15px',
                                 fontSize: '12px'
                             }}
                         >
-                            撰稿模板
+                            撰稿快捷模板
                         </button>
                         <button 
                             onClick={() => {
@@ -384,7 +384,7 @@ export default function Home() {
                                 padding: '5px',
                                 borderRadius: '5px',
                                 border: '1px solid #ccc',
-                                background: '#eee',
+                                background: '#F2F2F2',
                                 color: '#444',
                                 marginRight: '10px',
                                 fontSize: '12px'
