@@ -42,12 +42,12 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
 
 
     return (
-<div style={{ marginBottom: "10px" }}>
+<div style={{ marginBottom: "0px" }}>
     {/* Section 1: Local File Upload */}
     <div
         style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "flex-start",
             alignItems: "center",
         }}
     >
@@ -56,6 +56,7 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
             accept={allowedExtensions.join(",")}
             onChange={handleFileChange}
             style={{
+                width: "220px",
                 marginRight: "20px",
                 fontSize: "13px",
                 padding: "6px",
