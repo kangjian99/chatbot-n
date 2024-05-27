@@ -84,13 +84,14 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
     };
 
     return (
-<div style={{ marginBottom: "10px" }}>
+<div style={{ marginBottom: "0px" }}>
     {/* Section 1: Local File Upload */}
     <div
         style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "flex-start",
             alignItems: "center",
+            marginBottom: "10px",
         }}
     >
         <input
@@ -132,13 +133,11 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
         </button>
     </div>
 
-    <div style={{ marginBottom: "10px" }}></div>
-
     {/* Section 2: URL File Upload */}
     <div
         style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "flex-start",
             alignItems: "center",
         }}
     >

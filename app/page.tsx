@@ -268,8 +268,41 @@ export default function Home() {
                         </div>
                     </header>
                     <nav className="left-sidebar">
-                    <div className="sidebar-content">
-                        <ThreadsSidebar onThreadSelect={handleThreadSelect} user_id={user_id} len={messages.length}/>
+                    <div className="sidebar-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                        <ThreadsSidebar onThreadSelect={handleThreadSelect} user_id={user_id} len={messages.length} />
+                        <div style={{ marginTop: 'auto', marginBottom: '10px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            <button
+                                onClick={() => {
+                                    saveToLocalStorage(`memory-${user_id}-${thread_id}`, "");
+                                    handleMemory();
+                                }}
+                                className="btn btn-secondary"
+                                style={{
+                                    fontSize: '12px',
+                                    padding: '3px 6px',
+                                    border: '1px solid #ccc', 
+                                    color: '#6c757d',
+                                    backgroundColor: '#eee',
+                                    marginRight: '20px',
+                                }}
+                                disabled={isSending || memoryLoading} >
+                                <FontAwesomeIcon icon={faSync} />
+                            </button>
+                            <button
+                                onClick={() => router.push('/dashboard')}
+                                className="btn btn-secondary"
+                                style={{
+                                    fontSize: '12px',
+                                    padding: '3px 6px',
+                                    border: '1px solid #ccc', 
+                                    color: '#6c757d', // 设置较淡的文字颜色
+                                    backgroundColor: '#eee', // 设置较浅的背景色
+                                    marginRight: '10px',
+                                }}
+                                disabled={isSending || memoryLoading} >
+                                <FontAwesomeIcon icon={faGear} />
+                            </button>
+                        </div>
                     </div>
                     </nav>
                     <div className="center-container">
@@ -324,45 +357,46 @@ export default function Home() {
                             <FontAwesomeIcon icon={faArrowRightLong} />
                         </button>
                     </div>
-                    <div style={{ display: 'flex', paddingLeft: '60px', paddingRight: '60px', marginBottom: '0px', alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                            <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
-                            <button
-                                onClick={() => {
-                                    saveToLocalStorage(`memory-${user_id}-${thread_id}`, "");
-                                    handleMemory();
-                                }}
-                                className="btn btn-secondary"
-                                style={{
-                                    fontSize: '12px',
-                                    padding: '3px 6px',
-                                    border: '1px solid #ccc', 
-                                    color: '#6c757d',
-                                    backgroundColor: '#eee',
-                                    marginRight: '20px',
-                                }}
-                                disabled={isSending || memoryLoading} >
-                                <FontAwesomeIcon icon={faSync} />
-                            </button>
-                            <button
-                                onClick={() => router.push('/dashboard')}
-                                className="btn btn-secondary"
-                                style={{
-                                    fontSize: '12px',
-                                    padding: '3px 6px',
-                                    border: '1px solid #ccc', 
-                                    color: '#6c757d', // 设置较淡的文字颜色
-                                    backgroundColor: '#eee', // 设置较浅的背景色
-                                }}
-                                disabled={isSending || memoryLoading} >
-                                <FontAwesomeIcon icon={faGear} />
-                            </button>
-                        </div>
-                        </div>
+                    <div style={{ display: 'flex', paddingLeft: '60px', paddingRight: '60px', marginBottom: '10px', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                        <button 
+                            onClick={() => {
+                                setUserInput('写作：[稿件类型/风格]\n[主题及关键信息]\n[字数]');
+                                setSelectedTemplate('0');
+                            }} 
+                            style={{
+                                padding: '5px',
+                                borderRadius: '5px',
+                                border: '1px solid #ccc',
+                                background: '#F2F2F2',
+                                color: '#444',
+                                marginRight: '15px',
+                                fontSize: '12px'
+                            }}
+                        >
+                            撰稿快捷模板
+                        </button>
+                        <button 
+                            onClick={() => {
+                                setUserInput('');
+                            }} 
+                            style={{
+                                padding: '5px',
+                                borderRadius: '5px',
+                                border: '1px solid #ccc',
+                                background: '#F2F2F2',
+                                color: '#444',
+                                marginRight: '10px',
+                                fontSize: '12px'
+                            }}
+                        >
+                            Clear
+                        </button>
+                    </div>
                         <FileUploader onUpload={handleFileUpload} />{" "}
                     </div>
-                    </div>
 
+                    </div>
                     </div>
                     <nav className="right-sidebar">
                     <div className="sidebar-content">

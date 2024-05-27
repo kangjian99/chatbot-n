@@ -178,26 +178,30 @@ body {
   color: #2678C5;
 }*/
 
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  color: #2c3e50; /* 设定标题颜色 */
+  margin-top: 0.5em; /* 标题上边距 */
+}
+
 .markdown-content h1 {
-  color: #2c3e50; /* 字体颜色 */
   font-size: 1.5em; /* 字体大小 */
   margin-bottom: 0.5em; /* 下边距 */
 }
 
 .markdown-content h2 {
-  color: #2c3e50; /* 字体颜色 */
   font-size: 1.3em; /* 字体大小 */
   margin-bottom: 0.4em; /* 下边距 */
 }
 
 .markdown-content h3 {
-  color: #34495e; /* 字体颜色 */
   font-size: 1.1em; /* 字体大小 */
   margin-bottom: 0.2em; /* 下边距 */
 }
 
 .markdown-content h4 {
-  color: #34495e; /* 字体颜色 */
   font-size: 1em; /* 字体大小 */
   margin-bottom: 0.1em; /* 下边距 */
 }
@@ -215,7 +219,7 @@ body {
 .markdown-content ul,
 .markdown-content ol {
   margin-top: -15px;
-  margin-bottom: -30px;
+  margin-bottom: -15px;
 }
 
 .markdown-content pre {
