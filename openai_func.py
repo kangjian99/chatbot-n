@@ -76,7 +76,6 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
         if text[1]:
             combined_content = '\n'.join([f"{'*'*3}\n回复 {n+2}：\n{choice}" for n, choice in enumerate(text[1:])])
             yield {'content': '\n'+combined_content}
-        return response
         
     except Exception as e:
         print(e)

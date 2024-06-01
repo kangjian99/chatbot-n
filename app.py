@@ -11,7 +11,7 @@ from utils import *
 from openai_func import interact_with_openai, param_n
 from claude import claude_response_stream, interact_with_claude, claude_response
 
-#from geminiai import gemini_response, gemini_response_stream
+from geminiai import interact_with_gemini
 #from pplx import perplexity_response, interact_with_pplx
 from groq_func import groq_response, groq_response_stream, interact_with_groq
 #from test_LLMs import multi_LLM_response
@@ -106,12 +106,14 @@ def handle_message():
         session['selected_template'] = selected_template
         #print("Session after template change:", session)
     
-    if user_model == "Claude" or user_input.startswith(('总结', '写作')) and (not MODEL.startswith("gpt-4")) and user_model == "default":
+    interact_func = {
+        "Claude": interact_with_claude,
+        "Llama3": interact_with_groq,
+        "flash": interact_with_gemini
+    }.get(user_model, interact_with_openai)
+
+    if user_input.startswith("写作") and user_model == "default" and not MODEL.startswith("gpt-4-"):
         interact_func = interact_with_claude
-    elif user_model == "Llama3":
-        interact_func = interact_with_groq
-    else:
-        interact_func = interact_with_openai
 
     if '文档' not in prompt_template[0]:
         if '总结' in prompt_template[0]:
