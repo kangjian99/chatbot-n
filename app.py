@@ -6,7 +6,7 @@ from datetime import timedelta
 from db_process import *
 from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
 from webloader import *
-from templates import *
+from templates import template_QUERY, template_WRITER, template_SUMMARY
 from utils import *
 from openai_func import interact_with_openai, param_n
 from claude import claude_response_stream, interact_with_claude, claude_response
