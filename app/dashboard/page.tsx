@@ -5,56 +5,124 @@ import { ConfigurationContext } from '../ContextProvider';
 
 const Dashboard = () => {
   const router = useRouter();
-  const { krangeValue, setKrangeValue, kValue, setKValue } = useContext(ConfigurationContext);
-  const { userModel, setUserModel } = useContext(ConfigurationContext);
+  const { krangeValue, setKrangeValue, kValue, setKValue, userModel, setUserModel } = useContext(ConfigurationContext);
 
   // Function to handle the routing back to the main page
   const handleBackToMain = () => {
     router.push('/'); // Change this to the path of your main page if different
   };
 
+  const styles: { [key: string]: React.CSSProperties } = {
+    container: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      backgroundColor: '#f0f2f5',
+      fontFamily: 'Arial, sans-serif',
+    },
+    card: {
+      width: '300px',
+      padding: '24px',
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    },
+    title: {
+      fontSize: '20px',
+      fontWeight: 'bold',
+      color: '#333',
+      marginBottom: '24px',
+      textAlign: 'center',
+    },
+    controlGroup: {
+      marginBottom: '20px',
+    },
+    labelValueContainer: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '8px',
+    },
+    label: {
+      fontSize: '14px',
+      fontWeight: 'bold',
+      color: '#555',
+    },
+    slider: {
+      width: '100%',
+      marginBottom: '8px',
+    },
+    value: {
+      fontSize: '14px',
+      color: '#666',
+    },
+    select: {
+      width: '100%',
+      padding: '8px',
+      fontSize: '14px',
+      border: '1px solid #ddd',
+      borderRadius: '4px',
+      backgroundColor: 'white',
+      marginBottom: '8px',
+    },
+    buttonContainer: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      marginTop: '20px',
+    },
+    button: {
+      padding: '8px 10px',
+      fontSize: '14px',
+      color: 'white',
+      backgroundColor: '#0D6FFE',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+    },
+  };
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <div style={{ width: '250px', border: '1px solid #ccc', padding: '20px', borderRadius: '10px', backgroundColor: '#f8f9fa' }}>
-        <p style={{ textAlign: 'center', color: '#000', fontSize: '16px' }}>配置选项</p>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <label style={{ marginRight: '10px', fontSize: '14px' }}>max_k:</label>
-          <div style={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
-            <input
-              type="range"
-              min="10"
-              max="15"
-              value={krangeValue}
-              onChange={(e) => setKrangeValue(Number(e.target.value))}
-              className="form-range"
-              style={{ flexGrow: 1 }}
-              title='max top_k'
-            />
-            <span style={{ marginLeft: '10px', fontSize: '14px' }}>{krangeValue}</span>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>配置选项</h2>
+        
+        <div style={styles.controlGroup}>
+          <div style={styles.labelValueContainer}>
+            <label style={styles.label}>max_k:</label>
+            <div style={styles.value}>{krangeValue}</div>
           </div>
+          <input
+            type="range"
+            min={10}
+            max={15}
+            value={krangeValue}
+            onChange={(e) => setKrangeValue(Number(e.target.value))}
+            style={styles.slider}
+          />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <label style={{ marginRight: '10px', fontSize: '14px' }}>top_k:</label>
-          <div style={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
-            <input
-              type="range"
-              min="2"
-              max="6"
-              value={kValue}
-              onChange={(e) => setKValue(Number(e.target.value))}
-              className="form-range"
-              style={{ flexGrow: 1 }}
-              title='top_k'
-            />
-            <span style={{ marginLeft: '10px', fontSize: '14px' }}>{kValue}</span>
+        
+        <div style={styles.controlGroup}>
+          <div style={styles.labelValueContainer}>
+            <label style={styles.label}>top_k:</label>
+            <div style={styles.value}>{kValue}</div>
           </div>
+          <input
+            type="range"
+            min={2}
+            max={6}
+            value={kValue}
+            onChange={(e) => setKValue(Number(e.target.value))}
+            style={styles.slider}
+          />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <label style={{ marginRight: '10px', fontSize: '14px' }}>Interact Model:</label>
+        
+        <div style={styles.controlGroup}>
+          <label style={styles.label}>Interact Model:</label>
           <select
             value={userModel}
             onChange={(e) => setUserModel(e.target.value)}
-            style={{ width: "120px", fontSize: '14px' }}
+            style={styles.select}
           >
             <option value="default">default</option>
             <option value="Claude">Claude</option>
@@ -63,20 +131,18 @@ const Dashboard = () => {
             <option value="nonClaude">nonClaude</option>
           </select>
         </div>
-        <button onClick={handleBackToMain} style={{ 
-          padding: '5px 10px',
-          borderRadius: '5px',
-          border: '1px solid #ccc',
-          background: '#0D6FFE',
-          color: 'white',
-          fontSize: "12px",
-          marginTop: "20px",
-          marginLeft: 'auto',  // 使按钮向右浮动
-          display: 'block'  // 使按钮独占一行
-        }}>主页</button>
+        
+        <div style={styles.buttonContainer}>
+          <button 
+            onClick={handleBackToMain} 
+            style={styles.button}
+          >
+            返回主页
+          </button>
+        </div>
       </div>
     </div>
-  );  
+  );
 };
 
 export default Dashboard;
