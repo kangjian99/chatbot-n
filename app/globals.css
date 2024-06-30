@@ -179,6 +179,7 @@ body {
 
 .markdown-content td {
   background-color: #ffffff;
+  font-size: 0.95em;
 }
 
 .markdown-content tr:nth-child(even) td {
