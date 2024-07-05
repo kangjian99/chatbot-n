@@ -7,7 +7,7 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-model = "llama3-70b-8192"
+model = "gemma2-9b-it"
 
 def groq_response(query):
     chat_completion = client.chat.completions.create(
