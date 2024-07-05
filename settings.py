@@ -23,6 +23,10 @@ elif hub == "deepseek":
     API_KEY_HUB = os.environ.get('DEEPSEEK_API_KEY')
     BASE_URL = "https://api.deepseek.com/v1"
     MODEL_base = "deepseek-chat"
+elif hub == "sf":
+    API_KEY_HUB = os.environ.get('SF_API_KEY')
+    BASE_URL = "https://api.siliconflow.cn/v1"
+    MODEL_base = os.getenv('SF_MODEL') or "Qwen/Qwen2-7B-Instruct"
 elif hub:
     API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
     BASE_URL = "https://api.moonshot.cn/v1"
