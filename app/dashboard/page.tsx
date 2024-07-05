@@ -126,7 +126,7 @@ const Dashboard = () => {
           >
             <option value="default">default</option>
             <option value="Claude">Claude</option>
-            <option value="Llama3">Llama3</option>
+            <option value="Gemma2">Gemma2</option>
             <option value="flash">flash</option>
             <option value="nonClaude">nonClaude</option>
           </select>
