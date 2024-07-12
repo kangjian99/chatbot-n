@@ -33,16 +33,21 @@ def groq_response_stream(query):
         if choice.finish_reason == "stop":
             break
 
-def interact_with_groq(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
+def interact_with_groq(user_id, thread_id, user_input, prompt, prompt_template, user_model, messages=None):
     messages = [] if messages is None else messages
     full_message = ''
 
     messages.append({"role": "system", "content": "用中文回复,避免输出简略化"})
     messages.append({"role": "user", "content": prompt})
 
+    model_groq = {
+        "Llama3": "llama3-70b-8192",
+        "Gemma2": "gemma2-9b-it",
+    }.get(user_model, model)
+
     response = client.chat.completions.create(
         messages=messages,
-        model=model,
+        model=model_groq,
         stream=True
     )
     for chunk in response:

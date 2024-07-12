@@ -19,6 +19,7 @@ def max_marginal_relevance_search(
     )
     
     filtered_tuple = [item for item in result if len(item[0].page_content) >= 20 and item[1] > 0.3] # 过滤过短及相关性过低的内容
+    filtered_tuple = filtered_tuple or [item for item in result if len(item[0].page_content) >= 20] # 如果结果为空则去除相关性要求
 
     matched_documents, scores, matched_embeddings = zip(*filtered_tuple) # 分别赋值为元组的第一个、第二个和第三个元素
 

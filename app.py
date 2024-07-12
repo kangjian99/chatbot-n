@@ -108,10 +108,14 @@ def handle_message():
     
     interact_func = {
         "Claude": interact_with_claude,
+        "Llama3": interact_with_groq,
         "Gemma2": interact_with_groq,
         "flash": interact_with_gemini
     }.get(user_model, interact_with_openai)
 
+    if interact_func == interact_with_groq:
+        n = user_model
+    
     if user_input.startswith("写作") and user_model == "default" and not MODEL.startswith("gpt-4-"):
         interact_func = interact_with_claude
 
