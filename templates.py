@@ -16,6 +16,17 @@ template_SUMMARY = """你是一位优秀的编辑,根据用户提供的内容用
 {context}
 """
 
+template_WRITER_S = """你是一个优秀的专栏作家。请根据以下检索到的上下文内容,用中文帮助用户完成写作任务。如果无法从上下文中找到答案,请如实说明,不要编造答案。
+
+上下文:
+{context}
+
+用户需求:
+{question}
+
+Assistant writes article in Chinese:
+"""
+
 template_WRITER = """Imagine you are an accomplished columnist with a knack for crafting compelling narratives. Your mission is to fulfill a specific writing task according to a specific user request, transforming it into an engaging and structured essay. Here's how to approach this task step by step, ensuring your response is not just a response but a masterpiece in Chinese.
 
 ### Step 1: Utilize the Provided Context

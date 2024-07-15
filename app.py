@@ -6,7 +6,7 @@ from datetime import timedelta
 from db_process import *
 from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
 from webloader import *
-from templates import template_QUERY, template_WRITER, template_SUMMARY
+from templates import template_QUERY, template_WRITER, template_WRITER_S, template_SUMMARY
 from utils import *
 from openai_func import interact_with_openai, param_n
 from claude import claude_response_stream, interact_with_claude, claude_response
@@ -156,7 +156,7 @@ def handle_message():
                 key_words = user_input + '\n' + key_words  # 为用户提问增添关键词
         else:   # 对于文档检索需求用key_words获取信息
             try:
-                key_words = claude_response(f"提取下面句子中的关键词，关键词只可能是名词或动词，不要把完整的词拆开，仅输出关键词：\n{user_input}")
+                key_words = groq_response(f"提取下面句子中的关键词，关键词只可能是名词或动词，不要把完整的词拆开，仅输出关键词：\n{user_input}")
                 print("关键词：", key_words)
             except:
                 key_words = user_input
@@ -169,11 +169,15 @@ def handle_message():
         #if '模仿' in prompt_template[0]:
         #    docchat_template = template_mimic
         #else:
-        docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
-        if user_input.startswith('总结'):
+        #docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
+        if user_input.startswith('写作'):
+            prompt = f"{template_WRITER.format(question=user_input, context=docs)!s}"
+        elif '写' in user_input:
+            prompt = f"{template_WRITER_S.format(question=user_input, context=docs)!s}"
+        elif user_input.startswith('总结'):
             prompt = f"{template_SUMMARY.format(context=docs)!s}"
         else:
-            prompt = f"{docchat_template.format(question=user_input, context=docs)!s}"
+            prompt = f"{template_QUERY.format(question=user_input, context=docs)!s}"
 
         response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
         #response = interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n)
