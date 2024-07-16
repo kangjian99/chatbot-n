@@ -2,7 +2,7 @@
 
 import React, { createContext, useState, ReactNode, FC } from 'react';
 
-const default_k = process.env.NEXT_PUBLIC_API_MAX_K || 10;
+const default_k = process.env.NEXT_PUBLIC_API_K || 4;
 const default_userModel = process.env.NEXT_PUBLIC_API_USER_MODEL || "default";
 
 interface ConfigurationContextType {
@@ -23,8 +23,8 @@ interface ContextProviderProps {
 }
 
 const ContextProvider: FC<ContextProviderProps> = ({ children }) => {
-  const [krangeValue, setKrangeValue] = useState(Number(default_k)); // Initial state value
-  const [kValue, setKValue] = useState(4); 
+  const [krangeValue, setKrangeValue] = useState(10); // Initial state value
+  const [kValue, setKValue] = useState(Number(default_k)); 
   const [userModel, setUserModel] = useState(default_userModel);
   const [selectedTemplate, setSelectedTemplate] = useState('');
 
