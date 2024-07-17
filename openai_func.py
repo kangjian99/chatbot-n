@@ -2,7 +2,7 @@ from settings import client, client_alt, hub, MODEL, MODEL_base, model_alt
 import json, random
 from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
-from utils import num_tokens, count_chars
+from utils import num_tokens, count_chars, TEMPLATE_SAVE
 
 param_temperature = 0.5
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
@@ -118,7 +118,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
         info = count_chars(join_message, user_id, messages)
-        if full_message and any(item in prompt_template[0] for item in ['文档', '总结', '写', '润色']):
+        if full_message and any(item in prompt_template[0] for item in TEMPLATE_SAVE):
             save_user_memory(user_id, thread_id, user_input, full_message, info)
         rows = history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
         if rows != 0:

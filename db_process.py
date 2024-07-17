@@ -82,6 +82,19 @@ def save_user_messages(user_id, messages, directory=DIRECTORY):
         for message in messages:
             f.write(json.dumps(message, ensure_ascii=False) + '\n')
 
+def increment_counter(username):
+    response = supabase.table('users').select('counter').eq('username', username).execute()
+
+    if 'error' in response:
+        print('Error:', response.error)
+        return
+
+    user_data = response.data
+
+    if user_data:
+        current_counter = user_data[0]['counter']
+        supabase.table('users').update({'counter': current_counter + 1}).eq('username', username).execute()
+
 def save_user_memory(user_id, thread_id, user_input, messages, info, table='memory_by_thread', max_entries=10):
 
     new_entry = {
@@ -118,6 +131,8 @@ def save_user_memory(user_id, thread_id, user_input, messages, info, table='memo
 
     if 'error' in response:
         print('Error:', response.error)
+    
+    increment_counter(user_id)
 
 def history_messages(user_id, prompt_template):
     rows = 0

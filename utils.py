@@ -44,6 +44,7 @@ def count_chars(text, user_id, messages=[]):
 UPLOAD_FOLDER = './docs'
 ALLOWED_EXTENSIONS = {'txt', 'docx', 'pdf', 'csv', 'md'}
 # FILE_PATH = 'lushanriji.docx'
+TEMPLATE_SAVE = ['文档', '总结', '写', '润色', '英译']
 
 # 确保上传的目录存在
 if not os.path.exists(UPLOAD_FOLDER):

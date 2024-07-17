@@ -1,6 +1,8 @@
 import google.generativeai as genai
 import os, json
 #import PIL.Image
+from db_process import save_user_memory
+from utils import count_chars, TEMPLATE_SAVE
 
 genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
 
@@ -44,9 +46,6 @@ def gemini_response(query):
     response = model.generate_content(query)
     return response.text
 
-from db_process import save_user_memory
-from utils import count_chars
-
 def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     full_message = ''
@@ -58,7 +57,7 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
         full_message += chunk.text
         yield(f"data: {json.dumps({'data': chunk.text})}\n\n")
 
-    if full_message and any(item in prompt_template[0] for item in ['文档', '总结', '写', '润色']):
+    if full_message and any(item in prompt_template[0] for item in TEMPLATE_SAVE):
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
         info = count_chars(join_message, user_id)
