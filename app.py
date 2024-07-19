@@ -142,7 +142,9 @@ def handle_message():
             return Response('data: {"data": "\u2757 请先选择或上传文档。"}\n\n', mimetype='text/event-stream')
         if uploaded_filename=='多文档检索' and user_input.startswith('总结'):
             return Response('data: {"data": "\u2757 请选择需要总结的对应文档。"}\n\n', mimetype='text/event-stream')
-                
+        if get_credits(user_id) <= 0:
+            return Response('data: {"data": "\u2757 额度耗尽，请缴费后继续使用。"}\n\n', mimetype='text/event-stream')
+
         if user_input.startswith(('总结', '写作')):
             key_words = user_input
             if user_input.startswith('写作') and (num_tokens(user_input) <= 20):
