@@ -4,9 +4,9 @@ from db_process import save_user_memory
 from utils import count_chars, TEMPLATE_SAVE
 
 c_api_key = os.getenv('CLAUDE_API_KEY')
-#model="claude-3-5-sonnet-20240620"
+
 model_s="claude-3-haiku-20240307"
-model_l="claude-3-opus-20240229"
+#model="claude-3-5-sonnet-20240620"
 model=os.getenv('CLAUDE_MODEL') or model_s
 
 client = anthropic.Anthropic(api_key=c_api_key)

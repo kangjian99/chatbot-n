@@ -137,7 +137,7 @@ def save_user_memory(user_id, thread_id, user_input, messages, info, table='memo
     if 'error' in response:
         print('Error:', response.error)
 
-    step = 2 if user_input.startswith("写作") else 1
+    step = 3 if user_input.startswith("写作") else 1
     update_credits(user_id, step)
 
 def history_messages(user_id, prompt_template):
