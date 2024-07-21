@@ -67,7 +67,6 @@ def upload_file():
         else:
             return Response('\u274C 文档上传失败，请重新操作。', mimetype='text/plain')
 
-        return 'File uploaded successfully', 200        
     else:
         return 'File type not allowed', 400
     
@@ -137,6 +136,9 @@ def handle_message():
         if user_input.startswith('#file'):
             filelist = get_files_with_prefix(user_id) or "\u2757 没有文件上传。"
             return Response(f'data: {json.dumps({"data": filelist})}\n\n', mimetype='text/event-stream')
+        if user_input.startswith('#name#'):
+            update_chat_name(user_id, thread_id, user_input[6:])
+            return Response('data: {"data": "请刷新页面。"}\n\n', mimetype='text/event-stream')
 
         if not uploaded_filename:
             return Response('data: {"data": "\u2757 请先选择或上传文档。"}\n\n', mimetype='text/event-stream')

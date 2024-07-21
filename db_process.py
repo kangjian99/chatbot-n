@@ -140,6 +140,9 @@ def save_user_memory(user_id, thread_id, user_input, messages, info, table='memo
     step = 3 if user_input.startswith("写作") else 1
     update_credits(user_id, step)
 
+def update_chat_name(user_id, thread_id, chat_name, table='memory_by_thread'):
+    supabase.table(table).update({'chat_name': chat_name}).eq('user_id', user_id).eq('thread_id', thread_id).execute()
+
 def history_messages(user_id, prompt_template):
     rows = 0
     if user_id == 'sonic' or 'auto' in prompt_template:
