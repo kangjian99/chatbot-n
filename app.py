@@ -252,6 +252,15 @@ def get_threads(table='memory_by_thread'):
 
     return jsonify(threads)
 
+@app.route('/check_credits')
+def check_credits():
+    user_id = request.args.get('user_id')
+    credits = get_credits(user_id)
+    if credits:
+        return jsonify({"credits": credits}), 200
+    else:
+        return jsonify({"credits": False}), 401
+
 @app.route('/')
 def index():
     return render_template('index.html')

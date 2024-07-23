@@ -137,7 +137,7 @@ def save_user_memory(user_id, thread_id, user_input, messages, info, table='memo
     if 'error' in response:
         print('Error:', response.error)
 
-    step = 3 if user_input.startswith("写作") else 1
+    step = 2 if user_input.startswith("写作") else 1
     update_credits(user_id, step)
 
 def update_chat_name(user_id, thread_id, chat_name, table='memory_by_thread'):
