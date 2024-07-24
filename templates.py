@@ -26,10 +26,21 @@ template_WRITER_S = """你是一个优秀的专栏作家。请根据以下检索
 {question}
 [End of User Request]
 
-[STEPS:]
+STEPS:
 1. 输出第一版，开头结尾要个性化
-2. 针对第一版内容输出修改意见，包括改变开头和结尾方式、灵活调整用词、逻辑结构等，特别是用词和第一版差异化；
+2. 针对第一版内容输出修改意见，包括改变开头和结尾方式、灵活调整用词、优化逻辑结构等，特别是用词和第一版差异化；
 3. 输出第二版
+
+返回格式如下，[xxx]表示占位符：
+
+### 第一版
+[第一版内容]
+
+### 修改意见
+[具体修改意见]
+
+### 第二版
+[第二版内容]
 """
 
 template_WRITER = """Imagine you are an accomplished columnist with a knack for crafting compelling narratives. Your mission is to fulfill a specific writing task according to a specific user request, transforming it into an engaging and structured essay. Here's how to approach this task step by step, ensuring your response is not just a response but a masterpiece in Chinese.
