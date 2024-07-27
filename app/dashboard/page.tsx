@@ -1,17 +1,37 @@
 'use client';
-import React, { useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import { ConfigurationContext } from '../ContextProvider';
+import { loadFromLocalStorage } from '../utils/localStorageUtil';
+
+const url = process.env.NEXT_PUBLIC_API_URL;
+const options = JSON.parse(process.env.NEXT_PUBLIC_API_USER_MODELS || '["default", "Claude", "Llama3", "Gemma2", "flash", "base"]');
 
 const Dashboard = () => {
   const router = useRouter();
   const { krangeValue, setKrangeValue, kValue, setKValue, userModel, setUserModel } = useContext(ConfigurationContext);
+  const [credits, setCredits] = useState('loading...'); 
 
   // Function to handle the routing back to the main page
   const handleBackToMain = () => {
     router.push('/'); // Change this to the path of your main page if different
   };
 
+  const fetchCredits = async () => {
+    const sessionInfo = loadFromLocalStorage('session');
+    try {
+      const response = await fetch(url + `check_credits?user_id=${sessionInfo.user_id}`);
+      const data = await response.json();
+      setCredits(data.credits);
+    } catch (error) {
+      console.error('Error fetching credits:', error);
+    }
+  };
+{/*
+  useEffect(() => {
+    fetchCredits();
+  }, []);
+*/}
   const styles: { [key: string]: React.CSSProperties } = {
     container: {
       display: 'flex',
@@ -80,6 +100,9 @@ const Dashboard = () => {
       borderRadius: '4px',
       cursor: 'pointer',
     },
+    credits: {
+      fontSize: '13px',
+    }
   };
 
   return (
@@ -124,15 +147,16 @@ const Dashboard = () => {
             onChange={(e) => setUserModel(e.target.value)}
             style={styles.select}
           >
-            <option value="default">default</option>
-            <option value="Claude">Claude</option>
-            <option value="Llama3">Llama3</option>
-            <option value="Gemma2">Gemma2</option>
-            <option value="flash">flash</option>
-            <option value="nonClaude">nonClaude</option>
+            {options.map((option: string) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
           </select>
         </div>
-        
+      {/*
+        <div style={styles.credits}>
+          Credits: {credits}
+        </div>
+      */}
         <div style={styles.buttonContainer}>
           <button 
             onClick={handleBackToMain} 
