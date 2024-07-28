@@ -361,7 +361,7 @@ export default function Home() {
                     <div>
                         <button 
                             onClick={() => {
-                                setUserInput('写作：[稿件类型/风格]\n[主题及关键信息]\n[字数]');
+                                setUserInput('写作：[人设/稿件类型/风格]\n[主题及关键信息]\n[视角/切入点]（可选）\n[字数]');
                                 setSelectedTemplate('0');
                             }} 
                             style={{
