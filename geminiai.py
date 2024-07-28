@@ -1,7 +1,7 @@
 import google.generativeai as genai
 import os, json
 #import PIL.Image
-from db_process import save_user_memory
+from db_process import save_user_memory, save_user_messages
 from utils import count_chars, TEMPLATE_SAVE
 
 genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
@@ -50,17 +50,24 @@ def gemini_response(query):
 
 def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
+    chat = model.start_chat(history = messages)
+    response = chat.send_message(query, stream=True)
+
     full_message = ''
-    messages.append({"role": "user", "content": query})
-
-    response = model.generate_content(query, stream=True)
-
     for chunk in response:
         full_message += chunk.text
         yield(f"data: {json.dumps({'data': chunk.text})}\n\n")
 
+    messages.append({"role": "user", "parts": query})
+    messages.append({"role": "model", "parts": full_message})
+
     if full_message and any(item in prompt_template[0] for item in TEMPLATE_SAVE):
-        messages.append({"role": "assistant", "content": full_message})
-        join_message = "".join([str(msg["content"]) for msg in messages])
+        join_message = "".join([str(msg["parts"]) for msg in messages])
         info = count_chars(join_message, user_id)
         save_user_memory(user_id, thread_id, user_input, full_message, info)
+
+    if 'Chat' in prompt_template[0]:
+        # print("精简前messages:", messages[-1])
+        if len(messages) > 2:
+            messages = messages[-2:] #对话仅保留最新2条
+        save_user_messages(user_id, messages)

@@ -12,7 +12,7 @@ from openai_func import interact_with_openai, param_n
 from claude import claude_response_stream, interact_with_claude, claude_response
 
 from geminiai import interact_with_gemini
-#from pplx import perplexity_response, interact_with_pplx
+from payload import interact_with_LLM
 from groq_func import groq_response, groq_response_stream, interact_with_groq
 #from test_LLMs import multi_LLM_response
 
@@ -100,7 +100,7 @@ def handle_message():
     prompt_template = data.get('prompt_template')
     print("接收信息后session：", session)
     # 判断是否用户变更模版，如果是则清空信息
-    if last_selected != selected_template:
+    if last_selected != selected_template or user_input.startswith("忘掉"):
         clear_messages(user_id)
         session['selected_template'] = selected_template
         #print("Session after template change:", session)
@@ -109,7 +109,8 @@ def handle_message():
         "Claude": interact_with_claude,
         "Llama3": interact_with_groq,
         "Gemma2": interact_with_groq,
-        "flash": interact_with_gemini
+        "flash": interact_with_gemini,
+        "nemo": interact_with_LLM,
     }.get(user_model, interact_with_openai)
 
     if interact_func == interact_with_groq:

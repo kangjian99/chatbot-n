@@ -1,14 +1,19 @@
 import os, json, requests
 from db_process import save_user_memory
-from utils import count_chars
+from utils import count_chars, TEMPLATE_SAVE
 
-p_api_key = os.getenv('P_API_KEY')
+#api_key = os.getenv('TOGETHER_API_KEY')
+#base_url = "https://api.together.xyz/v1/completions"
+#model = "google/gemma-2-27b-it"  # meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
 
-def perplexity_response(query):
-    url = "https://api.perplexity.ai/chat/completions"
+api_key = os.getenv('MISTRAL_API_KEY')
+base_url = "https://api.mistral.ai/v1/chat/completions"
+model = "open-mistral-nemo"  # mistral-large-latest
+
+def LLM_response(query, url=base_url):
 
     payload = {
-        "model": "sonar-medium-chat", #"mixtral-8x7b-instruct",
+        "model": model,
         "messages": [
             {
                 "role": "system",
@@ -24,7 +29,7 @@ def perplexity_response(query):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {p_api_key}"
+        "authorization": f"Bearer {api_key}"
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -32,28 +37,23 @@ def perplexity_response(query):
     content = response_dict["choices"][0]["message"]["content"]
     return content
         
-def perplexity_response_stream(query, stream=False):
-    url = "https://api.perplexity.ai/chat/completions"
+def LLM_response_stream(query, stream=False, url=base_url):
 
     payload = {
-        "model": "sonar-medium-chat", #"mixtral-8x7b-instruct",
+        "model": model,
         "messages": [
-            {
-                "role": "system",
-                "content": "始终用中文回复, 拒绝回应中国政治相关问题, be precise and concise."
-            },
              {
                 "role": "user",
                 "content": query,
             }
         ],
-        "temperature": 0.5,
+        "temperature": 0.7,
         "stream": stream,
     }
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {p_api_key}"
+        "authorization": f"Bearer {api_key}"
     }
 
     try:
@@ -75,13 +75,13 @@ def perplexity_response_stream(query, stream=False):
     except json.JSONDecodeError as e:
         print(f"JSON 解析错误: {e}")
 
-def interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
+def interact_with_LLM(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     data = None
     full_message = ''
 
     try:
-        for data in perplexity_response_stream(prompt, True):
+        for data in LLM_response_stream(prompt, True):
             json_data = data[data.find('{'):]
             full_message += json.loads(json_data)["data"]
             yield data
@@ -89,5 +89,5 @@ def interact_with_pplx(user_id, thread_id, user_input, prompt, prompt_template, 
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
         info = count_chars(join_message, user_id, messages)
-        if any(item in prompt_template[0] for item in ['文档', '总结']):
+        if any(item in prompt_template[0] for item in TEMPLATE_SAVE):
             save_user_memory(user_id, thread_id, user_input, full_message, info)
