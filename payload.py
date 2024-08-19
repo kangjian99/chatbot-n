@@ -2,13 +2,13 @@ import os, json, requests
 from db_process import save_user_memory
 from utils import count_chars, TEMPLATE_SAVE
 
-#api_key = os.getenv('TOGETHER_API_KEY')
-#base_url = "https://api.together.xyz/v1/completions"
-#model = "google/gemma-2-27b-it"  # meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
+api_key = os.getenv('TOGETHER_API_KEY')
+base_url = "https://api.together.xyz/v1/completions"
+model = "google/gemma-2-27b-it"  # meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
 
-api_key = os.getenv('MISTRAL_API_KEY')
-base_url = "https://api.mistral.ai/v1/chat/completions"
-model = "open-mistral-nemo"  # mistral-large-latest
+#api_key = os.getenv('MISTRAL_API_KEY')
+#base_url = "https://api.mistral.ai/v1/chat/completions"
+#model = "open-mistral-nemo"  # mistral-large-latest
 
 def LLM_response(query, url=base_url):
 

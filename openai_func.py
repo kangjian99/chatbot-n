@@ -1,8 +1,8 @@
-from settings import client, client_alt, hub, MODEL, MODEL_base, model_alt
+from settings import client, hub, MODEL, MODEL_base
 import json, random
 from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
-from utils import num_tokens, count_chars, TEMPLATE_SAVE
+from utils import count_chars, TEMPLATE_SAVE
 
 param_temperature = 0.5
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
@@ -38,7 +38,7 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
             "frequency_penalty": 0,
             "presence_penalty": 0
         }
-        if model.startswith(("moonshot" ,"yi")):
+        if model.startswith(("moonshot" ,"yi")) or "nvidia" in str(client.base_url):
             params["max_tokens"] = max_output_tokens
         response = client.chat.completions.create(**params)
         
@@ -88,26 +88,15 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     max_output_tokens = 4096
     tem = 0.8 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写', '脚本']) else param_temperature
 
-    client_act = client
     if not hub or hub == "burn":
         model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_base
     else:
         model = MODEL_base
-        if model.startswith("moonshot"):
-            input_tokens = num_tokens(prompt)
-            print(input_tokens)
-            if input_tokens <= 6200:
-                max_output_tokens = 7800-input_tokens
-                if n > 1 and max_output_tokens<3000:
-                    n = 1
-            else:
-                model = model_alt
-                client_act = client_alt
         if model.startswith("deepseek"):
             tem += 0.3
             
     try:
-        for res in Chat_Completion(client_act, model, prompt, tem, messages, max_output_tokens, True, n):
+        for res in Chat_Completion(client, model, prompt, tem, messages, max_output_tokens, True, n):
             if 'content' in res and res['content']:
                 markdown_message = res['content']  # generate_markdown_message(res['content'])
                 # print(f"Yielding markdown_message: {markdown_message}")  # 添加这一行
@@ -120,7 +109,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         info = count_chars(join_message, user_id, messages)
         if full_message and any(item in prompt_template[0] for item in TEMPLATE_SAVE):
             save_user_memory(user_id, thread_id, user_input, full_message, info)
-        rows = history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
+        rows = 2 if 'Chat' in prompt_template[0] else 0 # history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
         if rows != 0:
             print("精简前messages:", messages[-1])
             if len(messages) > rows:
