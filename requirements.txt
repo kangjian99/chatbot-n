@@ -1,4 +1,5 @@
-flask
+fastapi
+python-multipart
 Openai
 tiktoken
 langchain
@@ -7,7 +8,6 @@ langchain_community
 # weaviate-client
 pypdf
 docx2txt
-flask_cors
 google.generativeai
 anthropic
 groq
