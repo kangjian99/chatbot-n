@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useContext } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // 导入 Bootstrap
 import MessageList from "./components/MessageList"; // 导入新的组件
 import FileUploader from "./components/FileUploader";
@@ -53,48 +53,47 @@ export default function Home() {
         document.title = `${headline} - ${user_id}`;
       }, [user_id]); // 空依赖数组意味着这个效果仅在组件挂载时运行，非空则在user_id更新后执行
         
-      useEffect(() => {
-        // 尝试从localStorage加载登录状态
-        const sessionInfo = loadFromLocalStorage('session');
-        if (sessionInfo && sessionInfo.isLoggedIn && sessionInfo.user_id) {
-            setIsLoggedIn(true);
-            setUser_id(sessionInfo.user_id);
+      const checkSession = useCallback(async () => {
+        try {
+            const savedUserId = loadFromLocalStorage('user_id');
+            if (!savedUserId) {
+                setIsLoggedIn(false);
+                return;
+            }
+    
+            const response = await fetch(`${url}check_session?user_id=${encodeURIComponent(savedUserId)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (response.ok) {
+                setIsLoggedIn(true);
+                setUser_id(savedUserId);
+            } else {
+                setIsLoggedIn(false);
+                localStorage.removeItem('user_id');
+            }
+        } catch (error) {
+            console.error("检查会话失败:", error);
+            setIsLoggedIn(false);
+        } finally {
             setIsLoading(false);
-        } else {
-            // 如果本地没有有效的登录信息，则检查会话状态
-            const checkSession = async () => {
-                try {
-                    const response = await fetch(url + "check_session", {
-                        credentials: "include",
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        setIsLoggedIn(true);
-                        if (data.user_id) {
-                            setUser_id(data.user_id);
-                            // 保存会话信息到localStorage
-                            saveToLocalStorage('session', { isLoggedIn: true, user_id: data.user_id });
-                        }
-                    } else {
-                        setIsLoggedIn(false);
-                    }
-                } catch (error) {
-                    console.error("检查会话失败:", error);
-                } finally {
-                    setIsLoading(false); // 检查完成后取消加载状态
-                }
-            };
-            checkSession();
         }
-    }, []);    
-
+    }, [url]);
+    
+    useEffect(() => {
+        checkSession();
+    }, [checkSession]);
+    
     const handleLoginSuccess = (username: string) => {
         setIsLoggedIn(true);
         setUser_id(username);
-        // 登录成功后，保存用户ID和登录状态
-        saveToLocalStorage('session', { isLoggedIn: true, user_id: username });
-    };    
-
+        // 可以选择保存一些非敏感信息到localStorage，以加快后续加载
+        saveToLocalStorage('user_id', username);
+    };
+    
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
     }
