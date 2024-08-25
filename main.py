@@ -1,9 +1,11 @@
-from fastapi import FastAPI, HTTPException, Query, File, UploadFile, Form, Request
+from fastapi import FastAPI, HTTPException, Query, File, UploadFile, Form, Request, Depends
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import json
+from sqlalchemy.orm import Session
+from session_db import get_db, get_session, create_session, update_session
 from db_process import *
 from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
 from webloader import *
@@ -18,8 +20,6 @@ from groq_func import groq_response, groq_response_stream, interact_with_groq
 #from test_LLMs import multi_LLM_response
 
 app = FastAPI()
-
-sessions = {}
 
 # Pydantic models for request bodies
 
@@ -39,14 +39,13 @@ class MessageData(BaseModel):
     prompt_template: list[str]
 
 @app.get('/prompts')
-async def get_prompts(request: Request):
+async def get_prompts():
     prompts = get_prompt_templates()
     prompts_list = list(prompts.items())
     return JSONResponse(content=prompts_list)
 
 @app.post('/upload')
-async def upload_file(file: UploadFile = File(...), user_id: str = Form(...)):
-    
+async def upload_file(file: UploadFile = File(...), user_id: str = Form(...), db: Session = Depends(get_db)):
     if file and allowed_file(file.filename):    
         filename = safe_filename(file.filename)
         file_path = os.path.join(UPLOAD_FOLDER, f"{user_id}_{filename}")
@@ -54,7 +53,7 @@ async def upload_file(file: UploadFile = File(...), user_id: str = Form(...)):
         with open(file_path, "wb") as buffer:
             buffer.write(await file.read())
         
-        sessions[user_id] = {"uploaded_filename": filename}
+        update_session(db, user_id, uploaded_filename=filename)
         
         new_doc = save_doc_name(user_id, filename)
         if new_doc == True:
@@ -73,7 +72,7 @@ async def get_filenames(user_id: str):
     return JSONResponse(content=file_names)
     
 @app.post('/message')
-async def handle_message(data: MessageData):
+async def handle_message(data: MessageData, db: Session = Depends(get_db)):
     print(data.model_dump())
     user_id = data.user_id
     user_input = data.user_input
@@ -86,13 +85,12 @@ async def handle_message(data: MessageData):
     prompt_template = data.prompt_template
     n = param_n
 
-    print("接收信息后session：", sessions)
-    last_selected = sessions.get('selected_template', '0')
-    # 判断是否用户变更模版，如果是则清空信息
+    db_session = get_session(db, user_id)
+    last_selected = db_session.selected_template if db_session else '0'
+    
     if last_selected != selected_template or user_input.startswith("忘掉"):
         clear_messages(user_id)
-        sessions['selected_template'] = selected_template
-        #print("Session after template change:", session)
+        update_session(db, user_id, selected_template=selected_template)
     
     interact_func = {
         "Claude": interact_with_claude,
@@ -160,7 +158,7 @@ async def handle_message(data: MessageData):
         #    response = response_from_rag_chain(user_id, thread_id, fullpath_filename, user_input, True)
         #else:
         docs = response_from_retriver(user_id, fullpath_filename, key_words, max_k, k)
-        #if '模仿' in prompt_template[0]:
+        #if '模���' in prompt_template[0]:
         #    docchat_template = template_mimic
         #else:
         #docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
@@ -187,22 +185,22 @@ async def clear_file(user_id: str, file_name: str):
     return JSONResponse(content="Files and cache cleared successfully")
 
 @app.post('/login')
-async def login(data: LoginData):
+async def login(data: LoginData, db: Session = Depends(get_db)):
     if authenticate_user(data.username, data.password):
-        sessions[data.username] = {"logged_in": True}
+        create_session(db, data.username, data={"logged_in": True})
         clear_messages(data.username)
         return JSONResponse(content={"message": "登录成功"})
     else:
         raise HTTPException(status_code=401, detail="用户名或密码错误")
-    
+
 @app.get('/check_session')
-async def check_session(request: Request):
-    user_id = request.session.get("user_id")
+async def check_session(user_id: str = Query(...), db: Session = Depends(get_db)):
     if user_id:
-        return JSONResponse(content={"logged_in": True, "user_id": user_id})
-    else:
-        raise HTTPException(status_code=401, detail="Not logged in")
-    
+        db_session = get_session(db, user_id)
+        if db_session and db_session.data.get("logged_in"):
+            return JSONResponse(content={"logged_in": True, "user_id": user_id})
+    return JSONResponse(status_code=401, content={"logged_in": False})
+
 @app.get('/memory')
 async def load_memory(user_id: str = Query(...), thread_id: str = Query(...),):
     messages = get_user_memory(user_id, thread_id)
