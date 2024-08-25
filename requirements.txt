@@ -1,4 +1,6 @@
-flask
+fastapi
+uvicorn
+python-multipart
 Openai
 tiktoken
 langchain
@@ -7,9 +9,10 @@ langchain_community
 # weaviate-client
 pypdf
 docx2txt
-flask_cors
 google.generativeai
 anthropic
 groq
 supabase
 beautifulsoup4
+SQLAlchemy
+sqlalchemy-utils
