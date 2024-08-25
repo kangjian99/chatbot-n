@@ -1,8 +1,7 @@
-from flask import Flask, request, jsonify, Response, session, render_template
+from flask import Flask, request, jsonify, Response, render_template
 from flask_cors import CORS
 #from openai import OpenAI
 import json
-from datetime import timedelta
 from db_process import *
 from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
 from webloader import *
@@ -14,20 +13,11 @@ from claude import claude_response_stream, interact_with_claude, claude_response
 from geminiai import interact_with_gemini
 from payload import interact_with_LLM
 from groq_func import groq_response, groq_response_stream, interact_with_groq
-#from test_LLMs import multi_LLM_response
+
+from session_db import get_db, get_session, create_session, update_session, print_session_info
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
-app.config['SECRET_KEY'] = SESSION_SECRET_KEY
-app.config['SESSION_PERMANENT'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=36)  # 无交互session过期（重登录）时间
-# 全局设置会话cookie的属性（仅为Azure部署需求）
-app.config.update(
-    SESSION_COOKIE_SECURE=True,     # cookie只能通过HTTPS协议发送，如果标记了SameSite=None，则必须同时设置Secure属性
-    SESSION_COOKIE_HTTPONLY=True,   # cookie不能通过客户端脚本访问
-    SESSION_COOKIE_SAMESITE='None',  # cookie将在所有上下文中发送，包括跨站点请求。跨域AJAX请求中发送cookie这是必需的。
-    #SESSION_COOKIE_DOMAIN='.azurewebsites.net'  # 同一主域下视为第一方Cookie
-)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/prompts')
@@ -51,8 +41,10 @@ def upload_file():
         #filename = secure_filename(''.join(lazy_pinyin(file.filename)))
         filename = safe_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_id+'_'+filename))
-        session['uploaded_filename'] = filename  # 将文件名保存到会话中
-        print("\n#Session after file uploaded:", session)
+        db = next(get_db())
+        update_session(db, user_id, uploaded_filename=filename)
+        #print("\n#Session after file uploaded:")
+        #print_session_info(db, user_id)
         new_doc = save_doc_name(user_id, filename)
         if new_doc == True:  # 如已存在相同文件则不执行
             # 使用多线程执行create_vectorstore
@@ -81,10 +73,6 @@ def get_filenames():
     
 @app.route('/message', methods=['GET', 'POST']) #必须要有GET
 def handle_message():
-    # print(session)
-    # user_id = session.get('user_id', 'test')       
-    last_selected = session.get('selected_template', '0')
-    # uploaded_filename = session.get('uploaded_filename', '')
 
     data = request.json
     print(data)
@@ -98,12 +86,17 @@ def handle_message():
     k = data.get('k', 4)
     user_model = data.get('user_model')
     prompt_template = data.get('prompt_template')
-    print("接收信息后session：", session)
+
+    db = next(get_db())
+    db_session = get_session(db, user_id)
+    last_selected = db_session.selected_template if db_session else '0'
+    #print("接收信息后session：", db_session)
     # 判断是否用户变更模版，如果是则清空信息
     if last_selected != selected_template or user_input.startswith("忘掉"):
         clear_messages(user_id)
-        session['selected_template'] = selected_template
-        #print("Session after template change:", session)
+        update_session(db, user_id, selected_template=selected_template)
+        #print("Session after template change:")
+        #print_session_info(db, user_id)
     
     interact_func = {
         "Claude": interact_with_claude,
@@ -207,17 +200,20 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password')
     if authenticate_user(username, password):
-        session.update(logged_in=True, user_id=username)
-        print(session)
+        db = next(get_db())
+        create_session(db, username, {'logged_in': True, 'user_id': username})
+        #print_session_info(db, username)
         clear_messages(username)
         return jsonify({"message": "登录成功"}), 200
     else:
         return jsonify({"message": "用户名或密码错误"}), 401
     
-@app.route('/check_session')
+@app.route('/check_session', methods=['GET'])
 def check_session():
-    user_id = session.get('user_id')
-    if user_id:
+    user_id = request.args.get('user_id')
+    db = next(get_db())
+    session = get_session(db, user_id)
+    if session and session.data.get('logged_in'):
         return jsonify({"logged_in": True, "user_id": user_id}), 200
     else:
         return jsonify({"logged_in": False}), 401

@@ -86,7 +86,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     res = None
     full_message = ''
     max_output_tokens = 4096
-    tem = 0.8 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写', '脚本']) else param_temperature
+    tem = 0.8 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写', '撰稿', '脚本']) else param_temperature
 
     if not hub or hub == "burn":
         model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_base

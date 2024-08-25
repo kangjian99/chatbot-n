@@ -37,7 +37,9 @@ model = genai.GenerativeModel(model_name=MODEL,
 #model_v = genai.GenerativeModel('gemini-pro-vision', safety_settings)
 
 def gemini_response_stream(query):
-    response = model.generate_content(query, stream=True)
+    response = model.generate_content(query,
+                                      generation_config={"max_output_tokens": 8192},
+                                      stream=True)
 
     for chunk in response:
         print(chunk.text)

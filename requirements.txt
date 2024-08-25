@@ -13,3 +13,5 @@ anthropic
 groq
 supabase
 beautifulsoup4
+SQLAlchemy
+sqlalchemy-utils
