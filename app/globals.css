@@ -29,19 +29,21 @@
 }
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-/*
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+  --primary-color: #2285c7;       /* 主色调：明亮的蓝色 */
+  --secondary-color: #ecf0f1;     /* 次要色调：浅灰色 */
+  --accent-color: #e74c3c;        /* 强调色：柔和的红色 */
+  --text-color: #2c3e50;          /* 主要文字颜色：深蓝灰色 */
+  --light-text-color: #7f8c8d;    /* 次要文字颜色：浅灰色 */
+  --background-color: #f7f1e2;    /* 背景色：温和的米黄色 */
+  --sidebar-bg: #e8eef6;          /* 侧边栏背景：浅蓝灰色 */
+  --main-content-bg: #fbfbf9;     /* 主内容区背景：非常浅的米色 */
+  --header-footer-bg: #34495e;    /* 页眉页脚背景：深蓝灰色 */
+  --border-color: #bdc3c7;        /* 边框颜色：中等灰色 */
+  --hover-color: #2980b9;         /* 悬停颜色：深蓝色 */
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --border-radius: 10px;
   }
-}
-*/
+
 body {
   margin: 0; /* Remove browser default margins */
   font-family: 'Arial', sans-serif; /* Set a pleasant font family */
@@ -61,7 +63,7 @@ body {
 .right-sidebar,
 .footer {
    padding: 10px;
-   background-color: #f7f1e2; /* Or your chosen content area color #f0f2f5 #e8ebec */
+   background-color: var(--background-color); /* Or your chosen content area color #f0f2f5 #e8ebec */
    /* border: 1px solid #e0e0e0; */
 }
 
@@ -76,7 +78,7 @@ body {
 
 .main-container {
   display: grid;
-  grid-template-columns: 20% 1fr 20%; /* Adjust sidebar widths as needed */
+  grid-template-columns: minmax(200px, 20%) minmax(600px, 1fr) minmax(200px, 20%);
   grid-template-rows: auto 1fr auto; /* Allow header/footer to take up content space */
   height: 100vh;
 }
@@ -95,33 +97,34 @@ body {
 }
 
 .sidebar-content {
-  background-color: #e8eef6; /* 根据需要调整边栏颜色 #d9dbe6 #e8eaf6 #eee #e7e7e7 */
+  background-color: var(--sidebar-bg);
   padding: 10px; /* 根据需要调整内边距 */
   height: 100%; /* 如果需要，可以调整高度 */
   overflow-y: auto; /* 如果内容很多需要滚动，可以保留 */
-  border-radius: 10px; /* 圆角的大小，根据需要调整 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果，根据需要调整 */
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
 }
 
 .center-container {
   grid-column: 2;
-  background-color: #f7f1e2;
+  background-color: var(--background-color);
   padding: 10px 20px;
   max-height: 100vh; /* Allow to fill the screen */
   overflow-y: auto; /* Allow scrolling */
   display: flex;
   flex-direction: column;
+  min-width: 600px; /* 设置最小宽度 */
 }
 
 .main-content {
-  background-color: #fbfbf9; /* 设置主内容区域的背景颜色 */
+  background-color: var(--main-content-bg);
   padding: 10px 20px;
   height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   flex-grow: 1; /* 如果你希望它填充可用空间 */
 }
 
