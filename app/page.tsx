@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef, useContext } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // 导入 Bootstrap
 import MessageList from "./components/MessageList"; // 导入新的组件
-import FileUploader from "./components/FileUploader";
+import FileUploader from "./components/FileUploader_url";
 import UploadedFilesSidebar from "./components/FileSidebar";
 import ThreadsSidebar from "./components/ThreadsSidebar";
 import Login from "./components/Login";
