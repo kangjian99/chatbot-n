@@ -13,10 +13,14 @@
   font-size: 14px;
   padding: 5px;
   padding-left: 10px;
-  margin-right: 10px;
+  margin-right: 20px;
   border-radius: 5px;
   border: 1px solid #ccc;
   background-color: #f2f2f2;
+}
+.custom-select:hover {
+  background-color: #e9e9e9; /* 设置悬停时的背景颜色 */
+  border-color: #b3b3b3;     /* 可选：设置悬停时的边框颜色 */
 }
 
 .right-align-container {
@@ -25,19 +29,21 @@
 }
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-/*
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+  --primary-color: #2285c7;       /* 主色调：明亮的蓝色 */
+  --secondary-color: #ecf0f1;     /* 次要色调：浅灰色 */
+  --accent-color: #e74c3c;        /* 强调色：柔和的红色 */
+  --text-color: #2c3e50;          /* 主要文字颜色：深蓝灰色 */
+  --light-text-color: #7f8c8d;    /* 次要文字颜色：浅灰色 */
+  --background-color: #f7f1e2;    /* 背景色：温和的米黄色 */
+  --sidebar-bg: #e8eef6;          /* 侧边栏背景：浅蓝灰色 */
+  --main-content-bg: #fbfbf9;     /* 主内容区背景：非常浅的米色 */
+  --header-footer-bg: #34495e;    /* 页眉页脚背景：深蓝灰色 */
+  --border-color: #bdc3c7;        /* 边框颜色：中等灰色 */
+  --hover-color: #2980b9;         /* 悬停颜色：深蓝色 */
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --border-radius: 10px;
   }
-}
-*/
+
 body {
   margin: 0; /* Remove browser default margins */
   font-family: 'Arial', sans-serif; /* Set a pleasant font family */
@@ -56,8 +62,8 @@ body {
 .left-sidebar,
 .right-sidebar,
 .footer {
-   padding: 20px;
-   background-color: #f7f1e2; /* Or your chosen content area color #f0f2f5 #e8ebec */
+   padding: 10px;
+   background-color: var(--background-color); /* Or your chosen content area color #f0f2f5 #e8ebec */
    /* border: 1px solid #e0e0e0; */
 }
 
@@ -72,13 +78,14 @@ body {
 
 .main-container {
   display: grid;
-  grid-template-columns: 20% 1fr 20%; /* Adjust sidebar widths as needed */
+  grid-template-columns: minmax(200px, 20%) minmax(600px, 1fr) minmax(200px, 20%);
   grid-template-rows: auto 1fr auto; /* Allow header/footer to take up content space */
   height: 100vh;
 }
 
 .header {
   grid-column: 1 / -1; /* Span all columns */
+  padding-top: 20px;
   padding-bottom: 0px;
 }
 
@@ -90,33 +97,34 @@ body {
 }
 
 .sidebar-content {
-  background-color: #e8eef6; /* 根据需要调整边栏颜色 #d9dbe6 #e8eaf6 #eee #e7e7e7 */
+  background-color: var(--sidebar-bg);
   padding: 10px; /* 根据需要调整内边距 */
   height: 100%; /* 如果需要，可以调整高度 */
   overflow-y: auto; /* 如果内容很多需要滚动，可以保留 */
-  border-radius: 10px; /* 圆角的大小，根据需要调整 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果，根据需要调整 */
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
 }
 
 .center-container {
   grid-column: 2;
-  background-color: #f7f1e2;
-  padding: 20px 20px;
+  background-color: var(--background-color);
+  padding: 10px 20px;
   max-height: 100vh; /* Allow to fill the screen */
   overflow-y: auto; /* Allow scrolling */
   display: flex;
   flex-direction: column;
+  min-width: 600px; /* 设置最小宽度 */
 }
 
 .main-content {
-  background-color: #fbfbf9; /* 设置主内容区域的背景颜色 */
+  background-color: var(--main-content-bg);
   padding: 10px 20px;
   height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   flex-grow: 1; /* 如果你希望它填充可用空间 */
 }
 
@@ -145,27 +153,49 @@ body {
 }
 
 .markdown-content table {
-  border-collapse: collapse; /* 折叠边框为单一线条 */
-  width: 98%; /* 可选，根据需要调整 */
-  margin: 0 auto 1em; /* 表格在页面中居中 */
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 98%;
+  margin: 1em auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 为表格的单元格(td)和表头(th)设置边框 */
 .markdown-content th,
 .markdown-content td {
-  border: 0.8px solid #ccc; /* 设置边框颜色和宽度 */
-  padding: 8px; /* 设置内边距 */
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  padding: 8px 10px;
+  text-align: left;
 }
 
-/* 为表格的表头(th)设置背景颜色，可选 */
 .markdown-content th {
-  background-color: #dde8f5; /* 设置背景颜色 */
-  text-align: left; /* 设置文本对齐方式 */
+  background-color: #dde8f5;
+  color: #333;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .markdown-content td {
-  background-color: #f4f4f4;
-  text-align: left; /* 设置文本对齐方式 */
+  background-color: #ffffff;
+  font-size: 0.95em;
+}
+
+.markdown-content tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+.markdown-content tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown-content th:last-child,
+.markdown-content td:last-child {
+  border-right: none;
 }
 
 /* 单独为表格的第一列设置字体颜色 
@@ -173,26 +203,30 @@ body {
   color: #2678C5;
 }*/
 
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  color: #2c3e50; /* 设定标题颜色 */
+  margin-top: 0.5em; /* 标题上边距 */
+}
+
 .markdown-content h1 {
-  color: #2c3e50; /* 字体颜色 */
   font-size: 1.5em; /* 字体大小 */
   margin-bottom: 0.5em; /* 下边距 */
 }
 
 .markdown-content h2 {
-  color: #2c3e50; /* 字体颜色 */
   font-size: 1.3em; /* 字体大小 */
   margin-bottom: 0.4em; /* 下边距 */
 }
 
 .markdown-content h3 {
-  color: #34495e; /* 字体颜色 */
   font-size: 1.1em; /* 字体大小 */
   margin-bottom: 0.2em; /* 下边距 */
 }
 
 .markdown-content h4 {
-  color: #34495e; /* 字体颜色 */
   font-size: 1em; /* 字体大小 */
   margin-bottom: 0.1em; /* 下边距 */
 }
@@ -210,5 +244,14 @@ body {
 .markdown-content ul,
 .markdown-content ol {
   margin-top: -15px;
-  margin-bottom: -30px;
+  margin-bottom: -15px;
+}
+
+.markdown-content pre {
+  background-color: #f6f8fa;  /* 浅灰色背景 */
+  border: 1px solid #ccc;     /* 边框 */
+  border-radius: 3px;         /* 边角圆滑 */
+  padding: 10px;              /* 内边距 */
+  overflow: auto;             /* 溢出滚动 */
+  font-family: 'Courier New', Courier, monospace; /* 使用等宽字体 */
 }

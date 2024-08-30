@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { saveToLocalStorage, loadFromLocalStorage } from './localStorageUtil';
+import { saveToLocalStorage, loadFromLocalStorage } from '../utils/localStorageUtil';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 const max_threads = 9;
@@ -106,6 +106,8 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
         // console.log("Threads updated:", threads);
       }, [threads]);
 
+      const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
     return (
         <div
             style={{
@@ -127,14 +129,15 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
                         key={index}
                         style={{ marginBottom: "6px", cursor: "pointer" }}
                         onClick={() => handleThreadClick(thread.id)}
+                        onMouseEnter={() => setHoveredIndex(index)}
+                        onMouseLeave={() => setHoveredIndex(null)}
                     >
                         <span
                             style={{
-                                backgroundColor: selectedThread === thread.id ? "#004080" : "#e8eef6",
+                                backgroundColor: selectedThread === thread.id ? "#3A6A9A" : (hoveredIndex === index ? "#d0e0f0" : "#e8eef6"),
                                 color: selectedThread === thread.id ? "white" : "black",
                                 padding: "5px 5px",
                                 borderRadius: "5px",
-                                border: "1px dashed #ccc", // 添加细外框
                                 display: "inline-block",
                                 wordBreak: 'break-word',  // 添加换行样式
                                 fontSize: "13px",
@@ -145,7 +148,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
                     </li>
                 ))}
             </ul>
-            <button onClick={handleNewThread} style={{ float: "right", fontSize: "12px", backgroundColor: "#BAE6FC", marginRight: "10px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }}>
+            <button onClick={handleNewThread} style={{ float: "right", fontSize: "12px", color: "white", backgroundColor: "#3A6A9A", marginRight: "10px", border: '1px solid #ccc', borderRadius: '5px', padding: "5px 5px" }}>
                 新建对话</button>
         </div>
     );
