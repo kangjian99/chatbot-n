@@ -2,7 +2,7 @@ from settings import client, hub, MODEL, MODEL_base
 import json, random
 from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
-from utils import count_chars, TEMPLATE_SAVE
+from utils import count_chars, num_tokens, TEMPLATE_SAVE
 
 param_temperature = 0.5
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
@@ -38,8 +38,8 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
             "frequency_penalty": 0,
             "presence_penalty": 0
         }
-        if model.startswith(("moonshot" ,"yi")) or "nvidia" in str(client.base_url):
-            params["max_tokens"] = max_output_tokens
+        #if model.startswith(("moonshot" ,"yi")) or "nvidia" in str(client.base_url):
+        #    params["max_tokens"] = max_output_tokens
         response = client.chat.completions.create(**params)
         
         if not stream:
@@ -92,6 +92,8 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_base
     else:
         model = MODEL_base
+        if model == "gpt-4o-free" and num_tokens(user_input) < 1500:
+            model = "gpt-4o"
         if model.startswith("deepseek"):
             tem += 0.3
             

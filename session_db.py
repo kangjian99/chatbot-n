@@ -53,18 +53,22 @@ def get_session(db: Session, user_id: str):
     return None
 
 def create_session(db: Session, user_id: str, data: dict):
-    expiration_time = (datetime.now(timezone.utc) + timedelta(hours=ExpiryHour)).isoformat()
-    session = db.query(SessionModel).filter(SessionModel.user_id == user_id).first()
-    if session:
-        # 如果会话已经存在，则更新会话
-        session.data = data
-        session.expires_at = expiration_time
-    else:
-        # 如果会话不存在，则创建新的会话
-        session = SessionModel(user_id=user_id, data=data, expires_at=expiration_time)
-        db.add(session)
-    db.commit()
-    return session
+    try:
+        expiration_time = (datetime.now(timezone.utc) + timedelta(hours=ExpiryHour)).isoformat()  # 设置多少小时后过期
+        session = db.query(SessionModel).filter(SessionModel.user_id == user_id).first()
+        if session:
+            # 如果会话已经存在，则更新会话
+            session.data = data
+            session.expires_at = expiration_time
+        else:
+            # 如果会话不存在，则创建新的会话
+            session = SessionModel(user_id=user_id, data=data, expires_at=expiration_time)
+            db.add(session)
+        db.commit()
+        return session
+    except Exception:
+        db.rollback()
+        return None
 
 def update_session(db: Session, user_id: str, **kwargs):
     db_session = get_session(db, user_id)
@@ -79,11 +83,15 @@ def update_session(db: Session, user_id: str, **kwargs):
 
 def print_session_info(db: Session, user_id: str):
     session = get_session(db, user_id)
+    info = ""
     if session:
-        print("#Session info:")
-        print(f"Data: {session.data}")
-        print(f"Uploaded filename: {session.uploaded_filename}")
-        print(f"Selected template: {session.selected_template}")
-        print(f"Expires at: {session.expires_at}")
+        info += "#会话信息:\n"
+        info += f"数据: {session.data}\n"
+        info += f"上传的文件名: {session.uploaded_filename}\n"
+        info += f"选择的模板: {session.selected_template}\n"
+        info += f"过期时间: {session.expires_at}\n"
     else:
-        print("\n#No valid session found")
+        info = "\n#未找到有效会话"
+    
+    print(info)
+    return info

@@ -27,8 +27,10 @@ top_k = 4
 
 if hub:
     llm = ChatOpenAI(openai_api_key = API_KEY_HUB, openai_api_base = BASE_URL, model_name = MODEL, temperature = tem)
+    #embed = OpenAIEmbeddings(openai_api_key=API_KEY_HUB, openai_api_base=BASE_URL, model="text-embedding-3-large")
 else:
     llm = ChatOpenAI(openai_api_key = API_KEY, model_name = MODEL, temperature = tem)
+embed = OpenAIEmbeddings(openai_api_key=API_KEY, model="text-embedding-3-small")
 
 llm_parse = ChatOpenAI(openai_api_key = API_KEY, model_name = "gpt-3.5-turbo-0125", temperature = 0)
 
@@ -124,7 +126,7 @@ def load_and_process_document(user_id, file_name):
         vectorstore = SupabaseVectorStore.from_documents(
             client=supabase,    
             documents=chunks,
-            embedding=OpenAIEmbeddings(openai_api_key=API_KEY, model="text-embedding-3-small"),
+            embedding=embed,
             table_name="documents",
             query_name="match_documents",
         )
@@ -147,7 +149,7 @@ def retrieve(prompt, top_k, vectorstore, filter):
 def response_from_rag_chain(user_id, thread_id, file_name, query, stream=False):
     vectorstore = SupabaseVectorStore(
         client=supabase,    
-        embedding=OpenAIEmbeddings(openai_api_key=API_KEY, model="text-embedding-3-small"),
+        embedding=embed,
         table_name="documents",
         query_name="match_documents",
     )
@@ -173,7 +175,7 @@ def response_from_rag_chain(user_id, thread_id, file_name, query, stream=False):
 def response_from_retriver(user_id, file_name, query, max_k, k=top_k):
     vectorstore = SupabaseVectorStore(
         client=supabase,    
-        embedding=OpenAIEmbeddings(openai_api_key=API_KEY, model="text-embedding-3-small"),
+        embedding=embed,
         table_name="documents",
         query_name="match_documents",
     )
