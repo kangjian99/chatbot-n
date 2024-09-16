@@ -77,67 +77,97 @@ body {
 }
 
 .main-container {
-  display: grid;
-  grid-template-columns: minmax(200px, 20%) minmax(600px, 1fr) minmax(200px, 20%);
-  grid-template-rows: auto 1fr auto; /* Allow header/footer to take up content space */
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  overflow: hidden;
   height: 100vh;
 }
 
 .header {
-  grid-column: 1 / -1; /* Span all columns */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   padding-top: 20px;
-  padding-bottom: 0px;
+  padding-bottom: 10px;
+  background-color: var(--background-color);
+}
+
+.left-sidebar,
+.right-sidebar {
+  padding: 10px;
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
 }
 
 .left-sidebar {
-  grid-column: 1;
+  left: 0;
   padding-left: 40px;
   padding-right: 10px;
-  overflow-y: auto; /* Allow scrolling */
+}
+
+.right-sidebar {
+  right: 0;
+  padding-right: 40px;
+  padding-left: 10px;
 }
 
 .sidebar-content {
   background-color: var(--sidebar-bg);
-  padding: 10px; /* 根据需要调整内边距 */
-  height: 100%; /* 如果需要，可以调整高度 */
-  overflow-y: auto; /* 如果内容很多需要滚动，可以保留 */
+  padding: 10px;
+  flex-grow: 1;
+  overflow-y: auto;
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
+  margin-top: 70px; /* 调整这个值以匹配 header 的高度 */
+  margin-bottom: 10px; /* 为 footer 留出空间 */
 }
 
 .center-container {
-  grid-column: 2;
+  flex-grow: 1;
   background-color: var(--background-color);
   padding: 10px 20px;
-  max-height: 100vh; /* Allow to fill the screen */
-  overflow-y: auto; /* Allow scrolling */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  min-width: 600px; /* 设置最小宽度 */
+  min-width: 600px;
+  margin-left: 250px;
+  margin-right: 250px;
+  margin-top: 70px; /* 调整这个值以匹配 header 的高度 */
+  margin-bottom: 10px; /* 为 footer 留出空间 */
+  height: calc(100vh - 80px); /* 减去 header 和 footer 的高度 */
 }
 
 .main-content {
   background-color: var(--main-content-bg);
   padding: 10px 20px;
-  height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
-  flex-grow: 1; /* 如果你希望它填充可用空间 */
-}
-
-.right-sidebar {
-  grid-column: 3;
-  padding-right: 40px;
-  padding-left: 10px;
-  overflow-y: auto; /* Allow scrolling */
+  flex-grow: 1;
 }
 
 .footer {
-  grid-column: 1 / -1; /* Span all columns */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 10px; /* 设置固定高度 */
   padding: 5px;
+  background-color: var(--background-color);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 对话框 */
@@ -255,3 +285,108 @@ body {
   overflow: auto;             /* 溢出滚动 */
   font-family: 'Courier New', Courier, monospace; /* 使用等宽字体 */
 }
+
+/* 在文件末尾添加以下样式 */
+
+.main-container {
+  transition: all 0.3s ease;
+}
+
+.left-sidebar-collapsed .left-sidebar {
+  width: 60px;
+  min-width: 60px;
+}
+
+.right-sidebar-collapsed .right-sidebar {
+  width: 60px;
+  min-width: 60px;
+}
+
+.toggle-left-sidebar,
+.toggle-right-sidebar {
+  position: fixed;
+  top: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  z-index: 1000;
+  font-size: 14px;
+  width: 20px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-left-sidebar {
+  left: 0;
+  border-radius: 0 5px 5px 0;
+}
+
+.toggle-right-sidebar {
+  right: 0;
+  border-radius: 5px 0 0 5px;
+}
+
+.left-sidebar-collapsed .center-container {
+  margin-left: 60px;
+}
+
+.right-sidebar-collapsed .center-container {
+  margin-right: 60px;
+}
+
+.left-sidebar,
+.right-sidebar {
+  transition: all 0.3s ease;
+}
+
+.left-sidebar-collapsed .left-sidebar .sidebar-content,
+.right-sidebar-collapsed .right-sidebar .sidebar-content {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.main-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.left-sidebar,
+.right-sidebar {
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.center-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  margin-left: 260px;
+  margin-right: 260px;
+}
+
+.left-sidebar-expanded .left-sidebar {
+  width: 260px;
+  min-width: 260px;
+}
+
+.right-sidebar-expanded .right-sidebar {
+  width: 260px;
+  min-width: 260px;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 其他样式保持不变 */
