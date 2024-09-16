@@ -1,5 +1,6 @@
 import './globals.css'
 import { ContextProvider } from './ContextProvider';
+import SidebarToggle from './SidebarToggle';
 
 export const metadata = {
   title: 'Next.js',
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ContextProvider>{children}</ContextProvider>
+        <ContextProvider>
+          <SidebarToggle>{children}</SidebarToggle>
+        </ContextProvider>
       </body>
     </html>
   )
