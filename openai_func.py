@@ -92,7 +92,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_base
     else:
         model = MODEL_base
-        if model == "gpt-4o-free" and num_tokens(user_input) < 600:
+        if model == "gpt-4o-free" and num_tokens(prompt) < 700:
             model = "gpt-4o"
         if model.startswith("deepseek"):
             tem += 0.3
