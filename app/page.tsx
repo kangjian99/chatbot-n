@@ -367,7 +367,7 @@ export default function Home() {
                                 padding: '5px',
                                 borderRadius: '5px',
                                 border: '1px solid #ccc',
-                                background: '#F2F2F2',
+                                background: 'var(--secondary-color)',
                                 color: '#444',
                                 marginRight: '15px',
                                 fontSize: '12px'
@@ -383,7 +383,7 @@ export default function Home() {
                                 padding: '5px',
                                 borderRadius: '5px',
                                 border: '1px solid #ccc',
-                                background: '#F2F2F2',
+                                background: 'var(--secondary-color)',
                                 color: '#444',
                                 marginRight: '10px',
                                 fontSize: '12px'

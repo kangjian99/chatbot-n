@@ -113,7 +113,7 @@ function truncateFileName(fileName: String, maxLength = 30) {
                     >
                         <span
                             style={{
-                                backgroundColor: selectedFile === file ? "#3A6A9A" : (hoveredIndex === index ? "#d0e0f0" : "#e8eef6"),
+                                backgroundColor: selectedFile === file ? "#3A6A9A" : (hoveredIndex === index ? "#d0e0f0" : "var(--sidebar-bg)"),
                                 color: selectedFile === file ? "white" : "black",
                                 padding: "5px 5px",
                                 borderRadius: "5px",
