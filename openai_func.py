@@ -38,8 +38,10 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
             "frequency_penalty": 0,
             "presence_penalty": 0
         }
+        print("MODEL:", model)
         #if model.startswith(("moonshot" ,"yi")) or "nvidia" in str(client.base_url):
-        #    params["max_tokens"] = max_output_tokens
+        if model == "gpt-4o-2024-08-06" or model.startswith("gpt-4o") and not hub:
+            params["max_tokens"] = max_output_tokens
         response = client.chat.completions.create(**params)
         
         if not stream:
@@ -85,14 +87,14 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     messages = [] if messages is None else messages
     res = None
     full_message = ''
-    max_output_tokens = 4096
+    max_output_tokens = 8192
     tem = 0.8 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写', '撰稿', '脚本']) else param_temperature
 
     if not hub or hub == "burn":
         model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_base
     else:
         model = MODEL_base
-        if model == "gpt-4o-free" and num_tokens(prompt) < 700:
+        if model == "gpt-4o-free" and num_tokens(prompt) < 1200:
             model = "gpt-4o"
         if model.startswith("deepseek"):
             tem += 0.3

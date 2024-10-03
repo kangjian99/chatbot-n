@@ -26,11 +26,11 @@ elif hub == "deepseek":
 elif hub == "sf":
     API_KEY_HUB = os.environ.get('SF_API_KEY')
     BASE_URL = "https://api.siliconflow.cn/v1"
-    MODEL_base = os.getenv('SF_MODEL') or "deepseek-ai/DeepSeek-V2.5"
-elif hub == "nv":
-    API_KEY_HUB = os.environ.get('NV_API_KEY') 
-    BASE_URL = "https://integrate.api.nvidia.com/v1"
-    MODEL_base = "meta/llama-3.1-405b-instruct"  # nv-mistralai/mistral-nemo-12b-instruct
+    MODEL_base = os.getenv('SF_MODEL') or "deepseek-ai/DeepSeek-V2.5"  # Qwen/Qwen2.5-72B-Instruct
+#elif hub == "nv":
+#    API_KEY_HUB = os.environ.get('NV_API_KEY') 
+#    BASE_URL = "https://integrate.api.nvidia.com/v1"
+#    MODEL_base = "meta/llama-3.1-405b-instruct"
 elif hub == "moonshot":
     API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
     BASE_URL = "https://api.moonshot.cn/v1"
