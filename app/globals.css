@@ -29,20 +29,22 @@
 }
 
 :root {
-  --primary-color: #2285c7;       /* 主色调：明亮的蓝色 */
-  --secondary-color: #ecf0f1;     /* 次要色调：浅灰色 */
+  --primary-color: #467EB7;       /* 主色调：明亮的蓝色 */
+  --secondary-color: #f1f1f1;     /* 次要色调：浅灰色 */
   --accent-color: #e74c3c;        /* 强调色：柔和的红色 */
   --text-color: #2c3e50;          /* 主要文字颜色：深蓝灰色 */
   --light-text-color: #7f8c8d;    /* 次要文字颜色：浅灰色 */
-  --background-color: #f7f1e2;    /* 背景色：温和的米黄色 */
-  --sidebar-bg: #e8eef6;          /* 侧边栏背景：浅蓝灰色 */
-  --main-content-bg: #fbfbf9;     /* 主内容区背景：非常浅的米色 */
-  --header-footer-bg: #34495e;    /* 页眉页脚背景：深蓝灰色 */
+  --background-color: #f9f7f0;    /* 背景色：温和的米黄色 */
+  --sidebar-bg: #f0f4f8;          /* 侧边栏背景：浅蓝灰色 */
+  --main-content-bg: #fdfcf8;     /* 主内容区背景：非常浅的米色 */
+  --header-footer-bg: #2c3e50;    /* 页眉页脚背景：深蓝灰色 */
   --border-color: #bdc3c7;        /* 边框颜色：中等灰色 */
   --hover-color: #2980b9;         /* 悬停颜色：深蓝色 */
   --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   --border-radius: 10px;
-  }
+  --scrollbar-thumb: #b8b8b8;
+  --scrollbar-track: #f1f1f1;
+}
 
 body {
   margin: 0; /* Remove browser default margins */
@@ -92,7 +94,9 @@ body {
   z-index: 1000;
   padding-top: 20px;
   padding-bottom: 10px;
-  background-color: var(--background-color);
+  background-color: var(--header-footer-bg);
+  color: white;
+  box-shadow: var(--box-shadow);
 }
 
 .left-sidebar,
@@ -126,7 +130,7 @@ body {
   overflow-y: auto;
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
-  margin-top: 70px; /* 调整这个值以匹配 header 的高度 */
+  margin-top: 80px; /* 调整这个值以匹配 header 的高度 */
   margin-bottom: 10px; /* 为 footer 留出空间 */
 }
 
@@ -140,9 +144,9 @@ body {
   min-width: 600px;
   margin-left: 250px;
   margin-right: 250px;
-  margin-top: 70px; /* 调整这个值以匹配 header 的高度 */
+  margin-top: 80px; /* 调整这个值以匹配 header 的高度 */
   margin-bottom: 10px; /* 为 footer 留出空间 */
-  height: calc(100vh - 80px); /* 减去 header 和 footer 的高度 */
+  height: calc(100vh - 100px); /* 减去 header 和 footer 的高度 */
 }
 
 .main-content {
@@ -163,7 +167,8 @@ body {
   right: 0;
   height: 10px; /* 设置固定高度 */
   padding: 5px;
-  background-color: var(--background-color);
+  background-color: var(--header-footer-bg);
+  color: white;
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -176,7 +181,7 @@ body {
   overflow-y: auto;
   margin-bottom: 15px;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 0.5px solid #ccc;
   border-radius: 8px;
   white-space: pre-wrap;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);  
@@ -388,5 +393,22 @@ body {
   overflow: hidden;
   position: relative;
 }
-
 /* 其他样式保持不变 */
+
+/* 美化滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-color);
+}

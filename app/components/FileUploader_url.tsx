@@ -104,7 +104,7 @@ const FileUploader: FunctionComponent<FileUploaderProps> = ({ onUpload }) => {
                 padding: "6px",
                 borderRadius: "5px",
                 border: "1px solid #ccc", // 更浅的边框颜色，以便在深色背景上更清晰
-                backgroundColor: selectedFile ? '#3A6A9A' : "#467EB7", // 深色背景
+                backgroundColor: selectedFile ? '#3A6A9A' : "var(--primary-color)", // 深色背景
                 color: "#fff", // 白色文字
                 width: "300px",
                 outline: "none" // 可选，移除聚焦时的边框

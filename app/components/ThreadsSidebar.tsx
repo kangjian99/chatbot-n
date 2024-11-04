@@ -134,7 +134,7 @@ const ThreadsSidebar: React.FC<ThreadsSidebarProps> = ({ onThreadSelect, user_id
                     >
                         <span
                             style={{
-                                backgroundColor: selectedThread === thread.id ? "#3A6A9A" : (hoveredIndex === index ? "#d0e0f0" : "#e8eef6"),
+                                backgroundColor: selectedThread === thread.id ? "#3A6A9A" : (hoveredIndex === index ? "#d0e0f0" : "var(--sidebar-bg)"),
                                 color: selectedThread === thread.id ? "white" : "black",
                                 padding: "5px 5px",
                                 borderRadius: "5px",
