@@ -360,14 +360,14 @@ export default function Home() {
                                     小红书
                                 </button>
                                 <button 
-                                    onClick={() => setSelectedTemplate('6')}
+                                    onClick={() => setSelectedTemplate('5')}
                                     style={{
                                         flex: 1,
                                         padding: '3px 0',
                                         borderRadius: '5px',
                                         border: '1px solid var(--primary-color)',
-                                        background: selectedTemplate === '6' ? '#20808D' : 'var(--secondary-color)',
-                                        color: selectedTemplate === '6' ? 'white' : '#000',
+                                        background: selectedTemplate === '5' ? '#20808D' : 'var(--secondary-color)',
+                                        color: selectedTemplate === '5' ? 'white' : '#000',
                                         fontSize: '12px'
                                     }}
                                 >
