@@ -412,11 +412,3 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-color);
 }
-
-/* 针对深色模式的调整 */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --scrollbar-thumb: #555;
-    --scrollbar-track: #333;
-  }
-}

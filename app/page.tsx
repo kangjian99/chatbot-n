@@ -310,52 +310,130 @@ export default function Home() {
                             messages={messages}
                             messagesEndRef={messagesEndRef}
                         />{" "}
-                    <div style={{ display: 'flex', paddingLeft: '60px', paddingRight: '60px', marginBottom: '15px', alignItems: 'center' }}>
-                        {/* 下拉选择列表 */}
-                        <select style={{width: "200px"}} value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)} className="custom-select" >
-                            {prompts.map(([key, value], index) => (
-                                <option key={key} value={index}>{key}</option>
-                            ))}
-                        </select>
-                        {/* 输入框 */}
+                    <div style={{ 
+                        display: 'flex', 
+                        paddingLeft: '60px', 
+                        paddingRight: '60px', 
+                        marginBottom: '15px', 
+                        gap: '10px' 
+                    }}>
+                        {/* 左侧按钮和下拉列表容器 */}
+                        <div style={{ 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            gap: '5px',
+                            marginRight: '10px',
+                            width: '200px', // 与下拉列表等宽
+                            alignSelf: 'center'
+                        }}>
+                            {/* 快捷按钮组 */}
+                            <div style={{ 
+                                display: 'flex', 
+                                gap: '5px'
+                            }}>
+                                <button 
+                                    onClick={() => setSelectedTemplate('1')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '3px 0',
+                                        borderRadius: '5px',
+                                        border: '1px solid var(--primary-color)',
+                                        background: selectedTemplate === '1' ? '#20808D' : 'var(--secondary-color)',
+                                        color: selectedTemplate === '1' ? 'white' : '#000',
+                                        fontSize: '12px'
+                                    }}
+                                >
+                                    提炼总结
+                                </button>
+                                <button 
+                                    onClick={() => setSelectedTemplate('2')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '3px 0',
+                                        borderRadius: '5px',
+                                        border: '1px solid var(--primary-color)',
+                                        background: selectedTemplate === '2' ? '#20808D' : 'var(--secondary-color)',
+                                        color: selectedTemplate === '2' ? 'white' : '#000',
+                                        fontSize: '12px'
+                                    }}
+                                >
+                                    小红书
+                                </button>
+                                <button 
+                                    onClick={() => setSelectedTemplate('6')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '3px 0',
+                                        borderRadius: '5px',
+                                        border: '1px solid var(--primary-color)',
+                                        background: selectedTemplate === '6' ? '#20808D' : 'var(--secondary-color)',
+                                        color: selectedTemplate === '6' ? 'white' : '#000',
+                                        fontSize: '12px'
+                                    }}
+                                >
+                                    专业翻译
+                                </button>
+                            </div>
+                            {/* 下拉选择列表 */}
+                            <select 
+                                value={selectedTemplate} 
+                                onChange={e => setSelectedTemplate(e.target.value)} 
+                                className="custom-select"
+                                style={{
+                                    width: '100%',
+                                    padding: '6px',
+                                    borderRadius: '5px',
+                                    border: '1px solid #ccc',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                {prompts.map(([key, value], index) => (
+                                    <option key={key} value={index}>{key}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* 输入框和发送按钮 */}
                         <textarea
-                        value={userInput}
-                        onChange={(e) => setUserInput(e.target.value)}
-                        style={{
-                            fontSize: '14px',
-                            flex: 1,
-                            padding: '6px',
-                            paddingLeft: '10px',
-                            borderRadius: '5px',
-                            border: '1px solid #ccc',
-                            marginLeft: '10px',
-                            marginRight: '20px',
-                        }}
-                        disabled={isSending}
-                        rows={3}
-                        placeholder="在此输入..."
-                    />
+                            value={userInput}
+                            onChange={(e) => setUserInput(e.target.value)}
+                            style={{
+                                fontSize: '14px',
+                                flex: 1,
+                                padding: '6px',
+                                paddingLeft: '10px',
+                                borderRadius: '5px',
+                                border: '1px solid #ccc',
+                                marginRight: '10px',
+                                height: '80px', // 调整高度以匹配左侧总高度
+                            }}
+                            disabled={isSending}
+                            rows={3}
+                            placeholder="在此输入..."
+                        />
                         <button 
-                        onClick={() => sendMessage({ userInput, user_id, thread_id, url, prompts, selectedTemplate, selectedFileName, krangeValue, kValue, userModel, setMessages, setUserInput, setIsSending })} 
-                        style={{ 
-                            padding: '5px', // 增加padding使按钮更大
-                            borderRadius: '50%', // 圆形按钮
-                            border: '1px solid #eee', 
-                            background: isSending || memoryLoading ? '#eee' : userInput ? '#20808D' : '#eee', 
-                            color: isSending || memoryLoading ? '#666' : userInput ? 'white' : '#666',
-                            width: '40px',
-                            height: '40px', // 使按钮变为圆形
-                            marginRight: "5px",
-                            fontSize: "14px",
-                            display: 'flex', // 使用flexbox对齐内容
-                            alignItems: 'center', // 垂直居中
-                            justifyContent: 'center', // 水平居中
-                        }}
+                            onClick={() => sendMessage({ userInput, user_id, thread_id, url, prompts, selectedTemplate, selectedFileName, krangeValue, kValue, userModel, setMessages, setUserInput, setIsSending })} 
+                            style={{ 
+                                padding: '5px',
+                                borderRadius: '50%',
+                                border: '1px solid #eee',
+                                background: isSending || memoryLoading ? '#eee' : userInput ? '#20808D' : '#eee',
+                                color: isSending || memoryLoading ? '#666' : userInput ? 'white' : '#666',
+                                width: '40px',
+                                height: '40px',
+                                marginRight: "5px",
+                                fontSize: "14px",
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                alignSelf: 'center' // 垂直居中对齐
+                            }}
                             disabled={isSending || memoryLoading || !userInput}
                         >
                             <FontAwesomeIcon icon={faArrowRightLong} />
                         </button>
                     </div>
+
                     <div style={{ display: 'flex', paddingLeft: '60px', paddingRight: '60px', marginBottom: '10px', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
                         <button 
