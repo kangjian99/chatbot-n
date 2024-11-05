@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
+import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 interface Message {
   type: 'user' | 'system' | 'image';
@@ -15,19 +16,42 @@ interface MessageListProps {
 }
 
 const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) => {
-  const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
   const [expandedMessages, setExpandedMessages] = useState<{ [key: number]: boolean }>({});
   const textRef = useRef<HTMLDivElement>(null);
-  // 复制文本到剪贴板的函数
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        console.log('Text copied to clipboard');
-        setShowCopyConfirmation(true);
-        setTimeout(() => setShowCopyConfirmation(false), 2000); // 2秒后隐藏确认消息
-      },
-      (err) => console.error('Could not copy text: ', err)
-    );
+  const [copiedMessageIds, setCopiedMessageIds] = useState<Set<number>>(new Set());
+
+  const copyToClipboard = async (text: string, messageId: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageIds(prev => new Set(prev).add(messageId));
+      setTimeout(() => {
+        setCopiedMessageIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(messageId);
+          return newSet;
+        });
+      }, 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
+  };
+
+  const copyButtonStyle = {
+    position: 'absolute' as const,
+    bottom: '4px',
+    right: '4px',
+    padding: '4px 6px',
+    borderRadius: '4px',
+    background: 'rgba(255, 255, 255, 0.8)',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    fontSize: '12px',
+    opacity: '0',
+    transition: 'opacity 0.2s',
+    boxShadow: '0 0 3px rgba(0, 0, 0, 0.1)',
   };
 
   const containsMarkdownTableOrCodeBlock = (text: string) => {
@@ -78,6 +102,23 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
   };
 
   const renderMessage = (msg: Message, index: number) => {
+    const isCopied = copiedMessageIds.has(index);
+
+    const copyButton = (
+      <button
+        onClick={() => copyToClipboard(msg.text, index)}
+        style={copyButtonStyle}
+        title={isCopied ? "已复制" : "复制"}
+      >
+        {isCopied ? (
+          <CheckIcon style={{ width: '14px', height: '14px' }} />
+        ) : (
+          <ClipboardIcon style={{ width: '14px', height: '14px' }} />
+        )}
+        {isCopied ? "已复制" : "复制"}
+      </button>
+    );
+
     if (msg.type === 'user') {
       const isExpanded = expandedMessages[index];
       const displayText = isExpanded ? msg.text : truncateText(msg.text, 10);
@@ -87,6 +128,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
           <span
             ref={textRef}
             style={{
+              position: 'relative',
               padding: '6px 10px',
               borderRadius: '10px',
               background: '#BAE6FC',
@@ -97,7 +139,14 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
               fontSize: '14px',
               cursor: 'default',
             }}
-            onClick={() => copyToClipboard(msg.text)}
+            onMouseEnter={(e) => {
+              const button = e.currentTarget.querySelector('button');
+              if (button) button.style.opacity = '1';
+            }}
+            onMouseLeave={(e) => {
+              const button = e.currentTarget.querySelector('button');
+              if (button && !copiedMessageIds.has(index)) button.style.opacity = '0';
+            }}
           >
             <div className="markdown-content">
               <ReactMarkdown remarkPlugins={[gfm]}>{processText(displayText)}</ReactMarkdown>
@@ -119,6 +168,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
                 {isExpanded ? '收起' : '展开全部'}
               </div>
             )}
+            {copyButton}
           </span>
         </div>
       );
@@ -132,11 +182,12 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
           />
         </div>
       );
-    } else {
+    } else if (msg.type === 'system' || msg.role === 'assistant') {
       return (
         <div key={index} style={{ textAlign: 'left', margin: '10px 5px' }}>
           <span
             style={{
+              position: 'relative',
               padding: '6px 10px',
               borderRadius: '10px',
               background: '#F2F1F2',
@@ -148,11 +199,19 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
               fontStyle: msg.role === 'system' ? 'italic' : 'normal',
               cursor: 'default',
             }}
-            onClick={() => copyToClipboard(msg.text)}
+            onMouseEnter={(e) => {
+              const button = e.currentTarget.querySelector('button');
+              if (button) button.style.opacity = '1';
+            }}
+            onMouseLeave={(e) => {
+              const button = e.currentTarget.querySelector('button');
+              if (button && !copiedMessageIds.has(index)) button.style.opacity = '0';
+            }}
           >
             <div className="markdown-content">
               <ReactMarkdown remarkPlugins={[gfm]}>{processText(msg.text)}</ReactMarkdown>
             </div>
+            {copyButton}
           </span>
         </div>
       );
@@ -162,11 +221,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
   return (
     <div className="message-list-container">
       {messages.map(renderMessage)}
-      {showCopyConfirmation && (
-        <div style={{ fontSize: '13px', position: 'fixed', bottom: '50px', left: '50%', transform: 'translateX(-50%)', background: 'green', color: 'white', padding: '8px', borderRadius: '4px', zIndex: 1000 }}>
-          已复制到剪贴板
-        </div>
-      )}
       <div ref={messagesEndRef} />
     </div>
   );

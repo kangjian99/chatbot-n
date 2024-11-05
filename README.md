@@ -49,3 +49,5 @@ NEXT_PUBLIC_API_HEADLINE=AI知识库管理助手 #AI-assisted Writer
 NEXT_PUBLIC_API_EXPIRY_HOUR=36
 
 NEXT_PUBLIC_API_USER_MODEL=default
+
+NEXT_PUBLIC_API_USER_MODELS=["default", "Claude", "Llama3", "Gemma2", "flash", "base"]
