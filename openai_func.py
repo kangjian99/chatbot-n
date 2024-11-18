@@ -96,6 +96,8 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         model = MODEL_base
         if model == "gpt-4o-free" and num_tokens(prompt) < 1200:
             model = "gpt-4o"
+        if model == "claude-3-5-sonnet-20240620" and "风格写作" in prompt_template[0]:
+            model == "Qwen/Qwen2.5-72B-Instruct"
         if model.startswith("deepseek"):
             tem += 0.3
             
