@@ -121,7 +121,7 @@ def handle_message():
             messages = get_user_messages(user_id) if 'Chat' in prompt_template[0] else []
             prompt = f"{prompt_template[1].format(question=user_input)!s}" if messages == [] else user_input
             # 添加与OpenAI交互的逻辑
-            n = 1
+            #n = 1
             response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n, messages)
     else:
         if user_input.startswith('#clear'):
