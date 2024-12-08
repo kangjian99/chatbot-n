@@ -41,7 +41,7 @@ def interact_with_groq(user_id, thread_id, user_input, prompt, prompt_template, 
     messages.append({"role": "user", "content": prompt})
 
     model_groq = {
-        "Llama3": "llama-3.1-70b-versatile",
+        "Llama3": "llama-3.3-70b-versatile",
         "Gemma2": "gemma2-9b-it",
     }.get(user_model, model)
 
