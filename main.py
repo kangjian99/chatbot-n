@@ -104,7 +104,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
     if interact_func == interact_with_groq:
         n = user_model
     
-    if user_input.startswith("写作") and user_model == "default" and not MODEL.startswith("claude-"):
+    if user_input.startswith("写作") and user_model == "default" and not MODEL_base.startswith("claude-"):
         interact_func = interact_with_claude
 
     if '文档' not in prompt_template[0]:
