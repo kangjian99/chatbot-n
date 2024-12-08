@@ -5,7 +5,7 @@ from openai import OpenAI
 
 API_KEY = os.environ.get('OPENAI_API_KEY')
 
-MODEL_base=os.getenv('GPT_MODEL') or "gpt-4o-mini" # "gpt-3.5-turbo-0125"
+MODEL_base=os.getenv('GPT_MODEL') or "gpt-4o-2024-08-06" # "gpt-3.5-turbo-0125"
 MODEL=os.getenv('GPT4_MODEL') or MODEL_base
 #MODEL="gpt-4-turbo-2024-04-09"
 #model_8k = "moonshot-v1-8k"
@@ -26,11 +26,7 @@ elif hub == "deepseek":
 elif hub == "sf":
     API_KEY_HUB = os.environ.get('SF_API_KEY')
     BASE_URL = "https://api.siliconflow.cn/v1"
-    MODEL_base = os.getenv('SF_MODEL') or "deepseek-ai/DeepSeek-V2-Chat"
-elif hub == "nv":
-    API_KEY_HUB = os.environ.get('NV_API_KEY') 
-    BASE_URL = "https://integrate.api.nvidia.com/v1"
-    MODEL_base = "meta/llama-3.1-405b-instruct"  # nv-mistralai/mistral-nemo-12b-instruct
+    MODEL_base = os.getenv('SF_MODEL') or "deepseek-ai/DeepSeek-V2.5"
 elif hub == "moonshot":
     API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
     BASE_URL = "https://api.moonshot.cn/v1"
