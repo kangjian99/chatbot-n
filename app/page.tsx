@@ -12,7 +12,7 @@ import { saveToLocalStorage, loadFromLocalStorage, cleanUpExpiredLocalStorage } 
 import { useRouter } from 'next/navigation';
 import { ConfigurationContext } from './ContextProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear, faSync, faArrowRightLong } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faSync, faMagic, faArrowRightLong } from '@fortawesome/free-solid-svg-icons';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 const default_n = process.env.NEXT_PUBLIC_API_N || 2;
@@ -249,6 +249,15 @@ export default function Home() {
         setThread_name(thread.name);
     };
 
+    const smallButtonStyle = {
+        fontSize: '12px',
+        padding: '3px 6px',
+        border: '1px solid #ccc', 
+        color: '#6c757d',
+        backgroundColor: '#eee',
+        marginRight: '20px',
+    };
+
     if (isLoading) {
         return <div>Loading...</div>; // 或者一个旋转器/加载器组件
     }
@@ -271,18 +280,22 @@ export default function Home() {
                         <ThreadsSidebar onThreadSelect={handleThreadSelect} user_id={user_id} len={messages.length} />
                         <div style={{ marginTop: 'auto', marginBottom: '10px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <button
+                                onClick={() => router.push('/generate-cards')}
+                                className="btn btn-secondary"
+                                style={{
+                                    ...smallButtonStyle,
+                                }}
+                                disabled={isSending || memoryLoading} >
+                                <FontAwesomeIcon icon={faMagic} />
+                            </button>
+                            <button
                                 onClick={() => {
                                     saveToLocalStorage(`memory-${user_id}-${thread_id}`, "");
                                     handleMemory();
                                 }}
                                 className="btn btn-secondary"
                                 style={{
-                                    fontSize: '12px',
-                                    padding: '3px 6px',
-                                    border: '1px solid #ccc', 
-                                    color: '#6c757d',
-                                    backgroundColor: '#eee',
-                                    marginRight: '20px',
+                                    ...smallButtonStyle,
                                 }}
                                 disabled={isSending || memoryLoading} >
                                 <FontAwesomeIcon icon={faSync} />
@@ -291,12 +304,7 @@ export default function Home() {
                                 onClick={() => router.push('/dashboard')}
                                 className="btn btn-secondary"
                                 style={{
-                                    fontSize: '12px',
-                                    padding: '3px 6px',
-                                    border: '1px solid #ccc', 
-                                    color: '#6c757d', // 设置较淡的文字颜色
-                                    backgroundColor: '#eee', // 设置较浅的背景色
-                                    marginRight: '10px',
+                                    ...smallButtonStyle,
                                 }}
                                 disabled={isSending || memoryLoading} >
                                 <FontAwesomeIcon icon={faGear} />
