@@ -10,7 +10,7 @@ from utils import *
 from openai_func import interact_with_openai, param_n
 from claude import claude_response_stream, interact_with_claude, claude_response
 
-from geminiai import interact_with_gemini
+from geminiai import interact_with_gemini, gemini_schema_response
 from payload import interact_with_LLM
 from groq_func import groq_response, groq_response_stream, interact_with_groq
 
@@ -114,7 +114,7 @@ def handle_message():
 
     if '文档' not in prompt_template[0]:
         if '总结' in prompt_template[0]:
-            content = url_process(user_input, MODEL)
+            content = url_process(user_input)
             prompt = f"{prompt_template[1].format(question=content)!s}"
             response = interact_func(user_id, thread_id, user_input, prompt, prompt_template, n)
         else: 
@@ -257,6 +257,64 @@ def check_credits():
         return jsonify({"credits": credits}), 200
     else:
         return jsonify({"credits": False}), 401
+
+@app.route('/generate-cards', methods=['POST'])
+def generate_cards():
+    try:
+        # 获取请求数据
+        content = url_process(request.json.get('content'))
+
+        # 构建 prompt
+        prompt = f"""
+        分析以下文章内容,提取其中的关键概念,生成:
+        1. 一个主标题
+        2. 为每个概念生成:
+           - 标题(简短有力)
+           - 描述(50字以内)
+           - 图标
+        3. 根据文章内容的情感和主题,生成一个合适的渐变背景色方案
+           - 使用深色系 HEX 颜色代码
+           - 两个颜色都必须是深色(亮度值小于50%)
+           - 建议使用以下颜色范围:
+             * 深蓝色系: #1e3a8a ~ #1e40af
+             * 深紫色系: #5b21b6 ~ #7c3aed
+             * 深青色系: #164e63 ~ #0e7490
+             * 深绿色系: #065f46 ~ #047857
+           - 确保颜色搭配协调且具有视觉吸引力
+           - 必须确保白色文字在此背景上清晰可见
+
+        必须用中文输出,以JSON格式返回:
+        {{
+          "maintitle": "主标题",
+          "background": {{
+            "startColor": "#起始深色",
+            "endColor": "#结束深色"
+          }},
+          "cards": [
+            {{
+              "icon": "选择的图标名",
+              "title": "概念标题",
+              "description": "概念描述"
+            }}
+          ]
+        }}
+        
+        文章内容:
+        {content}
+        """
+        
+        # 调用 Gemini API
+        response_text = gemini_schema_response(prompt)
+        response_data = json.loads(response_text)
+        
+        return jsonify(response_data)
+        
+    except Exception as error:
+        print('Error generating cards:', str(error))
+        return jsonify({
+            'error': '生成卡片时出错',
+            'details': str(error)
+        }), 500
 
 @app.route('/')
 def index():

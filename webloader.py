@@ -4,7 +4,7 @@ from langchain_community.document_loaders import WebBaseLoader
 import re
 from utils import num_tokens
 
-def url_process(input, model):
+def url_process(input):
     url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')    
     # 在文本开头查找第一个匹配的URL
     match = url_pattern.search(input[:128])
@@ -16,8 +16,6 @@ def url_process(input, model):
         content = loader.load()
         content = re.sub('\n{3,}', '\n\n', re.sub('\t{2,}', '\t', content[0].page_content))
         #print(content)
-        if not model.endswith('32k') and num_tokens(content) > 12000:
-            content = content[:12000]
     else:
         content = input
     return content
