@@ -30,8 +30,8 @@ generation_config = {
 }
 
 MODEL = os.getenv('GEMINI_MODEL') or "gemini-2.0-flash-exp"
-#model = genai.GenerativeModel(model_name="gemini-1.5-pro",
 #model = genai.GenerativeModel(model_name="gemini-exp-1206",
+#model = genai.GenerativeModel(model_name="gemini-2.0-flash-thinking-exp-01-21",
 model = genai.GenerativeModel(model_name=MODEL, 
                               #system_instruction="你是语言分析与写作专家，避免输出过于简略化", 
                               safety_settings=safety_settings,

@@ -26,7 +26,7 @@ elif hub == "deepseek":
 elif hub == "sf":
     API_KEY_HUB = os.environ.get('SF_API_KEY')
     BASE_URL = "https://api.siliconflow.cn/v1"
-    MODEL_base = os.getenv('SF_MODEL') or "deepseek-ai/DeepSeek-V2.5"  # Qwen/Qwen2.5-72B-Instruct
+    MODEL_base = os.getenv('SF_MODEL') or "Vendor-A/Qwen/Qwen2.5-72B-Instruct"
 #elif hub == "nv":
 #    API_KEY_HUB = os.environ.get('NV_API_KEY') 
 #    BASE_URL = "https://integrate.api.nvidia.com/v1"
@@ -38,11 +38,11 @@ elif hub == "moonshot":
 elif hub == "tg":
     API_KEY_HUB = os.environ.get('TOGETHER_API_KEY') 
     BASE_URL = "https://api.together.xyz/v1"
-    MODEL_base = "google/gemma-2-27b-it"
+    MODEL_base = "deepseek-ai/DeepSeek-R1"
 elif hub:
     API_KEY_HUB = os.environ.get('BASE_API_KEY')
     BASE_URL = os.environ.get('BASE_URL') or "https://llm.indrin.cn/v1"
-    MODEL_base = os.environ.get('BASE_MODEL') or "deepseek-chat"
+    MODEL_base = os.environ.get('BASE_MODEL') or "Qwen/Qwen2.5-72B-Instruct"
 else:
     API_KEY_HUB = None
     BASE_URL = None

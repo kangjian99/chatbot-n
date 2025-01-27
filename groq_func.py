@@ -42,6 +42,7 @@ def interact_with_groq(user_id, thread_id, user_input, prompt, prompt_template, 
 
     model_groq = {
         "Llama3": "llama-3.3-70b-versatile",
+        "distill": "deepseek-r1-distill-llama-70b",
         "Gemma2": "gemma2-9b-it",
     }.get(user_model, model)
 

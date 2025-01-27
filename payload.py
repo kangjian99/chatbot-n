@@ -4,7 +4,7 @@ from utils import count_chars, TEMPLATE_SAVE
 
 api_key = os.getenv('TOGETHER_API_KEY')
 base_url = "https://api.together.xyz/v1/completions"
-model = "google/gemma-2-27b-it"  # meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
+model = "google/gemma-2-27b-it"  # meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
 
 api_key = os.getenv('MISTRAL_API_KEY')
 base_url = "https://api.mistral.ai/v1/chat/completions"

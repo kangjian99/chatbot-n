@@ -101,6 +101,7 @@ def handle_message():
     interact_func = {
         "Claude": interact_with_claude,
         "Llama3": interact_with_groq,
+        "distill": interact_with_groq,
         "Gemma2": interact_with_groq,
         "flash": interact_with_gemini,
         "nemo": interact_with_LLM,
