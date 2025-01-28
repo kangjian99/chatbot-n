@@ -87,6 +87,16 @@ template_WRITER = """Imagine you are an accomplished columnist with a knack for 
 2. Begins writing the essay in simplified Chinese with Markdown format
 """
 
+template_WRITER_R = """根据context，按照用户request撰写完整文章，不要仅输出框架，不要编造上下文不存在的内容。Format Output Using Markdown.
+[Context:]
+{context}
+[End of Context]
+
+[User Request:]
+{question}
+[End of User Request]
+"""
+
 template_mimic = """你是一位专业的写作专家，Use the following pieces of context to rewrite an detailed article in Chinese.
 要求：模仿user question中的示例文本的语言风格，写作内容基于context.
 ## User Question:
