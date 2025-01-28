@@ -9,7 +9,7 @@ from session_db import get_db, get_session, create_session, update_session
 from db_process import *
 from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
 from webloader import *
-from templates import template_QUERY, template_WRITER, template_WRITER_S, template_SUMMARY
+from templates import template_QUERY, template_WRITER, template_WRITER_R, template_WRITER_S, template_SUMMARY
 from utils import *
 from openai_func import interact_with_openai, param_n
 from claude import claude_response_stream, interact_with_claude, claude_response
@@ -17,6 +17,8 @@ from claude import claude_response_stream, interact_with_claude, claude_response
 from geminiai import interact_with_gemini
 from payload import interact_with_LLM
 from groq_func import groq_response, groq_response_stream, interact_with_groq
+from deepseek_func import interact_with_deepseek
+
 #from test_LLMs import multi_LLM_response
 
 app = FastAPI()
@@ -99,9 +101,11 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         "flash": interact_with_gemini,
         "pro": interact_with_gemini,
         "nemo": interact_with_LLM,
+        "V3": interact_with_deepseek,
+        "R1": interact_with_deepseek,
     }.get(user_model, interact_with_openai)
 
-    if interact_func == interact_with_groq:
+    if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
         n = user_model
     
     if user_input.startswith("写作") and user_model == "default" and not MODEL.startswith("gpt-4-"):
