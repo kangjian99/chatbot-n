@@ -19,7 +19,7 @@ meta_keywords.py
 test_LLMs.py
 app_subwriter.py
 app_beta_gemini.py
-deepseek_func.py
+#deepseek_func.py
 together_func.py
 main.py
 sessions.db

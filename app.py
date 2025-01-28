@@ -5,7 +5,7 @@ import json
 from db_process import *
 from RAG_with_langchain import load_and_process_document, response_from_rag_chain, response_from_retriver
 from webloader import *
-from templates import template_QUERY, template_WRITER, template_WRITER_S, template_SUMMARY
+from templates import template_QUERY, template_WRITER, template_WRITER_R, template_WRITER_S, template_SUMMARY
 from utils import *
 from openai_func import interact_with_openai, param_n
 from claude import claude_response_stream, interact_with_claude, claude_response
@@ -13,6 +13,7 @@ from claude import claude_response_stream, interact_with_claude, claude_response
 from geminiai import interact_with_gemini, gemini_schema_response
 from payload import interact_with_LLM
 from groq_func import groq_response, groq_response_stream, interact_with_groq
+from deepseek_func import interact_with_deepseek
 
 from session_db import get_db, get_session, create_session, update_session, print_session_info
 
@@ -105,9 +106,11 @@ def handle_message():
         "Gemma2": interact_with_groq,
         "flash": interact_with_gemini,
         "nemo": interact_with_LLM,
+        "V3": interact_with_deepseek,
+        "R1": interact_with_deepseek,
     }.get(user_model, interact_with_openai)
 
-    if interact_func == interact_with_groq:
+    if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
         n = user_model
     
     if user_input.startswith("写作") and user_model == "default" and not MODEL.startswith("gpt-4-"):
@@ -170,8 +173,11 @@ def handle_message():
         #else:
         #docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
         if user_input.startswith('写作'):
-            prompt = f"{template_WRITER.format(question=user_input, context=docs)!s}"
-        elif '写' in user_input:
+            if user_model == "R1" or MODEL_base.endswith("R1") and user_model == "default":
+                prompt = f"{template_WRITER_R.format(question=user_input, context=docs)!s}"
+            else:
+                prompt = f"{template_WRITER.format(question=user_input, context=docs)!s}"
+        elif '写' in user_input:  # 短文写作
             prompt = f"{template_WRITER_S.format(question=user_input, context=docs)!s}"
         elif user_input.startswith('总结'):
             prompt = f"{template_SUMMARY.format(context=docs)!s}"

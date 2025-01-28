@@ -100,6 +100,16 @@ Context:
 Assistant writes article:
 """ # 
 
+template_WRITER_R = """根据context，按照用户request撰写完整文章，不要仅输出框架，不要编造上下文不存在的内容。Format Output Using Markdown.
+[Context:]
+{context}
+[End of Context]
+
+[User Request:]
+{question}
+[End of User Request]
+"""
+
 template_writer_sub = """Imagine you are an accomplished columnist with a knack for crafting compelling narratives. Your mission is to fulfill a specific writing task according to a user request, transforming it into an engaging and structured article section. Here's how to approach this task step by step, ensuring your response is not just a response but a masterpiece in Chinese.
 [User Request:]
 {question}
