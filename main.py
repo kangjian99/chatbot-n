@@ -100,7 +100,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         "Gemma2": interact_with_groq,
         "flash": interact_with_gemini,
         "pro": interact_with_gemini,
-        "nemo": interact_with_LLM,
+        "mistral": interact_with_LLM,
         "V3": interact_with_deepseek,
         "R1": interact_with_deepseek,
     }.get(user_model, interact_with_openai)
@@ -108,7 +108,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
     if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
         n = user_model
     
-    if user_input.startswith("写作") and user_model == "default" and not MODEL.startswith("gpt-4-"):
+    if user_input.startswith("写作") and user_model == "default" and not MODEL_base.endswith("R1"):
         interact_func = interact_with_gemini
 
     if '文档' not in prompt_template[0]:
