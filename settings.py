@@ -15,7 +15,7 @@ MODEL=os.getenv('GPT4_MODEL') or MODEL_base
 #claude_model = False   # 测试句
 
 hub = os.environ.get('HUB')   # 是否用原生OpenAI方式
-#hub = "sf"  # 测试句
+#hub = "tg"  # 测试句
 if hub == "burn":
     API_KEY_HUB = os.environ.get('OPENAI_API_KEY_HUB')
     BASE_URL = "https://burn.hair/v1"
@@ -30,7 +30,7 @@ elif hub == "sf":
 #elif hub == "nv":
 #    API_KEY_HUB = os.environ.get('NV_API_KEY') 
 #    BASE_URL = "https://integrate.api.nvidia.com/v1"
-#    MODEL_base = "meta/llama-3.1-405b-instruct"
+#    MODEL_base = "deepseek-ai/deepseek-r1"
 elif hub == "moonshot":
     API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
     BASE_URL = "https://api.moonshot.cn/v1"

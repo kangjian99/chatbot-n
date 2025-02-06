@@ -4,25 +4,31 @@ from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
 from utils import count_chars
 
-model = "deepseek-chat"
-client = OpenAI(api_key = os.environ.get('DEEPSEEK_API_KEY'), base_url = "https://api.deepseek.com/v1")
+#model = "deepseek-chat"
+#model_r = "deepseek-reasoner"
+#client = OpenAI(api_key = os.environ.get('DEEPSEEK_API_KEY'), base_url = "https://api.deepseek.com/v1")
 #model = os.getenv('SF_MODEL') or "Qwen/Qwen2-7B-Instruct"
-#model = "deepseek-ai/DeepSeek-V2-Chat"  # deepseek-ai/DeepSeek-Coder-V2-Instruct
-#client = OpenAI(api_key = os.environ.get('SF_API_KEY'), base_url = "https://api.siliconflow.cn/v1")
+model = "deepseek-ai/DeepSeek-V3"
+model_r = "deepseek-ai/DeepSeek-R1"
+client = OpenAI(api_key = os.environ.get('SF_API_KEY'), base_url = "https://api.siliconflow.cn/v1")
+client_tpp = OpenAI(api_key = os.environ.get('TOGETHER_API_KEY'), base_url = "https://api.together.xyz/v1")
+#model_r = "accounts/fireworks/models/deepseek-r1"
+#client_tpp = OpenAI(api_key = os.environ.get('FIREWORKS_API_KEY'), base_url = "https://api.fireworks.ai/inference/v1")
 
 param_temperature = 1 if model.startswith('deepseek') else 0.5
 param_n = 1
 
 def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n=param_n):
     try:
-        #messages.append({"role": "system", "content": "原则：避免输出简略化。"})
+        messages.append({"role": "system", "content": "原则：避免输出简略化。"})
         messages.append({"role": "user", "content": question})
         print("generate_text:", messages[-1]["content"][:250])
-            
+        print("MODEL:", model)
+
         params = {
             "model": model,
             "messages": messages,
-            "temperature": tem,
+            "temperature": tem if not 'R1' in model else 0.7,  # 仅为 together 特殊设置
             "stream": stream,
             "top_p": 1.0,
             "n": n,
@@ -30,7 +36,8 @@ def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n
             "presence_penalty": 0
         }
 
-        response = client.chat.completions.create(**params)
+        client_act = client_tpp if 'r1' in model.lower() else client
+        response = client_act.chat.completions.create(**params)
         
         if not stream:
             print(f"{response.usage}\n")
@@ -80,8 +87,8 @@ def interact_with_deepseek(user_id, thread_id, user_input, prompt, prompt_templa
     tem = 1.3 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写' '脚本']) else param_temperature
 
     model_ds = {
-        "V3": "deepseek-chat",
-        "R1": "deepseek-reasoner",
+        "V3": model,
+        "R1": model_r,
     }.get(user_model, model)
 
     try:

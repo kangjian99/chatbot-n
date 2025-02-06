@@ -8,7 +8,7 @@ model = "google/gemma-2-27b-it"  # meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
 
 api_key = os.getenv('MISTRAL_API_KEY')
 base_url = "https://api.mistral.ai/v1/chat/completions"
-model = "mistral-large-2411"  # open-mistral-nemo
+model = "mistral-small-2501"  # open-mistral-nemo
 
 def LLM_response(query, url=base_url):
 
