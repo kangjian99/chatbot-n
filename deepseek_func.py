@@ -84,7 +84,7 @@ def interact_with_deepseek(user_id, thread_id, user_input, prompt, prompt_templa
     res = None
     full_message = ''
     max_output_tokens = 4096
-    tem = 1.3 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写' '脚本']) else param_temperature
+    tem = 1.3 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写', '脚本']) else param_temperature
 
     model_ds = {
         "V3": model,
