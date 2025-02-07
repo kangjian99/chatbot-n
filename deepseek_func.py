@@ -37,7 +37,7 @@ def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n
         }
 
         client_act = client_tpp if 'r1' in model.lower() else client
-        response = client.chat.completions.create(**params)
+        response = client_act.chat.completions.create(**params)
         
         if not stream:
             print(f"{response.usage}\n")
