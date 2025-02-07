@@ -29,18 +29,21 @@ generation_config = {
     "max_output_tokens": 8192,
 }
 
-MODEL = os.getenv('GEMINI_MODEL') or "gemini-2.0-flash-exp"
-#model = genai.GenerativeModel(model_name="gemini-exp-1206",
-#model = genai.GenerativeModel(model_name="gemini-2.0-flash-thinking-exp-01-21",
+MODEL = os.getenv('GEMINI_MODEL') or "gemini-2.0-flash"
+#MODEL_pro = "gemini-2.0-pro-exp-02-05"
+MODEL_pro = "gemini-2.0-flash-thinking-exp-01-21"
+
 model = genai.GenerativeModel(model_name=MODEL, 
                               #system_instruction="你是语言分析与写作专家，避免输出过于简略化", 
                               safety_settings=safety_settings,
                               generation_config=generation_config)
+model_pro = genai.GenerativeModel(model_name=MODEL_pro, 
+                                  safety_settings=safety_settings,
+                                  generation_config=generation_config)
 #model_v = genai.GenerativeModel('gemini-pro-vision', safety_settings)
 
 def gemini_response_stream(query):
     response = model.generate_content(query,
-                                      generation_config={"max_output_tokens": 8192},
                                       stream=True)
 
     for chunk in response:
@@ -54,7 +57,8 @@ def gemini_response(query):
 
 def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
-    chat = model.start_chat(history = messages)
+    model_act = model_pro if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写', '脚本', 'beta']) else model
+    chat = model_act.start_chat(history = messages)
     response = chat.send_message(query, stream=True)
 
     full_message = ''
