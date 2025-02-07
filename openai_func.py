@@ -2,7 +2,7 @@ from settings import client, hub, MODEL, MODEL_base
 import json, random
 from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
-from utils import count_chars, num_tokens, TEMPLATE_SAVE
+from utils import count_chars, num_tokens, is_writing_request, TEMPLATE_SAVE
 
 param_temperature = 0.5
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
@@ -88,7 +88,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     res = None
     full_message = ''
     max_output_tokens = 8192
-    tem = 0.8 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写', '撰稿', '脚本']) else param_temperature
+    tem = 0.8 if is_writing_request(user_input, prompt_template) else param_temperature
 
     if not hub or hub == "burn":
         model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_base

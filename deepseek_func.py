@@ -2,7 +2,7 @@ import json, os
 from openai import OpenAI
 from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
-from utils import count_chars
+from utils import count_chars, is_writing_request
 
 #model = "deepseek-chat"
 #model_r = "deepseek-reasoner"
@@ -84,7 +84,7 @@ def interact_with_deepseek(user_id, thread_id, user_input, prompt, prompt_templa
     res = None
     full_message = ''
     max_output_tokens = 4096
-    tem = 1.3 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写', '脚本']) else param_temperature
+    tem = 1.3 if is_writing_request(user_input, prompt_template) else param_temperature
 
     model_ds = {
         "V3": model,

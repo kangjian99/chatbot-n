@@ -2,7 +2,7 @@ import google.generativeai as genai
 import os, json
 #import PIL.Image
 from db_process import save_user_memory, save_user_messages
-from utils import count_chars, TEMPLATE_SAVE
+from utils import count_chars, is_writing_request, TEMPLATE_SAVE
 
 genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
 
@@ -57,7 +57,7 @@ def gemini_response(query):
 
 def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
-    model_act = model_pro if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写', '脚本', 'beta']) else model
+    model_act = model_pro if is_writing_request(user_input, prompt_template) else model
     chat = model_act.start_chat(history = messages)
     response = chat.send_message(query, stream=True)
 
