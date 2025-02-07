@@ -108,7 +108,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
     if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
         n = user_model
     
-    if user_input.startswith("写作") and user_model == "default" and not MODEL_base.endswith("R1"):
+    if user_input.startswith("写作") and user_model == "default" and not MODEL_base.lower().endswith("r1"):
         interact_func = interact_with_gemini
 
     if '文档' not in prompt_template[0]:
