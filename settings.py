@@ -27,6 +27,10 @@ elif hub == "sf":
     API_KEY_HUB = os.environ.get('SF_API_KEY')
     BASE_URL = "https://api.siliconflow.cn/v1"
     MODEL_base = os.getenv('SF_MODEL') or "Vendor-A/Qwen/Qwen2.5-72B-Instruct"
+elif hub == "nv":
+    API_KEY_HUB = os.environ.get('NV_API_KEY') 
+    BASE_URL = "https://integrate.api.nvidia.com/v1"
+    MODEL_base = "deepseek-ai/deepseek-r1"
 elif hub == "moonshot":
     API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
     BASE_URL = "https://api.moonshot.cn/v1"
