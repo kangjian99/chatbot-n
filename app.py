@@ -113,7 +113,7 @@ def handle_message():
     if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
         n = user_model
     
-    if user_input.startswith("写作") and user_model == "default" and not MODEL_base.lower().endswith("r1"):
+    if user_input.startswith("写作") and user_model == "default" and not MODEL.lower().endswith("r1"):
         interact_func = interact_with_gemini
 
     if '文档' not in prompt_template[0]:
@@ -173,7 +173,7 @@ def handle_message():
         #else:
         #docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
         if user_input.startswith('写作'):
-            if user_model == "R1" or MODEL_base.lower().endswith("r1") and user_model == "default":
+            if user_model == "R1" or MODEL.lower().endswith("r1") and user_model == "default":
                 prompt = f"{template_WRITER_R.format(question=user_input, context=docs)!s}"
             else:
                 prompt = f"{template_WRITER.format(question=user_input, context=docs)!s}"

@@ -1,4 +1,4 @@
-from settings import client, hub, MODEL, MODEL_base
+from settings import CLIENT, hub, MODEL, model_alt_map, MODEL_alt, CLIENT_alt
 import json, random
 from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
@@ -7,9 +7,9 @@ from utils import count_chars, num_tokens, is_writing_request, TEMPLATE_SAVE
 param_temperature = 0.5
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
 
-def gpt_response(question, model=MODEL_base):
+def gpt_response(question, model=MODEL):
     messages = [{"role": "user", "content": question}]
-    response = client.chat.completions.create(
+    response = CLIENT.chat.completions.create(
     model= model,
     messages= messages,
     temperature=param_temperature,
@@ -86,21 +86,21 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
 def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     res = None
+    client = CLIENT
     full_message = ''
     max_output_tokens = 8192
-    tem = 0.8 if is_writing_request(user_input, prompt_template) else param_temperature
+    tem = 0.7 if is_writing_request(user_input, prompt_template) else param_temperature
 
-    if not hub or hub == "burn":
-        model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_base
-    else:
-        model = MODEL_base
-        if model == "gpt-4o-free" and num_tokens(prompt) < 1200:
-            model = "gpt-4o"
-        if model == "claude-3-5-sonnet-20240620" and "风格写作" in prompt_template[0]:
-            model = "Qwen/Qwen2.5-72B-Instruct"
-        if model.startswith("deepseek"):
-            tem += 0.3
-            
+    model = MODEL
+    if model == "gpt-4o-free" and num_tokens(prompt) < 1200:
+        model = "gpt-4o"
+    if hub in model_alt_map and 'r1' in model.lower() and not is_writing_request(user_input, prompt_template):
+        #model = model_alt_map[hub]
+        model = MODEL_alt
+        client = CLIENT_alt
+    if "deepseek" in model:
+        tem += 0.3 if hub not in ["nv", "tg"] else -0.2
+
     try:
         for res in Chat_Completion(client, model, prompt, tem, messages, max_output_tokens, True, n):
             if 'content' in res and res['content']:

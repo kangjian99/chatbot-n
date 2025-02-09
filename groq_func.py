@@ -20,6 +20,7 @@ def groq_response_stream(query):
     response = client.chat.completions.create(
         messages=[{"role": "system", "content": "用中文回复"}, {"role": "user", "content": query}],
         model=model,
+        temperature=0.7,
         stream=True
     )
     for chunk in response:
