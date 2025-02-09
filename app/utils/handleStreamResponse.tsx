@@ -54,13 +54,26 @@ export const handleStreamResponse = async (
         }
     }
 
+    function processThinkTags(text: string): string {
+        // 如果文本中没有 think 标签，直接返回
+        if (!text.includes('<think>')) return text;
+        
+        return text
+            .replace(/<think>/, text.includes('```\n<think>') ? '<think>' : '```\n<think>')
+            .replace(/<\/think>/, text.includes('</think>\n```') ? '</think>' : '</think>\n```');
+    }
+    
     function updateMessage(data: string) {
-        // 使用函数式更新，避免依赖外部的accumulatedData变量
         setMessages(prevMessages =>
             prevMessages.map(msg =>
-                msg.id === newMessageId ? { ...msg, text: 
-                    accumulatedData === data ? data : msg.text + data, role: 'assistant' } 
-                    : msg
+                msg.id === newMessageId ? {
+                    ...msg,
+                    text: processThinkTags(
+                        // 如果 accumulatedData 等于 data，说明是第一次更新
+                        accumulatedData === data ? data : msg.text + data
+                    ),
+                    role: 'assistant'
+                } : msg
             )
         );
     }
