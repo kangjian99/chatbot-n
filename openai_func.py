@@ -35,8 +35,8 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
             "stream": stream,
             "top_p": 1.0,
             "n": n,
-            "frequency_penalty": 0,
-            "presence_penalty": 0
+            #"frequency_penalty": 0,
+            #"presence_penalty": 0
         }
         print("MODEL:", model)
         #if model.startswith(("moonshot" ,"yi")) or "nvidia" in str(client.base_url):

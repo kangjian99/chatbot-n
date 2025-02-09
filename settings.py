@@ -51,10 +51,10 @@ else:
     BASE_URL = None
 
 CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if hub else OpenAI(api_key = API_KEY)
-#MODEL_alt = "mistral-small-2501"
-#CLIENT_alt = OpenAI(api_key = os.environ.get('MISTRAL_API_KEY'), base_url = "https://api.mistral.ai/v1")
-MODEL_alt = "llama-3.3-70b-versatile"
-CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
+#MODEL_alt = ""
+#CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
+MODEL_alt = "gemini-2.0-flash"
+CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "https://generativelanguage.googleapis.com/v1beta/openai/")
 
 model_alt_map = {
     "sf": "deepseek-ai/DeepSeek-V3",
