@@ -21,23 +21,23 @@ if hub == "burn":
 elif hub == "deepseek":
     API_KEY_HUB = os.environ.get('DEEPSEEK_API_KEY')
     BASE_URL = "https://api.deepseek.com/v1"
-    MODEL_base = "deepseek-chat"
+    MODEL = "deepseek-chat"
 elif hub == "sf":
     API_KEY_HUB = os.environ.get('SF_API_KEY')
     BASE_URL = "https://api.siliconflow.cn/v1"
-    MODEL_base = os.getenv('SF_MODEL') or "Vendor-A/Qwen/Qwen2.5-72B-Instruct"
+    MODEL = os.getenv('SF_MODEL') or "Vendor-A/Qwen/Qwen2.5-72B-Instruct"
 elif hub == "nv":
     API_KEY_HUB = os.environ.get('NV_API_KEY') 
     BASE_URL = "https://integrate.api.nvidia.com/v1"
-    MODEL_base = "deepseek-ai/deepseek-r1"
+    MODEL = "deepseek-ai/deepseek-r1"
 #elif hub == "moonshot":
 #    API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
 #    BASE_URL = "https://api.moonshot.cn/v1"
-#    MODEL_base = "moonshot-v1-8k"
+#    MODEL = "moonshot-v1-8k"
 elif hub == "tg":
     API_KEY_HUB = os.environ.get('TOGETHER_API_KEY') 
     BASE_URL = "https://api.together.xyz/v1"
-    MODEL_base = "deepseek-ai/DeepSeek-R1"
+    MODEL = "deepseek-ai/DeepSeek-R1"
 elif hub == "fw":
     API_KEY_HUB = os.environ.get('FIREWORKS_API_KEY') 
     BASE_URL = "https://api.fireworks.ai/inference/v1"
@@ -45,7 +45,7 @@ elif hub == "fw":
 elif hub:
     API_KEY_HUB = os.environ.get('BASE_API_KEY')
     BASE_URL = os.environ.get('BASE_URL') or "https://llm.indrin.cn/v1"
-    MODEL_base = os.environ.get('BASE_MODEL') or "Qwen/Qwen2.5-72B-Instruct"
+    MODEL = os.environ.get('BASE_MODEL') or "Qwen/Qwen2.5-72B-Instruct"
 else:
     API_KEY_HUB = None
     BASE_URL = None
