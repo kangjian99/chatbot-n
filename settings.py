@@ -50,7 +50,7 @@ else:
     API_KEY_HUB = None
     BASE_URL = None
 
-client = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if hub else OpenAI(api_key = API_KEY)
+CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if hub else OpenAI(api_key = API_KEY)
 #MODEL_alt = ""
 #CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
 MODEL_alt = "gemini-2.0-flash"
