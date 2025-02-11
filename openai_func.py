@@ -1,4 +1,4 @@
-from settings import client, hub, MODEL, MODEL_base
+from settings import CLIENT, hub, MODEL, model_alt_map, MODEL_alt, CLIENT_alt
 import json, random
 from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
@@ -7,15 +7,15 @@ from utils import count_chars, TEMPLATE_SAVE
 param_temperature = 0.5
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
 
-def gpt_response(question, model=MODEL_base):
+def gpt_response(question, model=MODEL):
     messages = [{"role": "user", "content": question}]
-    response = client.chat.completions.create(
+    response = CLIENT.chat.completions.create(
     model= model,
     messages= messages,
     temperature=param_temperature,
     top_p=1.0,
-    frequency_penalty=0,
-    presence_penalty=0
+    #frequency_penalty=0,
+    #presence_penalty=0
     )
     return response.choices[0].message.content
 
@@ -35,10 +35,12 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
             "stream": stream,
             "top_p": 1.0,
             "n": n,
-            "frequency_penalty": 0,
-            "presence_penalty": 0
+            #"frequency_penalty": 0,
+            #"presence_penalty": 0
         }
-        if model.startswith(("moonshot" ,"yi")) or "nvidia" in str(client.base_url):
+        print("MODEL:", model)
+        #if model.startswith(("moonshot" ,"yi")) or "nvidia" in str(client.base_url):
+        if model == "gpt-4o-2024-08-06" or model.startswith("gpt-4o") and not hub:
             params["max_tokens"] = max_output_tokens
         response = client.chat.completions.create(**params)
         
@@ -84,16 +86,19 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
 def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     res = None
+    client = CLIENT
     full_message = ''
-    max_output_tokens = 4096
-    tem = 0.8 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写', '撰稿', '脚本']) else param_temperature
+    max_output_tokens = 8192
+    tem = 0.7 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写', '润色', '脚本']) else param_temperature
 
     if not hub or hub == "burn":
-        model = MODEL if user_input.startswith(('总结', '写作')) else MODEL_base
-    else:
-        model = MODEL_base
-        if model.startswith("deepseek"):
-            tem += 0.3
+        model = MODEL if user_input.startswith(('总结', '写作')) else MODEL
+    if hub in model_alt_map and 'r1' in model.lower() and not (user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写', 'Chat', '润色', '脚本'])):
+        #model = model_alt_map[hub]
+        model = MODEL_alt
+        client = CLIENT_alt
+    if "deepseek" in model:
+        tem += 0.3 if hub not in ["nv", "tg"] else -0.2
             
     try:
         for res in Chat_Completion(client, model, prompt, tem, messages, max_output_tokens, True, n):
