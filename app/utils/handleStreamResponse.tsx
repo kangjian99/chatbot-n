@@ -9,6 +9,9 @@ interface Message {
   id?: number;
 }
 
+const THINK_TAG_REGEX = /<think>/g;
+const END_THINK_TAG_REGEX = /<\/think>/g;
+
 export const handleStreamResponse = async (
     reader: ReadableStreamDefaultReader,
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
@@ -55,12 +58,12 @@ export const handleStreamResponse = async (
     }
 
     function processThinkTags(text: string): string {
-        // 如果文本中没有 think 标签，直接返回
-        if (!text.includes('<think>')) return text;
+        // 如果文本开头没有 think 标签，直接返回
+        if (!text.startsWith('<think>') && !text.startsWith('```\n<think>')) return text;
         
         return text
-            .replace(/<think>/, text.includes('```\n<think>') ? '<think>' : '```\n<think>')
-            .replace(/<\/think>/, text.includes('</think>\n```') ? '</think>' : '</think>\n```');
+            .replace(THINK_TAG_REGEX, text.startsWith('```\n<think>') ? '<think>' : '```\n<think>')
+            .replace(END_THINK_TAG_REGEX, text.includes('</think>\n```') ? '</think>' : '</think>\n```');
     }
     
     function updateMessage(data: string) {
