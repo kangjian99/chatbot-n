@@ -4,8 +4,11 @@ from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
 from utils import count_chars, TEMPLATE_SAVE
 
-param_temperature = 0.5
+param_temperature = 0.5 if not MODEL.startswith("o") else 1
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
+
+ChatGPT_system = "You are ChatGPT, a large language model trained by OpenAI. " if not hub or hub == "burn" else ""
+system_message_content = "原则：避免输出简略化。"
 
 def gpt_response(question, model=MODEL):
     messages = [{"role": "user", "content": question}]
@@ -21,8 +24,8 @@ def gpt_response(question, model=MODEL):
 
 def Chat_Completion(client, model, question, tem, messages, max_output_tokens, stream, n=param_n):
     try:
-        ChatGPT_system = "You are ChatGPT, a large language model trained by OpenAI. " if not hub or hub == "burn" else ""
-        messages.append({"role": "system", "content": ChatGPT_system + "原则：避免输出简略化。"})
+        if not ('r1' in model.lower() or model.startswith("o")):
+            messages.append({"role": "system", "content": ChatGPT_system + system_message_content})
         messages.append({"role": "user", "content": question})
         print("generate_text:", messages[-1]["content"][:250])
         if hub == "burn":
@@ -92,12 +95,12 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     tem = 0.7 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写', '润色', '脚本']) else param_temperature
 
     model = MODEL
-    if hub in model_alt_map and 'r1' in model.lower() and not (user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写', 'Chat', '润色', '脚本'])):
+    if hub in model_alt_map and 'r1' in model.lower() and not (user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['Chat', '润色', '脚本'])):
         #model = model_alt_map[hub]
         model = MODEL_alt
         client = CLIENT_alt
     if "deepseek" in model:
-        tem += 0.3 if hub not in ["nv", "tg"] else -0.2
+        tem += 0.3 if hub not in ["nv", "tg"] else -0.1
             
     try:
         for res in Chat_Completion(client, model, prompt, tem, messages, max_output_tokens, True, n):
