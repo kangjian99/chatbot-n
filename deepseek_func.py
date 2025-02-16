@@ -32,6 +32,7 @@ def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n
             "stream": stream,
             "top_p": 1.0,
             "n": n,
+            "max_tokens": max_output_tokens,
             "frequency_penalty": 0,
             "presence_penalty": 0
         }
@@ -83,7 +84,7 @@ def interact_with_deepseek(user_id, thread_id, user_input, prompt, prompt_templa
     messages = [] if messages is None else messages
     res = None
     full_message = ''
-    max_output_tokens = 4096
+    max_output_tokens = 8192
     tem = 1.3 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '改写' '脚本']) else param_temperature
 
     model_ds = {
