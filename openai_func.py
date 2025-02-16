@@ -6,6 +6,7 @@ from utils import count_chars, TEMPLATE_SAVE
 
 param_temperature = 0.5 if not MODEL.startswith("o") else 1
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
+MAX_OUTPUT_TOKENS = 16384  # GPT-4o与R1的最大输出限制
 
 ChatGPT_system = "You are ChatGPT, a large language model trained by OpenAI. " if not hub or hub == "burn" else ""
 system_message_content = "原则：避免输出简略化。"
@@ -42,8 +43,7 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
             #"presence_penalty": 0
         }
         print("MODEL:", model)
-        #if model.startswith(("moonshot" ,"yi")) or "nvidia" in str(client.base_url):
-        if model == "gpt-4o-2024-08-06" or model.startswith("gpt-4o") and not hub:
+        if 'r1' in model.lower() or model.startswith("gpt-4o"):
             params["max_tokens"] = max_output_tokens
         response = client.chat.completions.create(**params)
         
@@ -91,7 +91,6 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     res = None
     client = CLIENT
     full_message = ''
-    max_output_tokens = 8192
     tem = 0.7 if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写', '润色', '脚本']) else param_temperature
 
     model = MODEL
@@ -103,7 +102,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         tem += 0.3 if hub not in ["nv", "tg"] else -0.1
             
     try:
-        for res in Chat_Completion(client, model, prompt, tem, messages, max_output_tokens, True, n):
+        for res in Chat_Completion(client, model, prompt, tem, messages, MAX_OUTPUT_TOKENS, True, n):
             if 'content' in res and res['content']:
                 markdown_message = res['content']  # generate_markdown_message(res['content'])
                 # print(f"Yielding markdown_message: {markdown_message}")  # 添加这一行
