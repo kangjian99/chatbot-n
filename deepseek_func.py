@@ -14,6 +14,8 @@ client = OpenAI(api_key = os.environ.get('SF_API_KEY'), base_url = "https://api.
 client_tpp = OpenAI(api_key = os.environ.get('TOGETHER_API_KEY'), base_url = "https://api.together.xyz/v1")
 #model_r = "accounts/fireworks/models/deepseek-r1"
 #client_tpp = OpenAI(api_key = os.environ.get('FIREWORKS_API_KEY'), base_url = "https://api.fireworks.ai/inference/v1")
+#model_r = "deepseek-ai/DeepSeek-R1"  # -fast
+#client_tpp = OpenAI(api_key = os.environ.get('NEBIUS_API_KEY'), base_url = "https://api.studio.nebius.ai/v1")
 
 param_temperature = 1 if model.startswith('deepseek') else 0.5
 param_n = 1

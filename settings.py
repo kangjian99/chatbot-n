@@ -5,7 +5,7 @@ from openai import OpenAI
 
 API_KEY = os.environ.get('OPENAI_API_KEY')
 
-MODEL=os.getenv('GPT_MODEL') or "gpt-4o-2024-08-06" # "gpt-3.5-turbo-0125"
+MODEL=os.getenv('GPT_MODEL') or "gpt-4o-2024-08-06" # chatgpt-4o-latest "gpt-3.5-turbo-0125"
 #MODEL="gpt-4-turbo-2024-04-09"
 #model_8k = "moonshot-v1-8k"
 #model_32k = "moonshot-v1-32k"
