@@ -9,11 +9,13 @@ from utils import count_chars
 #client = OpenAI(api_key = os.environ.get('DEEPSEEK_API_KEY'), base_url = "https://api.deepseek.com/v1")
 #model = os.getenv('SF_MODEL') or "Qwen/Qwen2-7B-Instruct"
 model = "deepseek-ai/DeepSeek-V3"
-#model_r = "deepseek-ai/DeepSeek-R1"
+model_r = "deepseek-ai/DeepSeek-R1"
 client = OpenAI(api_key = os.environ.get('SF_API_KEY'), base_url = "https://api.siliconflow.cn/v1")
 #client_tpp = OpenAI(api_key = os.environ.get('TOGETHER_API_KEY'), base_url = "https://api.together.xyz/v1")
-model_r = "accounts/fireworks/models/deepseek-r1"
-client_tpp = OpenAI(api_key = os.environ.get('FIREWORKS_API_KEY'), base_url = "https://api.fireworks.ai/inference/v1")
+client_tpp = OpenAI(api_key = os.environ.get('NEBIUS_API_KEY'), base_url = "https://api.studio.nebius.ai/v1")
+
+#model_r = "accounts/fireworks/models/deepseek-r1"
+#client_tpp = OpenAI(api_key = os.environ.get('FIREWORKS_API_KEY'), base_url = "https://api.fireworks.ai/inference/v1")
 
 param_temperature = 1 if model.startswith('deepseek') else 0.5
 param_n = 1
