@@ -42,6 +42,10 @@ elif hub == "fw":
     API_KEY_HUB = os.environ.get('FIREWORKS_API_KEY') 
     BASE_URL = "https://api.fireworks.ai/inference/v1"
     MODEL = "accounts/fireworks/models/deepseek-r1"
+elif hub == "nb":
+    API_KEY_HUB = os.environ.get('NEBIUS_API_KEY')
+    BASE_URL = "https://api.studio.nebius.ai/v1"
+    MODEL = "deepseek-ai/DeepSeek-R1" + (os.getenv('FAST_SUFFIX') or "")
 elif hub:
     API_KEY_HUB = os.environ.get('BASE_API_KEY')
     BASE_URL = os.environ.get('BASE_URL') or "https://llm.indrin.cn/v1"
