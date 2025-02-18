@@ -1,7 +1,7 @@
 from settings import CLIENT, hub, MODEL, model_alt_map, MODEL_alt, CLIENT_alt
 import json, random
 from flask import session
-from db_process import save_user_memory, save_user_messages, history_messages
+from db_process import save_user_memory, save_user_messages, update_credits
 from utils import count_chars, TEMPLATE_SAVE
 
 param_temperature = 0.5 if not MODEL.startswith("o") else 1
@@ -115,6 +115,8 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         info = count_chars(join_message, user_id, messages)
         if full_message and any(item in prompt_template[0] for item in TEMPLATE_SAVE):
             save_user_memory(user_id, thread_id, user_input, full_message, info)
+        if 'Chat' in prompt_template[0]:
+            update_credits(user_id, 1)
         rows = 2 if 'Chat' in prompt_template[0] else 0 # history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
         if rows != 0:
             print("精简前messages:", messages[-1])
