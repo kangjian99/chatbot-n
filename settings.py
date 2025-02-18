@@ -45,7 +45,11 @@ elif hub == "fw":
 elif hub == "nb":
     API_KEY_HUB = os.environ.get('NEBIUS_API_KEY')
     BASE_URL = "https://api.studio.nebius.ai/v1"
-    MODEL = "deepseek-ai/DeepSeek-R1" + (os.getenv('FAST_SUFFIX') or "")
+    MODEL = "deepseek-ai/DeepSeek-R1" + os.getenv('FAST_SUFFIX', '')
+elif hub == "ark":
+    API_KEY_HUB = os.environ.get('ARK_API_KEY')
+    BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
+    MODEL = "ep-20250218083204-w9cc9"
 elif hub:
     API_KEY_HUB = os.environ.get('BASE_API_KEY')
     BASE_URL = os.environ.get('BASE_URL') or "https://llm.indrin.cn/v1"
@@ -65,6 +69,8 @@ model_alt_map = {
     "nv": "mistralai/mistral-small-24b-instruct",
     "tg": "mistralai/Mistral-Small-24B-Instruct-2501",
     "fw": "accounts/fireworks/models/deepseek-v3",
+    "nb": "deepseek-ai/DeepSeek-V3",
+    "ark": "ep-20250218083204-w9cc9"
 }
 
 DB_URL: str = os.environ.get("SUPABASE_URL")
