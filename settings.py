@@ -25,7 +25,7 @@ elif hub == "deepseek":
 elif hub == "sf":
     API_KEY_HUB = os.environ.get('SF_API_KEY')
     BASE_URL = "https://api.siliconflow.cn/v1"
-    MODEL = os.getenv('SF_MODEL') or "Vendor-A/Qwen/Qwen2.5-72B-Instruct"
+    MODEL = os.getenv('SF_MODEL') or "deepseek-ai/DeepSeek-R1"
 elif hub == "nv":
     API_KEY_HUB = os.environ.get('NV_API_KEY') 
     BASE_URL = "https://integrate.api.nvidia.com/v1"
@@ -59,7 +59,7 @@ else:
     BASE_URL = None
 
 CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if hub else OpenAI(api_key = API_KEY)
-#MODEL_alt = ""
+#MODEL_alt = "deepseek-r1-distill-qwen-32b"
 #CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
 MODEL_alt = "gemini-2.0-flash"
 CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "https://generativelanguage.googleapis.com/v1beta/openai/")
@@ -72,6 +72,8 @@ model_alt_map = {
     "nb": "deepseek-ai/DeepSeek-V3",
     "ark": "ep-20250218083204-w9cc9"
 }
+
+hub_reasoning_content = ["ark", "sf"]
 
 DB_URL: str = os.environ.get("SUPABASE_URL")
 DB_KEY: str = os.environ.get("SUPABASE_KEY")

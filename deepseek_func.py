@@ -30,7 +30,7 @@ def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n
         params = {
             "model": model,
             "messages": messages,
-            "temperature": tem if not 'R1' in model else 0.6,  # 仅为 together 特殊设置
+            "temperature": tem if not 'r1' in model.lower() else 0.6,  # R1模型的温度值
             "stream": stream,
             "top_p": 1.0,
             "n": n,
