@@ -7,7 +7,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
 import os, json, re, threading
-from settings import API_KEY, API_KEY_HUB, MODEL, hub, BASE_URL
+from settings import API_KEY, API_KEY_HUB, MODEL, HUB, BASE_URL
 from utils import UPLOAD_FOLDER, count_chars, csv_to_markdown
 import tiktoken
 from templates import *
@@ -25,7 +25,7 @@ tem = 0.3
 top_k = 4
 #max_k = 15
 
-if hub:
+if HUB:
     llm = ChatOpenAI(openai_api_key = API_KEY_HUB, openai_api_base = BASE_URL, model_name = MODEL, temperature = tem)
     embed = OpenAIEmbeddings(openai_api_key=os.environ.get('OPENAI_API_KEY_HUB'), openai_api_base="https://burn.hair/v1", model="text-embedding-3-large", dimensions=1536)
 else:

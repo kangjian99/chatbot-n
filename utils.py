@@ -16,25 +16,16 @@ def get_prompt_templates():
     
     return prompts
 
-def count_chars(text, user_id, messages=[]):
-    cn_pattern = re.compile(r'[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]') #匹配中文字符及标点符号
-    cn_chars = cn_pattern.findall(text)
+def is_writing_request(user_input, prompt_template):
+    return True if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '润色', '脚本', 'beta']) else False
 
-    en_pattern = re.compile(r'[a-zA-Z]') #匹配英文字符
-    en_chars = en_pattern.findall(text)
-
-    cn_char_count = len(cn_chars)
-    en_char_count = len(en_chars)
-
+def count_chars(text, user_id):
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
     tokens = num_tokens(text)
     # 将当前统计结果添加为字典
-    stats = {'user_id': user_id, 'datetime': now, 'cn_char_count': cn_char_count, 'en_char_count': en_char_count, 'tokens': tokens}
+    stats = {'user_id': user_id, 'datetime': now, 'tokens': tokens}
     print(stats)
-
-    #if stats:
-    #    insert_db(stats, user_id, messages)
 
     time_and_tokens = f"'{now}', '{tokens}'"
 
