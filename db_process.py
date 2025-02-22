@@ -100,12 +100,13 @@ def update_credits(username, step):
         current_credits = user_data[0]['credits']
         supabase.table('users').update({'credits': current_credits - step}).eq('username', username).execute()
 
-def save_user_memory(user_id, thread_id, user_input, messages, info, table='memory_by_thread', max_entries=10):
+def save_user_memory(user_id, thread_id, user_input, messages, info, response_time_info, table='memory_by_thread', max_entries=10):
 
     new_entry = {
         "user": user_input,
         "assistant": messages,
-        "info": info
+        "info": info,
+        "response_time": response_time_info
     }
 
     # 检索现有记录

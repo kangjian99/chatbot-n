@@ -19,7 +19,19 @@ def get_prompt_templates():
 def is_writing_request(user_input, prompt_template):
     return True if user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['写作', '润色', '脚本', 'beta']) else False
 
-def count_chars(text, user_id, messages=[]):
+def count_chars(text, user_id):
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    tokens = num_tokens(text)
+    # 将当前统计结果添加为字典
+    stats = {'user_id': user_id, 'datetime': now, 'tokens': tokens}
+    print(stats)
+
+    time_and_tokens = f"'{now}', '{tokens}'"
+
+    return time_and_tokens
+
+def count_chars_legacy(text, user_id, messages=[]):
     cn_pattern = re.compile(r'[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]') #匹配中文字符及标点符号
     cn_chars = cn_pattern.findall(text)
 

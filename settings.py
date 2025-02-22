@@ -13,52 +13,59 @@ MODEL=os.getenv('GPT_MODEL') or "gpt-4o-2024-08-06" # chatgpt-4o-latest "gpt-3.5
 #claude_model = os.environ.get('CLAUDE', '').lower() == 'true'   # 全局采用Claude模型
 #claude_model = False   # 测试句
 
-hub = os.environ.get('HUB')   # 是否用原生OpenAI方式
-#hub = "sf"  # 测试句
-if hub == "burn":
+HUB = os.environ.get('HUB')   # 是否用原生OpenAI方式
+#HUB = "sf"  # 测试句
+if HUB == "burn":
     API_KEY_HUB = os.environ.get('OPENAI_API_KEY_HUB')
     BASE_URL = "https://burn.hair/v1"
-elif hub == "deepseek":
+elif HUB == "deepseek":
     API_KEY_HUB = os.environ.get('DEEPSEEK_API_KEY')
     BASE_URL = "https://api.deepseek.com/v1"
     MODEL = "deepseek-chat"
-elif hub == "sf":
+elif HUB == "sf":
     API_KEY_HUB = os.environ.get('SF_API_KEY')
     BASE_URL = "https://api.siliconflow.cn/v1"
     MODEL = os.getenv('SF_MODEL') or "deepseek-ai/DeepSeek-R1"
-elif hub == "nv":
+elif HUB == "nv":
     API_KEY_HUB = os.environ.get('NV_API_KEY') 
     BASE_URL = "https://integrate.api.nvidia.com/v1"
     MODEL = "deepseek-ai/deepseek-r1"
-#elif hub == "moonshot":
+#elif HUB == "moonshot":
 #    API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
 #    BASE_URL = "https://api.moonshot.cn/v1"
 #    MODEL = "moonshot-v1-8k"
-elif hub == "tg":
+elif HUB == "tg":
     API_KEY_HUB = os.environ.get('TOGETHER_API_KEY') 
     BASE_URL = "https://api.together.xyz/v1"
     MODEL = "deepseek-ai/DeepSeek-R1"
-elif hub == "fw":
+elif HUB == "fw":
     API_KEY_HUB = os.environ.get('FIREWORKS_API_KEY') 
     BASE_URL = "https://api.fireworks.ai/inference/v1"
     MODEL = "accounts/fireworks/models/deepseek-r1"
-elif hub == "nb":
+elif HUB == "nb":
     API_KEY_HUB = os.environ.get('NEBIUS_API_KEY')
     BASE_URL = "https://api.studio.nebius.ai/v1"
     MODEL = "deepseek-ai/DeepSeek-R1" + os.getenv('FAST_SUFFIX', '')
-elif hub == "ark":
+elif HUB == "nov":
+    API_KEY_HUB = os.environ.get('NOVITA_API_KEY')
+    BASE_URL = "https://api.novita.ai/v3/openai"
+    MODEL = "deepseek/deepseek-r1"
+elif HUB == "ark":
     API_KEY_HUB = os.environ.get('ARK_API_KEY')
     BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
     MODEL = "ep-20250218083204-w9cc9"
-elif hub:
+elif HUB:
     API_KEY_HUB = os.environ.get('BASE_API_KEY')
     BASE_URL = os.environ.get('BASE_URL') or "https://llm.indrin.cn/v1"
-    MODEL = os.environ.get('BASE_MODEL') or "Qwen/Qwen2.5-72B-Instruct"
+    MODEL = os.environ.get('BASE_MODEL') or "deepseek-reasoner"
 else:
     API_KEY_HUB = None
     BASE_URL = None
 
-CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if hub else OpenAI(api_key = API_KEY)
+CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if HUB else OpenAI(api_key = API_KEY)
+#CLIENT = OpenAI(api_key=os.environ.get("P_API_KEY"), base_url="https://api.perplexity.ai")
+#MODEL = "r1-1776"
+
 #MODEL_alt = "deepseek-r1-distill-qwen-32b"
 #CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
 MODEL_alt = "gemini-2.0-flash"
@@ -66,14 +73,25 @@ CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "http
 
 model_alt_map = {
     "sf": "deepseek-ai/DeepSeek-V3",
-    "nv": "mistralai/mistral-small-24b-instruct",
-    "tg": "mistralai/Mistral-Small-24B-Instruct-2501",
-    "fw": "accounts/fireworks/models/deepseek-v3",
-    "nb": "deepseek-ai/DeepSeek-V3",
-    "ark": "ep-20250218083204-w9cc9"
+    "nv": "deepseek-ai/deepseek-r1", # "mistralai/mistral-small-24b-instruct",
+    "tg": "deepseek-ai/DeepSeek-R1", # "mistralai/Mistral-Small-24B-Instruct-2501",
+    "fw": "accounts/fireworks/models/deepseek-r1", # "accounts/fireworks/models/deepseek-v3",
+    "nb": "deepseek-ai/DeepSeek-R1-fast", # "deepseek-ai/DeepSeek-V3",
+    "ark": "ep-20250218083204-w9cc9", # "ep-20250219170102-9tb5f",
 }
 
-hub_reasoning_content = ["ark", "sf"]
+client_alt_map = {
+    "sf": OpenAI(api_key=os.environ.get('SF_API_KEY'), base_url="https://api.siliconflow.cn/v1"),
+    "nv": OpenAI(api_key=os.environ.get('NV_API_KEY'), base_url="https://integrate.api.nvidia.com/v1"),
+    "tg": OpenAI(api_key=os.environ.get('TOGETHER_API_KEY'), base_url="https://api.together.xyz/v1"),
+    "fw": OpenAI(api_key=os.environ.get('FIREWORKS_API_KEY'), base_url="https://api.fireworks.ai/inference/v1"),
+    "nb": OpenAI(api_key=os.environ.get('NEBIUS_API_KEY'), base_url="https://api.studio.nebius.ai/v1"),
+    "ark": OpenAI(api_key=os.environ.get('ARK_API_KEY'), base_url="https://ark.cn-beijing.volces.com/api/v3"),
+}
+
+HUB_alt = os.environ.get('HUB_ALT', 'nb')
+
+HUB_reasoning_content = ["ark", "sf"]
 
 DB_URL: str = os.environ.get("SUPABASE_URL")
 DB_KEY: str = os.environ.get("SUPABASE_KEY")

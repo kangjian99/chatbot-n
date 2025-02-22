@@ -1,14 +1,14 @@
-from settings import CLIENT, hub, MODEL, model_alt_map, MODEL_alt, CLIENT_alt, hub_reasoning_content
-import json, random
+from settings import CLIENT, HUB, MODEL, model_alt_map, client_alt_map, MODEL_alt, CLIENT_alt, HUB_alt, HUB_reasoning_content
+import json, random, time
 from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
 from utils import count_chars, num_tokens, is_writing_request, TEMPLATE_SAVE
 
 param_temperature = 0.5 if not MODEL.startswith("o") else 1
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
-MAX_OUTPUT_TOKENS = 8192 if hub == 'ark' or hub == 'tg' else 16384  # GPT-4o与R1的最大输出限制
+MAX_OUTPUT_TOKENS = 16384  # GPT-4o与R1的最大输出限制
 
-ChatGPT_system = "You are ChatGPT, a large language model trained by OpenAI. " if not hub or hub == "burn" else ""
+ChatGPT_system = "You are ChatGPT, a large language model trained by OpenAI. " if not HUB or HUB == "burn" else ""
 system_message_content = "原则：避免输出简略化。"
 
 def gpt_response(question, model=MODEL):
@@ -45,9 +45,9 @@ def process_reasoning_chunk(choice, think_opened, think_closed):
 
     return content, think_opened, think_closed
 
-def Chat_Completion(client, model, question, tem, messages, max_output_tokens, stream, n=param_n):
+def Chat_Completion(client, model, question, tem, messages, hub, stream, n=param_n):
     try:
-        if not ('r1' in model.lower() or model.startswith("ep-") or model.startswith("o")):
+        if not any(x in model.lower() for x in ['r1', 'reason']) and not model.startswith(('ep-', 'o')):
             messages.append({"role": "system", "content": ChatGPT_system + system_message_content})
         messages.append({"role": "user", "content": question})
         print("generate_text:", messages[-1]["content"][:250])
@@ -64,12 +64,51 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
             #"frequency_penalty": 0,
             #"presence_penalty": 0
         }
-        print("MODEL:", model)
-        #if model.startswith(("moonshot" ,"yi")) or "nvidia" in str(client.base_url):
+        #print("MODEL:", model)
+        max_output_tokens = 8192 if hub == 'ark' or hub == 'tg' else MAX_OUTPUT_TOKENS
         if 'r1' in model.lower() or model.startswith("ep-") or model.startswith("gpt-4o"):
             params["max_tokens"] = max_output_tokens
-        response = client.chat.completions.create(**params)
         
+        start_time = time.time()
+        try:
+            response = client.chat.completions.create(**params)
+            # 检查是否超时
+            latency = time.time() - start_time
+            if latency > 10:
+                print("*主客户端响应超时，切换到备用客户端*\n")
+                model_alt = model_alt_map.get(HUB_alt, model)
+                client_alt = client_alt_map.get(HUB_alt, client)
+                messages = []
+                yield from Chat_Completion(
+                    client_alt, 
+                    model_alt, 
+                    question, 
+                    tem, 
+                    messages, 
+                    HUB_alt, 
+                    stream, 
+                    n
+                )
+                return
+            else:
+                print(f"*主客户端响应时间*: {hub} {model}: {latency:.2f}s")
+        except Exception as e:
+            print(f"*主客户端请求失败*:\n {e}")
+            model_alt = model_alt_map.get(HUB_alt, model)
+            client_alt = client_alt_map.get(HUB_alt, client)
+            messages = []
+            yield from Chat_Completion(
+                client_alt, 
+                model_alt, 
+                question, 
+                tem, 
+                messages, 
+                HUB_alt, 
+                stream, 
+                n
+            )
+            return
+
         if not stream:
             print(f"{response.usage}\n")
             session['tokens'] = response.usage.total_tokens
@@ -79,6 +118,12 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
             chunk_count = 0
             think_opened = False  # 用来标记 <think> 是否已经打开
             think_closed = False  # 用来标记 </think> 是否已经关闭
+            response_info = {
+                'latency': latency,
+                'model': model,
+                'hub': hub
+            }
+            
             for chunk in response:
                 if not chunk or not chunk.choices[0].delta:
                     continue
@@ -86,7 +131,7 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
                 choice = chunk.choices[0]
                 # print("Decoded chunk:", choice)  # 添加这一行以打印解码的块
                 
-                if hub in hub_reasoning_content:
+                if hub in HUB_reasoning_content:
                     content, think_opened, think_closed = process_reasoning_chunk(choice, think_opened, think_closed)
                 else:
                     content = choice.delta.content if choice.delta.content else ""
@@ -94,7 +139,7 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
                 if choice.index == 0:
                     # 对于第一个choice，立即输出并重置chunk_count
                     chunk_count = 0
-                    yield {'content': content}
+                    yield {'content': content, **response_info}
                 else:
                     # 对于其他choices，暂存内容
                     text[choice.index] += content
@@ -105,10 +150,10 @@ def Chat_Completion(client, model, question, tem, messages, max_output_tokens, s
 
                 if choice.finish_reason == "stop":
                     break
-        # 在所有响应处理完毕后，输出暂存变量中的内容
-        if text[1]:
-            combined_content = '\n'.join([f"{'*'*3}\n回复 {n+2}：\n{choice}" for n, choice in enumerate(text[1:])])
-            yield {'content': '\n'+combined_content}
+            # 在所有响应处理完毕后，输出暂存变量中的内容
+            if text[1]:
+                combined_content = '\n'.join([f"{'*'*3}\n回复 {n+2}：\n{choice}" for n, choice in enumerate(text[1:])])
+                yield {'content': '\n'+combined_content}
         
     except Exception as e:
         print(e)
@@ -124,15 +169,16 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     model = MODEL
     if model == "gpt-4o-free" and num_tokens(prompt) < 1200:
         model = "gpt-4o"
-    if hub in model_alt_map and any(item in model.lower() for item in ('r1', 'ep-')) and not is_writing_request(user_input, prompt_template):
+    if HUB in model_alt_map and any(item in model.lower() for item in ('r1', 'ep-')) and not is_writing_request(user_input, prompt_template):
         #model = model_alt_map[hub]
         model = MODEL_alt
         client = CLIENT_alt
     if "deepseek" in model:
         tem = 0.6
 
+    hub = HUB
     try:
-        for res in Chat_Completion(client, model, prompt, tem, messages, MAX_OUTPUT_TOKENS, True, n):
+        for res in Chat_Completion(client, model, prompt, tem, messages, hub, True, n):
             if 'content' in res and res['content']:
                 markdown_message = res['content']  # generate_markdown_message(res['content'])
                 # print(f"Yielding markdown_message: {markdown_message}")  # 添加这一行
@@ -142,9 +188,11 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     finally:
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
-        info = count_chars(join_message, user_id, messages)
+        if 'latency' in res:
+            latency_info = f"({res['hub']}){res['model']}: {res['latency']:.2f}s"
+        info = count_chars(join_message, user_id)
         if full_message and any(item in prompt_template[0] for item in TEMPLATE_SAVE):
-            save_user_memory(user_id, thread_id, user_input, full_message, info)
+            save_user_memory(user_id, thread_id, user_input, full_message, info, latency_info)
         rows = 2 if 'Chat' in prompt_template[0] else 0 # history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
         if rows != 0:
             print("精简前messages:", messages[-1])
