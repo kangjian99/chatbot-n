@@ -135,7 +135,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
 
       return (
         <div key={index} className="flex flex-row-reverse items-start my-2.5 mx-0.5">
-          <div className="flex-shrink-0 w-5 ml-1 mt-1 flex justify-center">
+          <div className="flex-shrink-0 w-5 ml-1 mt-2.5 flex justify-center">
             <User className="w-4 h-4 text-blue-500" />
           </div>
           <div 
@@ -185,7 +185,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
     } else if (msg.type === 'system' || msg.role === 'assistant') {
       return (
         <div key={index} className="flex items-start my-2.5 mx-0.5">
-          <div className="flex-shrink-0 w-5 mr-1 mt-1 flex justify-center">
+          <div className="flex-shrink-0 w-5 mr-1 mt-2.5 flex justify-center">
             {msg.role === 'assistant' ? 
               <Bot className="w-4 h-4 text-gray-600" /> : 
               <div className="w-4 h-4"></div> // 占位元素，保持对齐
