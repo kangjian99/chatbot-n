@@ -212,7 +212,7 @@ export default function Home() {
                 } else if (data.hasOwnProperty('Info')) {
                     return { type: "system", text: data.Info, role: "system", id: newMessageId };
                 } else if (data.hasOwnProperty('Assistant')) {
-                    return { type: "system", text: data.Assistant, id: newMessageId };
+                    return { type: "system", text: data.Assistant, role: "assistant", id: newMessageId };
                 }
             } catch (error) {
                 console.error('Error parsing JSON:', error, 'in message:', data);

@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { Send, Bot, User } from 'lucide-react';
 
 interface Message {
   type: 'user' | 'system' | 'image';
@@ -36,24 +37,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
     }
   };
 
-  const copyButtonStyle = {
-    position: 'absolute' as const,
-    bottom: '4px',
-    right: '4px',
-    padding: '4px 6px',
-    borderRadius: '4px',
-    background: 'rgba(255, 255, 255, 0.8)',
-    border: 'none',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-    fontSize: '12px',
-    opacity: '0',
-    transition: 'opacity 0.2s',
-    boxShadow: '0 0 3px rgba(0, 0, 0, 0.1)',
-  };
-
   const containsMarkdownTableOrCodeBlock = (text: string) => {
     const hasCodeBlock = text.includes("```");
     // 匹配表格：查找是否有行以|开头和结尾，且至少有一行是分隔行（只包含|, -, 和空格）
@@ -77,6 +60,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
   const truncateText = (text: string, lineCount: number) => {
     if (!textRef.current) return text;
 
+    // 创建临时DIV用于测量文本大小
     const tempDiv = document.createElement('div');
     tempDiv.style.width = `${textRef.current.offsetWidth}px`;
     tempDiv.style.font = window.getComputedStyle(textRef.current).font;
@@ -86,19 +70,44 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
     tempDiv.style.visibility = 'hidden';
     document.body.appendChild(tempDiv);
 
-    const words = text.split(' ');
-    let result = '';
-
-    for (let i = 0; i < words.length; i++) {
-      tempDiv.textContent = result + words[i] + ' ';
-      if (tempDiv.clientHeight > lineCount * parseInt(window.getComputedStyle(textRef.current).lineHeight)) {
-        break;
-      }
-      result += words[i] + ' ';
+    // 获取行高
+    const lineHeight = parseInt(window.getComputedStyle(textRef.current).lineHeight);
+    const maxHeight = lineCount * lineHeight;
+    
+    // 如果文本很短，直接返回
+    tempDiv.textContent = text;
+    if (tempDiv.clientHeight <= maxHeight) {
+      document.body.removeChild(tempDiv);
+      return text;
     }
-
+    
+    // 二分查找合适的截断点
+    let low = 1;
+    let high = text.length;
+    let mid;
+    let result = "";
+    
+    while (low <= high) {
+      mid = Math.floor((low + high) / 2);
+      tempDiv.textContent = text.substring(0, mid) + "...";
+      
+      if (tempDiv.clientHeight <= maxHeight) {
+        result = text.substring(0, mid);
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+    
     document.body.removeChild(tempDiv);
-    return result.trim() + (result.length < text.length ? '...' : '');
+    
+    // 确保至少有一些内容
+    if (result.length === 0 && text.length > 0) {
+      // 如果二分查找失败，至少返回一些字符
+      return text.substring(0, 20) + "...";
+    }
+    
+    return result + "...";
   };
 
   const renderMessage = (msg: Message, index: number) => {
@@ -107,13 +116,14 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
     const copyButton = (
       <button
         onClick={() => copyToClipboard(msg.text, index)}
-        style={copyButtonStyle}
+        className={`absolute bottom-1 right-1 p-1 rounded bg-white/80 flex items-center gap-1 text-xs shadow-sm hover:bg-white transition-opacity duration-200`}
+        style={{ opacity: 0 }}
         title={isCopied ? "已复制" : "复制"}
       >
         {isCopied ? (
-          <CheckIcon style={{ width: '14px', height: '14px' }} />
+          <CheckIcon className="w-3.5 h-3.5" />
         ) : (
-          <ClipboardIcon style={{ width: '14px', height: '14px' }} />
+          <ClipboardIcon className="w-3.5 h-3.5" />
         )}
         {isCopied ? "已复制" : "复制"}
       </button>
@@ -121,24 +131,17 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
 
     if (msg.type === 'user') {
       const isExpanded = expandedMessages[index];
-      const displayText = isExpanded ? msg.text : truncateText(msg.text, 10);
+      const displayText = isExpanded ? msg.text : truncateText(msg.text, 6);
 
       return (
-        <div key={index} style={{ textAlign: 'right', margin: '10px 5px' }}>
-          <span
+        <div key={index} className="flex flex-row-reverse items-start my-2.5 mx-0.5">
+          <div className="flex-shrink-0 w-5 ml-1 mt-1 flex justify-center">
+            <User className="w-4 h-4 text-blue-500" />
+          </div>
+          <div 
             ref={textRef}
-            style={{
-              position: 'relative',
-              padding: '6px 10px',
-              borderRadius: '10px',
-              background: '#BAE6FC',
-              color: '#222222',
-              display: 'inline-block',
-              maxWidth: '60%',
-              wordWrap: 'break-word',
-              fontSize: '14px',
-              cursor: 'default',
-            }}
+            className="relative group p-2.5 rounded-lg bg-blue-100 text-gray-900 max-w-[60%] break-words text-sm cursor-default hover:shadow-sm"
+            style={{ letterSpacing: '0.04em' }}
             onMouseEnter={(e) => {
               const button = e.currentTarget.querySelector('button');
               if (button) button.style.opacity = '1';
@@ -153,13 +156,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
             </div>
             {displayText !== msg.text && (
               <div 
-                style={{ 
-                  color: '#2285c7', 
-                  cursor: 'pointer', 
-                  marginTop: '5px', 
-                  fontSize: '14px',
-                  textAlign: 'center'
-                }}
+                className="text-blue-600 cursor-pointer mt-1.5 text-xs text-center"
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleExpand(index);
@@ -169,36 +166,38 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
               </div>
             )}
             {copyButton}
-          </span>
+          </div>
         </div>
       );
     } else if (msg.type === 'image') {
       return (
-        <div key={index} style={{ textAlign: 'right', margin: '10px 5px' }}>
+        <div key={index} className="flex flex-row-reverse my-2.5 mx-0.5">
+          <div className="flex-shrink-0 w-5 ml-1 mt-1 flex justify-center">
+            <User className="w-4 h-4 text-blue-500" />
+          </div>
           <img
             src={msg.imageUrl}
             alt="Uploaded"
-            style={{ margin: '0 0 0 auto', maxWidth: '200px', maxHeight: '200px', borderRadius: '8px' }}
+            className="max-w-[200px] max-h-[200px] rounded-lg"
           />
         </div>
       );
     } else if (msg.type === 'system' || msg.role === 'assistant') {
       return (
-        <div key={index} style={{ textAlign: 'left', margin: '10px 5px' }}>
-          <span
-            style={{
-              position: 'relative',
-              padding: '6px 10px',
-              borderRadius: '10px',
-              background: '#F2F1F2',
-              color: '#374151',
-              display: 'inline-block',
-              maxWidth: containsMarkdownTableOrCodeBlock(msg.text) ? '80%' : '70%',
-              wordWrap: 'break-word',
-              fontSize: msg.role === 'system' ? '13px' : '15px',
-              fontStyle: msg.role === 'system' ? 'italic' : 'normal',
-              cursor: 'default',
-            }}
+        <div key={index} className="flex items-start my-2.5 mx-0.5">
+          <div className="flex-shrink-0 w-5 mr-1 mt-1 flex justify-center">
+            {msg.role === 'assistant' ? 
+              <Bot className="w-4 h-4 text-gray-600" /> : 
+              <div className="w-4 h-4"></div> // 占位元素，保持对齐
+            }
+          </div>
+          <div
+            className={`relative group p-2.5 rounded-lg bg-gray-100 text-gray-700 ${
+              containsMarkdownTableOrCodeBlock(msg.text) ? 'max-w-[80%]' : 'max-w-[70%]'
+            } break-words ${
+              msg.role === 'system' ? 'text-xs italic' : 'text-[15px]'
+            } cursor-default hover:shadow-sm`}
+            style={{ letterSpacing: '0.04em' }}
             onMouseEnter={(e) => {
               const button = e.currentTarget.querySelector('button');
               if (button) button.style.opacity = '1';
@@ -212,7 +211,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
               <ReactMarkdown remarkPlugins={[gfm]}>{processText(msg.text)}</ReactMarkdown>
             </div>
             {copyButton}
-          </span>
+          </div>
         </div>
       );
     }
