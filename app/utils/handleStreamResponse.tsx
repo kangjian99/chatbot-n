@@ -3,7 +3,7 @@ import React from 'react';
 const streamThreshold = Number(process.env.NEXT_PUBLIC_API_THRESHOLD || 10);
 
 interface Message {
-  type: 'user' | 'system';
+  type: 'user' | 'system' | 'info';
   role?: 'system' | 'assistant';
   text: string;
   id?: number;

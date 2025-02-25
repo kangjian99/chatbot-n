@@ -144,7 +144,7 @@ body {
 
 .main-content {
   background-color: var(--main-content-bg);
-  padding: 10px 20px;
+  padding: 10px 15px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;

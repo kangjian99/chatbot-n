@@ -5,7 +5,7 @@ import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { Send, Bot, User } from 'lucide-react';
 
 interface Message {
-  type: 'user' | 'system' | 'image';
+  type: 'user' | 'system' | 'image' | 'info';
   role?: 'system' | 'assistant';
   text: string;
   imageUrl?: string; // 添加 imageUrl 字段来存储图片的 URL
@@ -135,12 +135,13 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
 
       return (
         <div key={index} className="flex flex-row-reverse items-start my-2.5 mx-0.5">
-          <div className="flex-shrink-0 w-5 ml-1 mt-2.5 flex justify-center">
+          <div className="flex-shrink-0 w-7 h-7 ml-1.5 mt-1 rounded-full bg-blue-50 flex items-center justify-center">
             <User className="w-4 h-4 text-blue-500" />
           </div>
           <div 
             ref={textRef}
-            className="relative group p-2.5 rounded-lg bg-blue-100 text-gray-900 max-w-[60%] break-words text-sm cursor-default hover:shadow-sm"
+            className="relative group p-2.5 rounded-lg bg-blue-100 text-gray-900 max-w-[60%] break-words text-sm cursor-default 
+              hover:shadow-md transition-shadow duration-200"
             style={{ letterSpacing: '0.04em' }}
             onMouseEnter={(e) => {
               const button = e.currentTarget.querySelector('button');
@@ -172,31 +173,27 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
     } else if (msg.type === 'image') {
       return (
         <div key={index} className="flex flex-row-reverse my-2.5 mx-0.5">
-          <div className="flex-shrink-0 w-5 ml-1 mt-1 flex justify-center">
+          <div className="flex-shrink-0 w-7 h-7 ml-1.5 mt-1 rounded-full bg-blue-50 flex items-center justify-center">
             <User className="w-4 h-4 text-blue-500" />
           </div>
           <img
             src={msg.imageUrl}
             alt="Uploaded"
-            className="max-w-[200px] max-h-[200px] rounded-lg"
+            className="max-w-[200px] max-h-[200px] rounded-lg hover:shadow-md transition-shadow duration-200"
           />
         </div>
       );
     } else if (msg.type === 'system' || msg.role === 'assistant') {
       return (
         <div key={index} className="flex items-start my-2.5 mx-0.5">
-          <div className="flex-shrink-0 w-5 mr-1 mt-2.5 flex justify-center">
-            {msg.role === 'assistant' ? 
-              <Bot className="w-4 h-4 text-gray-600" /> : 
-              <div className="w-4 h-4"></div> // 占位元素，保持对齐
-            }
-          </div>
+          <div className="flex-shrink-0 w-7 h-7 mr-1.5 mt-1 rounded-full bg-gray-100 flex items-center justify-center">
+            <Bot className="w-4 h-4 text-gray-600" />
+        </div>
           <div
-            className={`relative group p-2.5 rounded-lg bg-gray-100 text-gray-700 ${
-              containsMarkdownTableOrCodeBlock(msg.text) ? 'max-w-[80%]' : 'max-w-[70%]'
-            } break-words ${
-              msg.role === 'system' ? 'text-xs italic' : 'text-[15px]'
-            } cursor-default hover:shadow-sm`}
+            className={`relative group p-2.5 rounded-lg bg-gray-100 text-gray-700 
+              ${containsMarkdownTableOrCodeBlock(msg.text) ? 'max-w-[80%]' : 'max-w-[70%]'}
+              break-words ${msg.role === 'system' ? 'text-xs italic' : 'text-[15px]'}
+              hover:shadow-md transition-shadow duration-200`}
             style={{ letterSpacing: '0.04em' }}
             onMouseEnter={(e) => {
               const button = e.currentTarget.querySelector('button');
@@ -211,6 +208,16 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
               <ReactMarkdown remarkPlugins={[gfm]}>{processText(msg.text)}</ReactMarkdown>
             </div>
             {copyButton}
+          </div>
+        </div>
+      );
+    } else if (msg.type === 'info') {
+      return (
+        <div key={index} className="flex items-start my-2.5 mx-0.5">
+          <div className="w-7 h-7 mr-1.5" /> {/* 空白占位 */}
+          <div className="relative group p-2.5 rounded-lg bg-gray-100 text-gray-700 text-xs italic"
+            style={{ letterSpacing: '0.04em' }}>
+            {msg.text}
           </div>
         </div>
       );

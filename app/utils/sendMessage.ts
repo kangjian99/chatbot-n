@@ -3,7 +3,7 @@ import { handleStreamResponse } from './handleStreamResponse';
 import { saveToLocalStorage, loadFromLocalStorage } from './localStorageUtil';
 
 interface Message {
-    type: 'user' | 'system';
+    type: 'user' | 'system' | 'info';
     role?: 'system' | 'assistant';
     text: string;
     id?: number;

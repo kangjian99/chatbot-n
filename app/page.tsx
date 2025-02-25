@@ -19,7 +19,7 @@ const default_n = process.env.NEXT_PUBLIC_API_N || 2;
 const headline = process.env.NEXT_PUBLIC_API_HEADLINE || "AI 知识库管理助手";
 
 interface Message {
-  type: 'user' | 'system';
+  type: 'user' | 'system' | 'info';
   role?: 'system' | 'assistant';
   text: string;
   id?: number;
@@ -210,7 +210,7 @@ export default function Home() {
                 if (data.hasOwnProperty('User')) {
                     return { type: "user", text: data.User, id: newMessageId };
                 } else if (data.hasOwnProperty('Info')) {
-                    return { type: "system", text: data.Info, role: "system", id: newMessageId };
+                    return { type: "info", text: data.Info, role: "system", id: newMessageId };
                 } else if (data.hasOwnProperty('Assistant')) {
                     return { type: "system", text: data.Assistant, role: "assistant", id: newMessageId };
                 }
