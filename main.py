@@ -169,7 +169,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         #else:
         #docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
         if user_input.startswith('写作'):
-            if user_model == "R1" or MODEL.lower().endswith("r1") and user_model == "default":
+            if 'r1' in MODEL.lower() and user_model == "default" or user_model == "R1" or user_model == "reasoner":
                 prompt = f"{template_WRITER_R.format(question=user_input, context=docs)!s}"
             else:
                 prompt = f"{template_WRITER.format(question=user_input, context=docs)!s}"
