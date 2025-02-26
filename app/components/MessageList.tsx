@@ -186,6 +186,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
     } else if (msg.type === 'system' || msg.role === 'assistant') {
       return (
         <div key={index} className="flex items-start my-2.5 mx-0.5">
+          {/* <div className="flex-shrink-0 w-5 mr-1 mt-2.5 flex items-center justify-center"></div> */}
           <div className="flex-shrink-0 w-7 h-7 mr-1.5 mt-1 rounded-full bg-gray-100 flex items-center justify-center">
             <Bot className="w-4 h-4 text-gray-600" />
         </div>

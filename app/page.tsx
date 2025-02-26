@@ -320,9 +320,9 @@ export default function Home() {
                         />{" "}
                     <div style={{ 
                         display: 'flex', 
-                        paddingLeft: '60px', 
-                        paddingRight: '60px', 
-                        marginBottom: '15px', 
+                        paddingLeft: '50px', 
+                        paddingRight: '50px', 
+                        marginBottom: '10px',
                         gap: '10px' 
                     }}>
                         {/* 左侧按钮和下拉列表容器 */}
@@ -413,7 +413,7 @@ export default function Home() {
                                 borderRadius: '5px',
                                 border: '1px solid #ccc',
                                 marginRight: '10px',
-                                height: '80px', // 调整高度以匹配左侧总高度
+                                height: '70px', // 调整高度以匹配左侧总高度
                             }}
                             disabled={isSending}
                             rows={3}

@@ -85,7 +85,7 @@ body {
   left: 0;
   right: 0;
   z-index: 1000;
-  padding-top: 20px;
+  padding-top: 10px;
   padding-bottom: 10px;
   background-color: var(--header-footer-bg);
   color: white;
@@ -137,14 +137,14 @@ body {
   min-width: 600px;
   margin-left: 250px;
   margin-right: 250px;
-  margin-top: 80px; /* 调整这个值以匹配 header 的高度 */
+  margin-top: 70px; /* 调整这个值以匹配 header 的高度 */
   margin-bottom: 10px; /* 为 footer 留出空间 */
   height: calc(100vh - 100px); /* 减去 header 和 footer 的高度 */
 }
 
 .main-content {
   background-color: var(--main-content-bg);
-  padding: 10px 15px;
+  padding: 5px 15px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
