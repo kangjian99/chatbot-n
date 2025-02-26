@@ -4,13 +4,13 @@ from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
 from utils import count_chars
 
-#model = "deepseek-chat"
-#model_r = "deepseek-reasoner"
-#client = OpenAI(api_key = os.environ.get('DEEPSEEK_API_KEY'), base_url = "https://api.deepseek.com/v1")
+model = "deepseek-chat"
+model_r = "deepseek-reasoner"
+client = OpenAI(api_key = os.environ.get('DEEPSEEK_API_KEY'), base_url = "https://api.deepseek.com/v1")
 #model = os.getenv('SF_MODEL') or "Qwen/Qwen2-7B-Instruct"
-model = "deepseek-ai/DeepSeek-V3"
-model_r = "deepseek-ai/DeepSeek-R1"
-client = OpenAI(api_key = os.environ.get('SF_API_KEY'), base_url = "https://api.siliconflow.cn/v1")
+#model = "deepseek-ai/DeepSeek-V3"
+#model_r = "deepseek-ai/DeepSeek-R1"
+#client = OpenAI(api_key = os.environ.get('SF_API_KEY'), base_url = "https://api.siliconflow.cn/v1")
 #client_tpp = OpenAI(api_key = os.environ.get('TOGETHER_API_KEY'), base_url = "https://api.together.xyz/v1")
 client_tpp = OpenAI(api_key = os.environ.get('NEBIUS_API_KEY'), base_url = "https://api.studio.nebius.ai/v1")
 
@@ -22,7 +22,7 @@ param_n = 1
 
 def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n=param_n):
     try:
-        messages.append({"role": "system", "content": "原则：避免输出简略化。"})
+        #messages.append({"role": "system", "content": "原则：避免输出简略化。"})
         messages.append({"role": "user", "content": question})
         print("generate_text:", messages[-1]["content"][:250])
         print("MODEL:", model)
@@ -30,13 +30,13 @@ def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n
         params = {
             "model": model,
             "messages": messages,
-            "temperature": tem if not 'R1' in model else 0.7,  # 仅为 together 特殊设置
+            "temperature": tem if not ('r1' in model.lower() or 'reasoner' in model.lower()) else 0.6,  # 仅为 together 特殊设置
             "stream": stream,
             "top_p": 1.0,
             "n": n,
             "max_tokens": max_output_tokens,
-            "frequency_penalty": 0,
-            "presence_penalty": 0
+            #"frequency_penalty": 0,
+            #"presence_penalty": 0
         }
 
         client_act = client_tpp if 'r1' in model.lower() else client
@@ -91,8 +91,8 @@ def interact_with_deepseek(user_id, thread_id, user_input, prompt, prompt_templa
 
     model_ds = {
         "V3": model,
-        "R1": model_r,
-    }.get(user_model, model)
+        #"R1": model_r,
+    }.get(user_model, model_r)
 
     try:
         for res in Chat_Completion(model_ds, prompt, tem, messages, max_output_tokens, True):

@@ -99,10 +99,11 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         "Llama3": interact_with_groq,
         "Gemma2": interact_with_groq,
         "flash": interact_with_gemini,
-        "pro": interact_with_gemini,
+        "exp": interact_with_gemini,
         "mistral": interact_with_LLM,
         "V3": interact_with_deepseek,
         "R1": interact_with_deepseek,
+        "reasoner": interact_with_deepseek,
     }.get(user_model, interact_with_openai)
 
     if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
