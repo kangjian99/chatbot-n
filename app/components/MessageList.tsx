@@ -142,7 +142,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
             ref={textRef}
             className="relative group p-2.5 rounded-lg bg-blue-100 text-gray-900 max-w-[60%] break-words text-sm cursor-default 
               hover:shadow-md transition-shadow duration-200"
-            style={{ letterSpacing: '0.04em' }}
+            style={{ letterSpacing: '0.03em' }}
             onMouseEnter={(e) => {
               const button = e.currentTarget.querySelector('button');
               if (button) button.style.opacity = '1';
@@ -195,7 +195,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
               ${containsMarkdownTableOrCodeBlock(msg.text) ? 'max-w-[80%]' : 'max-w-[70%]'}
               break-words ${msg.role === 'system' ? 'text-xs italic' : 'text-[15px]'}
               hover:shadow-md transition-shadow duration-200`}
-            style={{ letterSpacing: '0.04em' }}
+            style={{ letterSpacing: '0.03em' }}
             onMouseEnter={(e) => {
               const button = e.currentTarget.querySelector('button');
               if (button) button.style.opacity = '1';
@@ -217,7 +217,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, messagesEndRef }) =
         <div key={index} className="flex items-start my-2.5 mx-0.5">
           <div className="w-7 h-7 mr-1.5" /> {/* 空白占位 */}
           <div className="relative group p-2.5 rounded-lg bg-gray-100 text-gray-700 text-xs italic"
-            style={{ letterSpacing: '0.04em' }}>
+            style={{ letterSpacing: '0.03em' }}>
             {msg.text}
           </div>
         </div>

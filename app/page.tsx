@@ -442,7 +442,7 @@ export default function Home() {
                         </button>
                     </div>
 
-                    <div style={{ display: 'flex', paddingLeft: '60px', paddingRight: '60px', marginBottom: '10px', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', paddingLeft: '50px', paddingRight: '50px', marginBottom: '10px', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
                         <button 
                             onClick={() => {
