@@ -6,7 +6,7 @@
 .DS_Store
 static/_next/.DS_Store
 /.github/workflows
-backend.code-workspace
+*.code-workspace
 prompts_perp.txt
 app_perp.py
 app_多文档.py
