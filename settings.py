@@ -57,14 +57,12 @@ elif HUB == "ark":
 elif HUB:
     API_KEY_HUB = os.environ.get('BASE_API_KEY')
     BASE_URL = os.environ.get('BASE_URL') or "https://llm.indrin.cn/v1"
-    MODEL = os.environ.get('BASE_MODEL') or "deepseek-reasoner"
+    MODEL = os.environ.get('BASE_MODEL') or "Qwen/Qwen2.5-72B-Instruct"
 else:
     API_KEY_HUB = None
     BASE_URL = None
 
 CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if HUB else OpenAI(api_key = API_KEY)
-#CLIENT = OpenAI(api_key=os.environ.get("P_API_KEY"), base_url="https://api.perplexity.ai")
-#MODEL = "r1-1776"
 
 #MODEL_alt = "deepseek-r1-distill-qwen-32b"
 #CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
@@ -72,21 +70,23 @@ MODEL_alt = "gemini-2.0-flash"
 CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "https://generativelanguage.googleapis.com/v1beta/openai/")
 
 model_alt_map = {
-    "sf": "deepseek-ai/DeepSeek-V3",
+    #"sf": "deepseek-ai/DeepSeek-V3",
     "nv": "deepseek-ai/deepseek-r1", # "mistralai/mistral-small-24b-instruct",
     "tg": "deepseek-ai/DeepSeek-R1", # "mistralai/Mistral-Small-24B-Instruct-2501",
     "fw": "accounts/fireworks/models/deepseek-r1", # "accounts/fireworks/models/deepseek-v3",
     "nb": "deepseek-ai/DeepSeek-R1-fast", # "deepseek-ai/DeepSeek-V3",
     "ark": "ep-20250218083204-w9cc9", # "ep-20250219170102-9tb5f",
+    "nov": "deepseek/deepseek-r1",
 }
 
 client_alt_map = {
-    "sf": OpenAI(api_key=os.environ.get('SF_API_KEY'), base_url="https://api.siliconflow.cn/v1"),
+    #"sf": OpenAI(api_key=os.environ.get('SF_API_KEY'), base_url="https://api.siliconflow.cn/v1"),
     "nv": OpenAI(api_key=os.environ.get('NV_API_KEY'), base_url="https://integrate.api.nvidia.com/v1"),
     "tg": OpenAI(api_key=os.environ.get('TOGETHER_API_KEY'), base_url="https://api.together.xyz/v1"),
     "fw": OpenAI(api_key=os.environ.get('FIREWORKS_API_KEY'), base_url="https://api.fireworks.ai/inference/v1"),
     "nb": OpenAI(api_key=os.environ.get('NEBIUS_API_KEY'), base_url="https://api.studio.nebius.ai/v1"),
     "ark": OpenAI(api_key=os.environ.get('ARK_API_KEY'), base_url="https://ark.cn-beijing.volces.com/api/v3"),
+    "nov": OpenAI(api_key=os.environ.get('NOVITA_API_KEY'), base_url="https://api.novita.ai/v3/openai"),
 }
 
 HUB_alt = os.environ.get('HUB_ALT', 'nb')

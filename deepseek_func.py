@@ -16,13 +16,15 @@ client_tpp = OpenAI(api_key = os.environ.get('TOGETHER_API_KEY'), base_url = "ht
 #client_tpp = OpenAI(api_key = os.environ.get('FIREWORKS_API_KEY'), base_url = "https://api.fireworks.ai/inference/v1")
 #model_r = "deepseek-ai/DeepSeek-R1"  # -fast
 #client_tpp = OpenAI(api_key = os.environ.get('NEBIUS_API_KEY'), base_url = "https://api.studio.nebius.ai/v1")
+model_r_u = 'r1-1776'
+#client_tpp = OpenAI(api_key=os.environ.get("P_API_KEY"), base_url="https://api.perplexity.ai")
 
 param_temperature = 1 if model.startswith('deepseek') else 0.5
 param_n = 1
 
 def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n=param_n):
     try:
-        messages.append({"role": "system", "content": "原则：避免输出简略化。"})
+        #messages.append({"role": "system", "content": "原则：避免输出简略化。"})
         messages.append({"role": "user", "content": question})
         print("generate_text:", messages[-1]["content"][:250])
         print("MODEL:", model)
@@ -35,8 +37,8 @@ def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n
             "top_p": 1.0,
             "n": n,
             "max_tokens": max_output_tokens,
-            "frequency_penalty": 0,
-            "presence_penalty": 0
+            #"frequency_penalty": 0,
+            #"presence_penalty": 0
         }
 
         client_act = client_tpp if 'r1' in model.lower() else client
@@ -92,6 +94,7 @@ def interact_with_deepseek(user_id, thread_id, user_input, prompt, prompt_templa
     model_ds = {
         "V3": model,
         "R1": model_r,
+        "1776": model_r_u
     }.get(user_model, model)
 
     try:

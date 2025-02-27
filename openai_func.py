@@ -162,21 +162,27 @@ def Chat_Completion(client, model, question, tem, messages, hub, stream, n=param
 def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template, n, messages=None):
     messages = [] if messages is None else messages
     res = None
-    client = CLIENT
     full_message = ''
     tem = 0.7 if is_writing_request(user_input, prompt_template) else param_temperature
-
+    hub = HUB
     model = MODEL
+    client = CLIENT
+
+    if hub in model_alt_map:
+        hub =["tg", "nv", "nov", "ark"][random.randint(0, 3)]
+        model = model_alt_map[hub]
+        client = client_alt_map[hub]
+        print(f"随机分配客户端: {hub} {model}")
+
     if model == "gpt-4o-free" and num_tokens(prompt) < 1200:
         model = "gpt-4o"
-    if HUB in model_alt_map and any(item in model.lower() for item in ('r1', 'ep-')) and not is_writing_request(user_input, prompt_template):
+    if hub in model_alt_map and any(item in model.lower() for item in ('r1', 'ep-')) and not is_writing_request(user_input, prompt_template):
         #model = model_alt_map[hub]
         model = MODEL_alt
         client = CLIENT_alt
     if "deepseek" in model:
         tem = 0.6
 
-    hub = HUB
     try:
         for res in Chat_Completion(client, model, prompt, tem, messages, hub, True, n):
             if 'content' in res and res['content']:
