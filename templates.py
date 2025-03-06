@@ -75,8 +75,8 @@ template_WRITER = """Imagine you are an accomplished columnist with a knack for 
 - While ensuring the originality of your article, cleverly integrate information from the context with your own insights.
 - Show your creativity and analytical ability by reorganizing, interpreting the information provided in the context, but not fabricate information not based on the provided context.
 
-### Step 7: Format Output Using Markdown
-- Format your article with Markdown, including using headings, subheadings, lists, and bold text, to enhance its readability and professionalism.
+### Step 7: Format Output Using Markdown(no code block)
+- including using headings, subheadings, lists, and bold text, to enhance its readability and professionalism.
 
 [User Request:]
 {question}
@@ -100,7 +100,7 @@ Context:
 Assistant writes article:
 """ # 
 
-template_WRITER_R = """根据context，按照用户request撰写完整文章，不要仅输出框架，不要编造上下文不存在的内容。Format Output Using Markdown.
+template_WRITER_R = """根据context，按照用户request撰写完整文章，要求具有专栏作家水准，不要仅输出框架，不要编造上下文不存在的内容。Format Output Using Markdown.
 [Context:]
 {context}
 [End of Context]
