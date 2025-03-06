@@ -49,7 +49,7 @@ export const sendMessage = async ({
         ]);
         return;
     } else {
-        // 将用户输入和“思考中...”消息添加到消息列表
+        // 将用户输入和"思考中..."消息添加到消息列表
         setMessages((prevMessages) => [
             ...prevMessages,
             { type: "user", text: userInput },
@@ -59,6 +59,9 @@ export const sendMessage = async ({
     }
 
     try {
+        // 添加一个小延迟，确保消息状态更新完成
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
         const response = await fetch(url + "message", {
             method: "POST",
             headers: {
