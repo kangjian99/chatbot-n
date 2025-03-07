@@ -70,7 +70,7 @@ MODEL_alt = "gemini-2.0-flash"
 CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "https://generativelanguage.googleapis.com/v1beta/openai/")
 
 model_alt_map = {
-    #"sf": "deepseek-ai/DeepSeek-V3",
+    "sf": "deepseek-ai/DeepSeek-R1",
     "nv": "deepseek-ai/deepseek-r1", # "mistralai/mistral-small-24b-instruct",
     "tg": "deepseek-ai/DeepSeek-R1", # "mistralai/Mistral-Small-24B-Instruct-2501",
     "fw": "accounts/fireworks/models/deepseek-r1", # "accounts/fireworks/models/deepseek-v3",
@@ -80,7 +80,7 @@ model_alt_map = {
 }
 
 client_alt_map = {
-    #"sf": OpenAI(api_key=os.environ.get('SF_API_KEY'), base_url="https://api.siliconflow.cn/v1"),
+    "sf": OpenAI(api_key=os.environ.get('SF_API_KEY'), base_url="https://api.siliconflow.cn/v1"),
     "nv": OpenAI(api_key=os.environ.get('NV_API_KEY'), base_url="https://integrate.api.nvidia.com/v1"),
     "tg": OpenAI(api_key=os.environ.get('TOGETHER_API_KEY'), base_url="https://api.together.xyz/v1"),
     "fw": OpenAI(api_key=os.environ.get('FIREWORKS_API_KEY'), base_url="https://api.fireworks.ai/inference/v1"),

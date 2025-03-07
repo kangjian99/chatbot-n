@@ -169,7 +169,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     client = CLIENT
 
     if hub in model_alt_map:
-        hub =["tg", "nv", "nov", "ark"][random.randint(0, 3)]
+        hub =["tg", "nv", "nov", "sf"][random.randint(0, 3)]
         model = model_alt_map[hub]
         client = client_alt_map[hub]
         print(f"随机分配客户端: {hub} {model}")
