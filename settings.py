@@ -49,7 +49,7 @@ elif HUB == "nb":
 elif HUB == "nov":
     API_KEY_HUB = os.environ.get('NOVITA_API_KEY')
     BASE_URL = "https://api.novita.ai/v3/openai"
-    MODEL = "deepseek/deepseek-r1"
+    MODEL = "deepseek/deepseek-r1-turbo"
 elif HUB == "ark":
     API_KEY_HUB = os.environ.get('ARK_API_KEY')
     BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
@@ -76,7 +76,7 @@ model_alt_map = {
     "fw": "accounts/fireworks/models/deepseek-r1", # "accounts/fireworks/models/deepseek-v3",
     "nb": "deepseek-ai/DeepSeek-R1-fast", # "deepseek-ai/DeepSeek-V3",
     "ark": "ep-20250218083204-w9cc9", # "ep-20250219170102-9tb5f",
-    "nov": "deepseek/deepseek-r1",
+    "nov": "deepseek/deepseek-r1-turbo",
 }
 
 client_alt_map = {

@@ -45,7 +45,7 @@ def interact_with_groq(user_id, thread_id, user_input, prompt, prompt_template, 
         "Llama3": "llama-3.3-70b-versatile",
         "distill": "deepseek-r1-distill-qwen-32b",
         "qwq": "qwen-qwq-32b",
-        "Gemma2": "gemma2-9b-it",
+        "Gemma": "gemma2-9b-it",
     }.get(user_model, model)
 
     response = client.chat.completions.create(

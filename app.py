@@ -103,7 +103,7 @@ def handle_message():
         "Claude": interact_with_claude,
         "Llama3": interact_with_groq,
         "distill": interact_with_groq,
-        "Gemma2": interact_with_groq,
+        "Gemma": interact_with_groq,
         "flash": interact_with_gemini,
         "mistral": interact_with_LLM,
         "V3": interact_with_deepseek,
@@ -173,7 +173,7 @@ def handle_message():
         #else:
         #docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
         if user_input.startswith('写作'):
-            if 'r1' in MODEL.lower() and user_model == "default" or user_model == "R1" or user_model == "reasoner":
+            if ('r1' in MODEL.lower() and user_model == "default") or user_model in ["R1", "reasoner", "qwq"]:
                 prompt = f"{template_WRITER_R.format(question=user_input, context=docs)!s}"
             else:
                 prompt = f"{template_WRITER.format(question=user_input, context=docs)!s}"
