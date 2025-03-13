@@ -47,7 +47,7 @@ def process_reasoning_chunk(choice, think_opened, think_closed):
 
 def Chat_Completion(client, model, question, tem, messages, hub, stream, n=param_n):
     try:
-        if not any(x in model.lower() for x in ['r1', 'reason']) and not model.startswith(('ep-', 'o')):
+        if not any(x in model.lower() for x in ['r1', 'reason', 'qwq']) and not model.startswith(('ep-', 'o')):
             messages.append({"role": "system", "content": ChatGPT_system + system_message_content})
         messages.append({"role": "user", "content": question})
         print("generate_text:", messages[-1]["content"][:250])
