@@ -43,6 +43,7 @@ def interact_with_groq(user_id, thread_id, user_input, prompt, prompt_template, 
     model_groq = {
         "Llama3": "llama-3.3-70b-versatile",
         "Gemma": "gemma2-9b-it",
+        "qwq": "qwen-qwq-32b",
     }.get(user_model, model)
 
     response = client.chat.completions.create(

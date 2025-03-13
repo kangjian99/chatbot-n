@@ -98,6 +98,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         "Claude": interact_with_claude,
         "Llama3": interact_with_groq,
         "Gemma": interact_with_groq,
+        "qwq": interact_with_groq,
         "flash": interact_with_gemini,
         "exp": interact_with_gemini,
         "mistral": interact_with_LLM,
