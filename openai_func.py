@@ -171,6 +171,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         model = "gpt-4o"
     if HUB in model_alt_map and 'r1' in model.lower() and not (user_input.startswith(('总结', '写作')) or any(item in prompt_template[0] for item in ['Chat', '润色', '脚本'])):
         #model = model_alt_map[hub]
+        print("非写作类需求使用alt模型: ", user_input)
         model = MODEL_alt
         client = CLIENT_alt
     if "deepseek" in model:
