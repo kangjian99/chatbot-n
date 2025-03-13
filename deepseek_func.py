@@ -1,6 +1,6 @@
 import json, os
 from openai import OpenAI
-from flask import session
+#from flask import session
 from db_process import save_user_memory, save_user_messages, history_messages
 from utils import count_chars
 
@@ -44,7 +44,7 @@ def Chat_Completion(model, question, tem, messages, max_output_tokens, stream, n
         
         if not stream:
             print(f"{response.usage}\n")
-            session['tokens'] = response.usage.total_tokens
+            #session['tokens'] = response.usage.total_tokens
             return response.choices[0].message.content
         else:
             text=[''] * n
