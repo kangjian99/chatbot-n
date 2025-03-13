@@ -1,6 +1,6 @@
 from settings import CLIENT, HUB, MODEL, model_alt_map, client_alt_map, MODEL_alt, CLIENT_alt, HUB_alt, HUB_reasoning_content
 import json, random, time
-from flask import session
+#from flask import session
 from db_process import save_user_memory, save_user_messages, update_credits
 from utils import count_chars, num_tokens, is_writing_request, TEMPLATE_SAVE
 
@@ -111,7 +111,7 @@ def Chat_Completion(client, model, question, tem, messages, hub, stream, n=param
 
         if not stream:
             print(f"{response.usage}\n")
-            session['tokens'] = response.usage.total_tokens
+            #session['tokens'] = response.usage.total_tokens
             return response.choices[0].message.content
         else:
             text=[''] * n
