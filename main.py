@@ -97,7 +97,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
     interact_func = {
         "Claude": interact_with_claude,
         "Llama3": interact_with_groq,
-        "Gemma2": interact_with_groq,
+        "Gemma": interact_with_groq,
         "flash": interact_with_gemini,
         "exp": interact_with_gemini,
         "mistral": interact_with_LLM,
@@ -169,7 +169,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         #else:
         #docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
         if user_input.startswith('写作'):
-            if 'r1' in MODEL.lower() and user_model == "default" or user_model == "R1" or user_model == "reasoner":
+            if ('r1' in MODEL.lower() and user_model == "default") or user_model in ["R1", "reasoner", "qwq"]:
                 prompt = f"{template_WRITER_R.format(question=user_input, context=docs)!s}"
             else:
                 prompt = f"{template_WRITER.format(question=user_input, context=docs)!s}"
