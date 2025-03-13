@@ -104,6 +104,7 @@ def handle_message():
         "Llama3": interact_with_groq,
         "distill": interact_with_groq,
         "Gemma": interact_with_groq,
+        "qwq": interact_with_groq,
         "flash": interact_with_gemini,
         "mistral": interact_with_LLM,
         "V3": interact_with_deepseek,
@@ -113,7 +114,7 @@ def handle_message():
     if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
         n = user_model
     
-    if user_input.startswith("写作") and user_model == "default" and not MODEL.lower().endswith("r1"):
+    if user_input.startswith("写作") and user_model == "default" and not 'r1' in MODEL.lower():  # 写作需求默认模型非R1改为gemini
         interact_func = interact_with_gemini
 
     if '文档' not in prompt_template[0]:

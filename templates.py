@@ -100,7 +100,8 @@ Context:
 Assistant writes article:
 """ # 
 
-template_WRITER_R = """根据context，按照用户request撰写完整文章，要求具有专栏作家水准，不要仅输出框架，不要编造上下文不存在的内容。Format Output Using Markdown.
+template_WRITER_R = """根据context，按照用户request撰写完整文章，要求具有专栏作家水准，不要仅输出框架，不要编造上下文不存在的内容。
+enhance readability by professional formatting.
 [Context:]
 {context}
 [End of Context]
