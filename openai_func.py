@@ -178,6 +178,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         tem = 0.6
 
     hub = HUB
+    print(hub, model, client)
     try:
         for res in Chat_Completion(client, model, prompt, tem, messages, hub, True, n):
             if 'content' in res and res['content']:
