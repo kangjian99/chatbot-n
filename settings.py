@@ -93,7 +93,7 @@ client_alt_map = {
 
 HUB_alt = os.environ.get('HUB_ALT', 'nb')
 
-HUB_reasoning_content = ["ark", "sf"]
+HUB_reasoning_content = ["ark", "sf", "inf"]
 
 DB_URL: str = os.environ.get("SUPABASE_URL")
 DB_KEY: str = os.environ.get("SUPABASE_KEY")
