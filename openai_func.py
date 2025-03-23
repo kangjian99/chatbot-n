@@ -6,7 +6,7 @@ from utils import count_chars, num_tokens, is_writing_request, TEMPLATE_SAVE
 
 param_temperature = 0.5 if not MODEL.startswith("o") else 1
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
-MAX_OUTPUT_TOKENS = 16000  # GPT-4o与R1的最大输出限制
+MAX_OUTPUT_TOKENS = 16384  # GPT-4o与R1的最大输出限制
 
 ChatGPT_system = "You are ChatGPT, a large language model trained by OpenAI. " if not HUB or HUB == "burn" else ""
 system_message_content = "原则：避免输出简略化。"
@@ -169,7 +169,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     client = CLIENT
 
     if hub in model_alt_map:
-        hub =["tg", "nv", "nov", "fw", "sf"][random.randint(0, 4)]
+        hub =["tg", "nv", "inf", "fw", "sf"][random.randint(0, 4)]
         model = model_alt_map[hub]
         client = client_alt_map[hub]
         print(f"随机分配客户端: {hub} {model}")

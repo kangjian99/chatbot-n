@@ -75,8 +75,9 @@ model_alt_map = {
     "tg": "deepseek-ai/DeepSeek-R1", # "mistralai/Mistral-Small-24B-Instruct-2501",
     "fw": "accounts/fireworks/models/deepseek-r1-basic", # "accounts/fireworks/models/deepseek-v3",
     "nb": "deepseek-ai/DeepSeek-R1-fast", # "deepseek-ai/DeepSeek-V3",
+    "inf": "deepseek-ai/deepseek-r1/fp-8", # deepseek/deepseek-v3/fp-8
     "ark": "ep-20250218083204-w9cc9", # "ep-20250219170102-9tb5f",
-    "nov": "deepseek/deepseek-r1-turbo",
+    #"nov": "deepseek/deepseek-r1-turbo",
 }
 
 client_alt_map = {
@@ -85,8 +86,9 @@ client_alt_map = {
     "tg": OpenAI(api_key=os.environ.get('TOGETHER_API_KEY'), base_url="https://api.together.xyz/v1"),
     "fw": OpenAI(api_key=os.environ.get('FIREWORKS_API_KEY'), base_url="https://api.fireworks.ai/inference/v1"),
     "nb": OpenAI(api_key=os.environ.get('NEBIUS_API_KEY'), base_url="https://api.studio.nebius.ai/v1"),
+    "inf": OpenAI(api_key=os.environ.get('INFERENCE_API_KEY'), base_url="https://api.inference.net/v1"),
     "ark": OpenAI(api_key=os.environ.get('ARK_API_KEY'), base_url="https://ark.cn-beijing.volces.com/api/v3"),
-    "nov": OpenAI(api_key=os.environ.get('NOVITA_API_KEY'), base_url="https://api.novita.ai/v3/openai"),
+    #"nov": OpenAI(api_key=os.environ.get('NOVITA_API_KEY'), base_url="https://api.novita.ai/v3/openai"),
 }
 
 HUB_alt = os.environ.get('HUB_ALT', 'nb')
