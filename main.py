@@ -23,13 +23,13 @@ from deepseek_func import interact_with_deepseek
 
 app = FastAPI()
 
-# 以下对应zeabur部署
+# 以下对应FastAPI在zeabur跨域部署
 # 从环境变量获取允许的跨域来源（多个来源用逗号分隔）
 origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # ["*"]允许所有来源，生产环境建议填写具体的域名
+    allow_origins=origins,  # FastAPI携带凭据时要求显式指定，不允许["*"]所有来源
     allow_credentials=True,  # 允许携带 Cookie 认证
     allow_methods=["*"],  # 允许所有 HTTP 方法
     allow_headers=["*"],  # 允许所有请求头
