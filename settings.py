@@ -41,7 +41,7 @@ elif HUB == "tg":
 elif HUB == "fw":
     API_KEY_HUB = os.environ.get('FIREWORKS_API_KEY') 
     BASE_URL = "https://api.fireworks.ai/inference/v1"
-    MODEL = "accounts/fireworks/models/deepseek-r1"
+    MODEL = "accounts/fireworks/models/deepseek-r1-basic"
 elif HUB == "nb":
     API_KEY_HUB = os.environ.get('NEBIUS_API_KEY')
     BASE_URL = "https://api.studio.nebius.ai/v1"
@@ -49,7 +49,7 @@ elif HUB == "nb":
 elif HUB == "nov":
     API_KEY_HUB = os.environ.get('NOVITA_API_KEY')
     BASE_URL = "https://api.novita.ai/v3/openai"
-    MODEL = "deepseek/deepseek-r1-turbo"
+    MODEL = "deepseek/deepseek-r1"
 elif HUB == "ark":
     API_KEY_HUB = os.environ.get('ARK_API_KEY')
     BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
