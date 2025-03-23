@@ -6,7 +6,7 @@ from utils import count_chars, num_tokens, is_writing_request, TEMPLATE_SAVE
 
 param_temperature = 0.5 if not MODEL.startswith("o") else 1
 param_n = 1 #if hub and BASE_URL == "https://api.moonshot.cn/v1" else 2
-MAX_OUTPUT_TOKENS = 16000  # GPT-4o与R1的最大输出限制
+MAX_OUTPUT_TOKENS = 16384  # GPT-4o与R1的最大输出限制
 
 ChatGPT_system = "You are ChatGPT, a large language model trained by OpenAI. " if not HUB or HUB == "burn" else ""
 system_message_content = "原则：避免输出简略化。"
@@ -66,6 +66,7 @@ def Chat_Completion(client, model, question, tem, messages, hub, stream, n=param
         }
         #print("MODEL:", model)
         max_output_tokens = 8192 if hub == 'ark' or hub == 'tg' else MAX_OUTPUT_TOKENS
+        max_output_tokens = 8000 if hub == 'nov' else max_output_tokens
         if 'r1' in model.lower() or model.startswith("ep-") or model.startswith("gpt-4o"):
             params["max_tokens"] = max_output_tokens
         
