@@ -7,7 +7,7 @@ def max_marginal_relevance_search(
     vectorstore,
     query: str,
     k: int = 4,
-    fetch_k: int = 20,
+    fetch_k: int = 50,
     lambda_mult: float = 0.5,
     filter: Optional[Dict[str, Any]] = None,
     **kwargs: Any,
