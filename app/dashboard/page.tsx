@@ -5,7 +5,8 @@ import { ConfigurationContext } from '../ContextProvider';
 import { loadFromLocalStorage } from '../utils/localStorageUtil';
 
 const url = process.env.NEXT_PUBLIC_API_URL;
-const options = JSON.parse(process.env.NEXT_PUBLIC_API_USER_MODELS || '["default", "Claude", "Llama3", "Gemma2", "flash", "base"]');
+const maxKrange = process.env.NEXT_PUBLIC_API_MAX_KRANGE || 15;
+const options = JSON.parse(process.env.NEXT_PUBLIC_API_USER_MODELS || '["default", "Claude", "Llama3", "Gemma", "flash", "base"]');
 
 const Dashboard = () => {
   const router = useRouter();
@@ -118,7 +119,7 @@ const Dashboard = () => {
           <input
             type="range"
             min={10}
-            max={15}
+            max={maxKrange}
             value={krangeValue}
             onChange={(e) => setKrangeValue(Number(e.target.value))}
             style={styles.slider}
