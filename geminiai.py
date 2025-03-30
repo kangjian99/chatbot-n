@@ -25,21 +25,27 @@ safety_settings = [
     }
 ]
 
-generation_config = {
-    "max_output_tokens": 8192,
-}
+def create_model(model_name: str) -> genai.GenerativeModel:
+    config_map = {
+        "gemini-2.0-flash": {"max_output_tokens": 8192},
+        "gemini-2.0-flash-thinking-exp-01-21": {"max_output_tokens": 65536},
+        "gemini-2.5-pro-exp-03-25": {"max_output_tokens": 65536},
+    }
+    generation_config = config_map.get(model_name, {"max_output_tokens": 8192})
+    
+    return genai.GenerativeModel(
+        model_name=model_name,
+        #system_instruction="你是语言分析与写作专家，避免输出过于简略化", 
+        safety_settings=safety_settings,
+        generation_config=generation_config
+    )
 
-MODEL = os.getenv('GEMINI_MODEL') or "gemini-2.0-flash"
-#MODEL_pro = "gemini-2.0-pro-exp-02-05"
-MODEL_pro = "gemini-2.0-flash-thinking-exp-01-21"
+MODEL = "gemini-2.0-flash"
+MODEL_pro = os.getenv('GEMINI_PRO_MODEL', "gemini-2.0-flash-thinking-exp-01-21")
+#MODEL_pro = "gemini-2.5-pro-exp-03-25"
 
-model = genai.GenerativeModel(model_name=MODEL, 
-                              #system_instruction="你是语言分析与写作专家，避免输出过于简略化", 
-                              safety_settings=safety_settings,
-                              generation_config=generation_config)
-model_pro = genai.GenerativeModel(model_name=MODEL_pro, 
-                                  safety_settings=safety_settings,
-                                  generation_config=generation_config)
+model = create_model(MODEL)
+model_pro = create_model(MODEL_pro)
 #model_v = genai.GenerativeModel('gemini-pro-vision', safety_settings)
 
 def gemini_response_stream(query):
