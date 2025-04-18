@@ -36,7 +36,7 @@ llm_parse = ChatOpenAI(openai_api_key = API_KEY, model_name = "gpt-3.5-turbo-012
 
 enc = tiktoken.get_encoding("cl100k_base") # 以 token 计算文本块长度
 def length_function(text: str) -> int:
-    return len(enc.encode(text))
+    return len(enc.encode(text)) if text else 0
 
 text_splitter = RecursiveCharacterTextSplitter(
                 separators=['\n\n','\n', '\u3002'],
@@ -56,17 +56,18 @@ def format_docs(docs):
 def chunks_process(user_id, chunks, file_path, keyword):
     #df = pd.DataFrame(columns=["source", "chunk_no", "content"])
     #filename = os.path.basename(file_path)
-    #i = 0
+    i = 0
     for chunk in chunks:
         metadata = {
             "user_id": user_id,
+            **({"chunk_no": i} if not file_path.endswith('.pdf') else {})
         }
         if file_path.endswith('.csv'):
             metadata["source"] = file_path
         chunk.metadata.update(metadata)
         if keyword and keyword not in chunk.page_content:
             chunk.page_content = keyword + '\n' + chunk.page_content
-        #i += 1
+        i += 1
         #df = pd.concat([df, pd.DataFrame({"source": filename, "chunk_no": i, "content": chunk.page_content}, index=[0])])
 
     if length_function(chunks[-1].page_content) < 100:
@@ -185,11 +186,11 @@ def response_from_retriver(user_id, file_name, query, max_k, k=top_k):
     if query.startswith('写作'):
         #docs = vectorstore.max_marginal_relevance_search(query, k=top_k, filter=)
         docs = max_marginal_relevance_search(vectorstore, query=query, k=top_k, filter=filter) # 返回最大边际相关性检索结果
-        docs = sorted(docs, key=lambda doc: (doc.metadata.get('page', 0), doc.metadata.get('start_index', 0)))
+        docs = sorted(docs, key=lambda doc: (doc.metadata.get('page', 0), doc.metadata.get('chunk_no', 0), doc.metadata.get('start_index', 0)))
     elif query.startswith('总结'):
         #top_k = 50
         docs = vectorstore.similarity_search(query, k=top_k, filter=filter)
-        docs = sorted(docs, key=lambda doc: (doc.metadata.get('page', 0), doc.metadata.get('start_index', 0)))  # 严格排序
+        docs = sorted(docs, key=lambda doc: (doc.metadata.get('page', 0), doc.metadata.get('chunk_no', 0), doc.metadata.get('start_index', 0)))  # 严格排序
     else:
         docs = vectorstore.similarity_search(query, k=top_k, filter=filter) # 返回检索结果
         #docs = vectorstore.max_marginal_relevance_search(query, k=top_k, filter={ "source": file_name })

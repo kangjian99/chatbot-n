@@ -8,7 +8,7 @@ model = "google/gemma-2-27b-it"  # meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
 
 api_key = os.getenv('MISTRAL_API_KEY')
 base_url = "https://api.mistral.ai/v1/chat/completions"
-model = "mistral-small-2501"  # open-mistral-nemo
+model = "mistral-small-latest"  # open-mistral-nemo
 
 def LLM_response(query, url=base_url):
 
@@ -88,6 +88,6 @@ def interact_with_LLM(user_id, thread_id, user_input, prompt, prompt_template, n
     finally:
         messages.append({"role": "assistant", "content": full_message})
         join_message = "".join([str(msg["content"]) for msg in messages])
-        info = count_chars(join_message, user_id, messages)
+        info = count_chars(join_message, user_id)
         if any(item in prompt_template[0] for item in TEMPLATE_SAVE):
             save_user_memory(user_id, thread_id, user_input, full_message, info)

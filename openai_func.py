@@ -74,7 +74,7 @@ def Chat_Completion(client, model, question, tem, messages, hub, stream, n=param
             response = client.chat.completions.create(**params)
             # 检查是否超时
             latency = time.time() - start_time
-            if latency > 10:
+            if 'gemini' not in model and latency > 10:
                 print("*主客户端响应超时，切换到备用客户端*\n")
                 model_alt = model_alt_map.get(HUB_alt, model)
                 client_alt = client_alt_map.get(HUB_alt, client)
@@ -169,7 +169,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     client = CLIENT
 
     if hub in model_alt_map:
-        hub =["tg", "nv", "inf", "fw", "sf"][random.randint(0, 4)]
+        hub =["tg", "op", "inf", "fw", "sf"][random.randint(0, 4)]
         model = model_alt_map[hub]
         client = client_alt_map[hub]
         print(f"随机分配客户端: {hub} {model}")

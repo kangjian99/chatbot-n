@@ -29,7 +29,7 @@ def authenticate_user(username, password):
 
 def read_table_data(table_name):
     # 从表中读取数据
-    query = supabase.table(table_name).select("*").order("id.asc") # 按照id升序读取
+    query = supabase.table(table_name).select("*").order("id", desc=False) # 按照id升序读取
     response = query.execute()
 
     # 检查错误
