@@ -66,11 +66,6 @@ CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if HUB else OpenAI(a
 #CLIENT = OpenAI(api_key=os.environ.get("P_API_KEY"), base_url="https://api.perplexity.ai")
 #MODEL = "r1-1776"
 
-#MODEL_alt = "deepseek-r1-distill-qwen-32b"
-#CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
-MODEL_alt = "gemini-2.0-flash"
-CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "https://generativelanguage.googleapis.com/v1beta/openai/")
-
 model_alt_map = {
     #"sf": "deepseek-ai/DeepSeek-V3",
     "nv": "deepseek-ai/deepseek-r1", # "mistralai/mistral-small-24b-instruct",
@@ -90,6 +85,13 @@ client_alt_map = {
     "ark": OpenAI(api_key=os.environ.get('ARK_API_KEY'), base_url="https://ark.cn-beijing.volces.com/api/v3"),
     "nov": OpenAI(api_key=os.environ.get('NOVITA_API_KEY'), base_url="https://api.novita.ai/v3/openai"),
 }
+
+#MODEL_alt = "qwen-qwq-32b"
+#CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
+MODEL_alt = "gemini-2.5-flash-preview-04-17"
+CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "https://generativelanguage.googleapis.com/v1beta/openai/")
+#MODEL_alt = "ep-20250331093955-tn2vh"
+#CLIENT_alt = client_alt_map["ark"]
 
 HUB_alt = os.environ.get('HUB_ALT', 'fw')
 

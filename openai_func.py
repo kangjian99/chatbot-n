@@ -75,7 +75,7 @@ def Chat_Completion(client, model, question, tem, messages, hub, stream, n=param
             response = client.chat.completions.create(**params)
             # 检查是否超时
             latency = time.time() - start_time
-            if latency > 10:
+            if 'gemini' not in model and latency > 10:
                 print("*主客户端响应超时，切换到备用客户端*\n")
                 model_alt = model_alt_map.get(HUB_alt, model)
                 client_alt = client_alt_map.get(HUB_alt, client)

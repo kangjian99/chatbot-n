@@ -9,7 +9,7 @@ langchain_community
 # weaviate-client
 pypdf
 docx2txt
-google.generativeai
+google-genai
 anthropic
 groq
 supabase
