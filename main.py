@@ -96,7 +96,7 @@ def check_writing(user_input):
         is_writing = json.loads(res).get("is_writing", "N")  # 默认是 "N"
     except json.JSONDecodeError:
         is_writing = "N"
-    print("是否写作需求：", is_writing)
+    print("是否写作需求：", res, is_writing)
     return is_writing=='Y'
 
 @app.post('/message')
