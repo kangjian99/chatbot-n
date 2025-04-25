@@ -154,7 +154,19 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         if get_credits(user_id) <= 0:
             return StreamingResponse('data: {"data": "\u2757 额度耗尽，请缴费后继续使用。"}\n\n', media_type='text/event-stream')
 
-        if user_input.startswith(('总结', '写作')):
+        res = groq_response(f"""
+        判断下面需求是否属于写作需求，仅返回JSON格式：{{"is_writing": "Y"}} 或 {{"is_writing": "N"}}
+
+        需求如下：
+        {user_input}
+        """)
+        try:
+            is_writing = json.loads(res).get("is_writing", "N")  # 默认是 "N"
+        except json.JSONDecodeError:
+            is_writing = "N"
+        print("是否写作需求：", is_writing)
+
+        if user_input.startswith(('总结', '写作')) or is_writing == 'Y':
             key_words = user_input
             if user_input.startswith('写作') and (num_tokens(user_input) <= 20):
                 # 处理提取关键词逻辑
@@ -181,13 +193,14 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         #    docchat_template = template_mimic
         #else:
         #docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
-        if user_input.startswith('写作'):
+
+        if is_writing == 'Y':
             if ('r1' in MODEL.lower() and user_model == "default") or user_model in ["R1", "reasoner", "qwq"]:
                 prompt = f"{template_WRITER_R.format(question=user_input, context=docs)!s}"
             else:
                 prompt = f"{template_WRITER.format(question=user_input, context=docs)!s}"
-        elif '写' in user_input:
-            prompt = f"{template_WRITER_S.format(question=user_input, context=docs)!s}"
+        #elif '写' in user_input:
+        #    prompt = f"{template_WRITER_S.format(question=user_input, context=docs)!s}"
         elif user_input.startswith('总结'):
             prompt = f"{template_SUMMARY.format(context=docs)!s}"
         else:
