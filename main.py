@@ -84,7 +84,21 @@ async def upload_file(file: UploadFile = File(...), user_id: str = Form(...), db
 async def get_filenames(user_id: str):
     file_names = get_doc_names(user_id)
     return JSONResponse(content=file_names)
-    
+
+def check_writing(user_input):
+    res = groq_response(f"""
+    判断下面需求是否属于写作需求，仅返回JSON格式：{{"is_writing": "Y"}} 或 {{"is_writing": "N"}}
+
+    需求如下：
+    {user_input}
+    """)
+    try:
+        is_writing = json.loads(res).get("is_writing", "N")  # 默认是 "N"
+    except json.JSONDecodeError:
+        is_writing = "N"
+    print("是否写作需求：", is_writing)
+    return is_writing=='Y'
+
 @app.post('/message')
 async def handle_message(data: MessageData, db: Session = Depends(get_db)):
     print(data.model_dump())
@@ -122,7 +136,9 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
     if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
         n = user_model
     
-    if user_input.startswith("写作") and user_model == "default" and not 'r1' in MODEL.lower():  # 写作需求默认模型非R1改为gemini
+    is_writing = check_writing(user_input)
+
+    if (user_input.startswith("写作") or is_writing) and user_model == "default" and not 'r1' in MODEL.lower():  # 写作需求默认模型非R1改为gemini
         interact_func = interact_with_gemini
 
     if '文档' not in prompt_template[0]:
@@ -154,24 +170,12 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         if get_credits(user_id) <= 0:
             return StreamingResponse('data: {"data": "\u2757 额度耗尽，请缴费后继续使用。"}\n\n', media_type='text/event-stream')
 
-        res = groq_response(f"""
-        判断下面需求是否属于写作需求，仅返回JSON格式：{{"is_writing": "Y"}} 或 {{"is_writing": "N"}}
-
-        需求如下：
-        {user_input}
-        """)
-        try:
-            is_writing = json.loads(res).get("is_writing", "N")  # 默认是 "N"
-        except json.JSONDecodeError:
-            is_writing = "N"
-        print("是否写作需求：", is_writing)
-
-        if user_input.startswith(('总结', '写作')) or is_writing == 'Y':
+        if user_input.startswith(('总结', '写作')) or is_writing:
             key_words = user_input
             if user_input.startswith('写作') and (num_tokens(user_input) <= 20):
                 # 处理提取关键词逻辑
                 try:
-                    response = response_from_retriver(user_id, user_id + '_' + uploaded_filename, uploaded_filename, max_k, 2)
+                    response = response_from_retriver(user_id, user_id + '_' + uploaded_filename, uploaded_filename, is_writing, max_k, 2)
                     key_words = claude_response(f"提取以下内容的关键词，以/分隔显示，不超过5个：\n{response}")
                     #print("\n#Session after key words extracted:", session)        
                 except Exception as e:
@@ -188,13 +192,13 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         #if n==1:
         #    response = response_from_rag_chain(user_id, thread_id, fullpath_filename, user_input, True)
         #else:
-        docs = response_from_retriver(user_id, fullpath_filename, key_words, max_k, k)
+        docs = response_from_retriver(user_id, fullpath_filename, key_words, is_writing, max_k, k)
         #if '模���' in prompt_template[0]:
         #    docchat_template = template_mimic
         #else:
         #docchat_template = template_WRITER if user_input.startswith(('写作')) else template_QUERY
 
-        if is_writing == 'Y':
+        if is_writing:
             if ('r1' in MODEL.lower() and user_model == "default") or user_model in ["R1", "reasoner", "qwq"]:
                 prompt = f"{template_WRITER_R.format(question=user_input, context=docs)!s}"
             else:

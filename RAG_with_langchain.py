@@ -172,17 +172,17 @@ def response_from_rag_chain(user_id, thread_id, file_name, query, stream=False):
         finally:
             save_user_memory(user_id, thread_id, query, full_message, count_chars(query+full_message, user_id))
 
-def response_from_retriver(user_id, file_name, query, max_k, k=top_k):
+def response_from_retriver(user_id, file_name, query, is_writing, max_k, k=top_k):
     vectorstore = SupabaseVectorStore(
         client=supabase,    
         embedding=embed,
         table_name="documents",
         query_name="match_documents",
     )
-    top_k = max_k if query.startswith(('总结', '写作')) else k
+    top_k = max_k if query.startswith(('总结', '写作')) or is_writing else k
     filter = { "user_id": user_id } if file_name.endswith("_多文档检索") else { "source": os.path.join(UPLOAD_FOLDER, file_name) }
 
-    if query.startswith('写作'):
+    if query.startswith('写作') or is_writing:
         #docs = vectorstore.max_marginal_relevance_search(query, k=top_k, filter=)
         docs = max_marginal_relevance_search(vectorstore, query=query, k=top_k, filter=filter) # 返回最大边际相关性检索结果
         docs = sorted(docs, key=lambda doc: (doc.metadata.get('page', 0), doc.metadata.get('start_index', 0)))

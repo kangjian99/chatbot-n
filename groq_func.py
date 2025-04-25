@@ -11,7 +11,7 @@ model = "gemma2-9b-it"
 
 def groq_response(query):
     chat_completion = client.chat.completions.create(
-        messages=[{"role": "system", "content": "用中文回复，Skip the preamble."}, {"role": "user", "content": query}],
+        messages=[{"role": "system", "content": "Skip the preamble."}, {"role": "user", "content": query}],
         model=model,
     )
     return chat_completion.choices[0].message.content
