@@ -87,7 +87,7 @@ async def get_filenames(user_id: str):
 
 def check_writing(user_input):
     res = groq_response(f"""
-    判断下面需求是否属于写作需求，仅返回JSON格式：{{"is_writing": "Y"}} 或 {{"is_writing": "N"}}
+    判断下面需求是否属于写文章的需求，仅返回JSON格式：{{"is_writing": "Y"}} 或 {{"is_writing": "N"}}
 
     需求如下：
     {user_input}
