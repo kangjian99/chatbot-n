@@ -8,6 +8,7 @@ client = Groq(
 )
 
 model = "gemma2-9b-it"
+model = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 def groq_response(query):
     chat_completion = client.chat.completions.create(
