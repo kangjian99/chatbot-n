@@ -172,7 +172,8 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
 
     if hub in model_alt_map:
         hub =["tg", "op", "op", "inf", "fw", "sf"][random.randint(0, 5)]
-        model = model_alt_map[hub]
+        model_func_or_value = model_alt_map[hub]
+        model = model_func_or_value() if callable(model_func_or_value) else model_func_or_value
         client = client_alt_map[hub]
         print(f"随机分配客户端: {hub} {model}")
     '''
