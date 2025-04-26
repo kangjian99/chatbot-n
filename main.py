@@ -86,17 +86,19 @@ async def get_filenames(user_id: str):
     return JSONResponse(content=file_names)
 
 def check_writing(user_input):
-    res = groq_response(f"""
+    prompt = f"""
     判断下面需求是否属于写文章的需求，仅返回JSON格式：{{"is_writing": "Y"}} 或 {{"is_writing": "N"}}
 
     需求如下：
     {user_input}
-    """)
+    """
     try:
+        res = groq_response(prompt)
         is_writing = json.loads(res).get("is_writing", "N")  # 默认是 "N"
+        print("是否写作需求：", res)
     except json.JSONDecodeError:
         is_writing = "N"
-    print("是否写作需求：", res, is_writing)
+        print("***Server Error***")
     return is_writing=='Y'
 
 @app.post('/message')
