@@ -69,6 +69,8 @@ def Chat_Completion(client, model, question, tem, messages, hub, stream, n=param
         max_output_tokens = 8000 if hub == 'nov' else max_output_tokens
         if 'r1' in model.lower() or model.startswith("ep-") or model.startswith("gpt-4o"):
             params["max_tokens"] = max_output_tokens
+        if 'gemini' in model:
+            params["reasoning_effort"] = "none"
         
         start_time = time.time()
         try:

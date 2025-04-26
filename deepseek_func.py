@@ -106,7 +106,7 @@ def interact_with_deepseek(user_id, thread_id, user_input, prompt, prompt_templa
         messages.append({"role": "assistant", "content": full_message})
         if full_message and any(item in prompt_template[0] for item in ['文档', '总结', '写', '润色']):
             join_message = "".join([str(msg["content"]) for msg in messages])
-            info = count_chars(join_message, user_id, messages)
+            info = count_chars(join_message, user_id)
             save_user_memory(user_id, thread_id, user_input, full_message, info)
         if 'Chat' in prompt_template[0]:
             # print("精简前messages:", messages[-1])
