@@ -1,4 +1,4 @@
-import os
+import os, random
 from openai import OpenAI
 #from dotenv import load_dotenv
 #load_dotenv()
@@ -67,6 +67,7 @@ else:
 
 CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if HUB else OpenAI(api_key = API_KEY)
 
+op_free_models = ["deepseek/deepseek-r1:free", "microsoft/mai-ds-r1:free", "deepseek/deepseek-chat-v3-0324:free"]
 model_alt_map = {
     "sf": "deepseek-ai/DeepSeek-R1",
     "nv": "deepseek-ai/deepseek-r1", # "mistralai/mistral-small-24b-instruct",
@@ -76,7 +77,7 @@ model_alt_map = {
     "inf": "deepseek/deepseek-r1/fp-8", # deepseek/deepseek-v3/fp-8
     "ark": "ep-20250218083204-w9cc9", # "ep-20250331093955-tn2vh",
     #"nov": "deepseek/deepseek-r1-turbo",
-    "op": "deepseek/deepseek-r1:free", # "deepseek/deepseek-chat-v3-0324:free",
+    "op": lambda: random.choice(op_free_models),
 }
 
 client_alt_map = {
