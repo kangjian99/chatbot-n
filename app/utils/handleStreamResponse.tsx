@@ -68,16 +68,24 @@ export const handleStreamResponse = async (
     
     function updateMessage(data: string) {
         setMessages(prevMessages =>
-            prevMessages.map(msg =>
-                msg.id === newMessageId ? {
-                    ...msg,
-                    text: processThinkTags(
-                        // 如果 accumulatedData 等于 data，说明是第一次更新
-                        accumulatedData === data ? data : msg.text + data
-                    ),
-                    role: 'assistant'
-                } : msg
-            )
+            prevMessages.map(msg => {
+                if (msg.id === newMessageId) {
+                    // 检查这条消息是否是第一次被流式响应更新
+                    // 通过判断 role 是否仍然是 'system' 来识别
+                    const isFirstUpdate = msg.role === 'system'; 
+                    
+                    return {
+                        ...msg,
+                        text: processThinkTags(
+                            // 如果是第一次更新，用 data 替换现有文本 ("思考中......")
+                            // 否则，将 data 追加到现有文本后面
+                            isFirstUpdate ? data : msg.text + data
+                        ),
+                        role: 'assistant'
+                    };
+                }
+                return msg;
+            })
         );
     }
 

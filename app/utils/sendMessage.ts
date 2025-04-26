@@ -60,7 +60,7 @@ export const sendMessage = async ({
 
     try {
         // 添加一个小延迟，确保消息状态更新完成
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // await new Promise(resolve => setTimeout(resolve, 50));
         
         const response = await fetch(url + "message", {
             method: "POST",
