@@ -49,7 +49,7 @@ elif HUB == "nb":
 elif HUB == "nov":
     API_KEY_HUB = os.environ.get('NOVITA_API_KEY')
     BASE_URL = "https://api.novita.ai/v3/openai"
-    MODEL = "deepseek/deepseek-r1-turbo"
+    MODEL = "deepseek/deepseek-r1"
 elif HUB == "ark":
     API_KEY_HUB = os.environ.get('ARK_API_KEY')
     BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
@@ -105,7 +105,7 @@ CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "http
 
 HUB_alt = os.environ.get('HUB_ALT', 'nb')
 
-HUB_reasoning_content = ["ark", "sf", "inf"]
+HUB_reasoning_content = ["ark", "sf", "inf", "op"]
 
 DB_URL: str = os.environ.get("SUPABASE_URL")
 DB_KEY: str = os.environ.get("SUPABASE_KEY")

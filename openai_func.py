@@ -25,7 +25,7 @@ def gpt_response(question, model=MODEL):
 
 def process_reasoning_chunk(choice, think_opened, think_closed):
     content = ""  # 初始化 content 变量
-    reasoning_content = getattr(choice.delta, 'reasoning_content', None)
+    reasoning_content = getattr(choice.delta, 'reasoning_content', None) or getattr(choice.delta, 'reasoning', None)
     content_part = getattr(choice.delta, 'content', None)
     
     # 处理 reasoning_content
@@ -37,7 +37,7 @@ def process_reasoning_chunk(choice, think_opened, think_closed):
 
     # 处理 content_part
     if think_opened and not think_closed and content_part:
-        content += "</think>"  # 在第一次出现 content 时加上 </think>
+        content += "</think>\n"  # 在第一次出现 content 时加上 </think>
         think_closed = True
 
     if content_part:
@@ -68,6 +68,8 @@ def Chat_Completion(client, model, question, tem, messages, hub, stream, n=param
         max_output_tokens = 8192 if hub == 'ark' or hub == 'tg' else MAX_OUTPUT_TOKENS
         if 'r1' in model.lower() or model.startswith("ep-") or model.startswith("gpt-4o"):
             params["max_tokens"] = max_output_tokens
+        if 'gemini' in model:
+            params["reasoning_effort"] = "none"
         
         start_time = time.time()
         try:
@@ -173,10 +175,11 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
         model = model_alt_map[hub]
         client = client_alt_map[hub]
         print(f"随机分配客户端: {hub} {model}")
-
+    '''
     if model == "gpt-4o-free" and num_tokens(prompt) < 1200:
         model = "gpt-4o"
-    if hub in model_alt_map and any(item in model.lower() for item in ('r1', 'ep-')) and not is_writing_request(user_input, prompt_template):
+    '''
+    if hub in model_alt_map and not model.endswith('free') and any(item in model.lower() for item in ('r1', 'ep-')) and not is_writing_request(user_input, prompt_template):
         #model = model_alt_map[hub]
         model = MODEL_alt
         client = CLIENT_alt

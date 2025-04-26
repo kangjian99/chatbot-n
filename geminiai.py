@@ -36,7 +36,7 @@ DEFAULT_MAX_TOKENS = 8192
 
 # Define default models
 MODEL_FLASH = "gemini-2.5-flash-preview-04-17"
-MODEL_PRO = os.getenv('GEMINI_PRO_MODEL', "gemini-2.5-pro-exp-03-25")
+MODEL_PRO = os.getenv('GEMINI_PRO_MODEL', "gemini-2.5-flash-preview-04-17")
 MODEL_PRO = "gemini-2.5-pro-exp-03-25" # Override if needed
 
 # Helper function to create the config object
@@ -52,9 +52,12 @@ def get_generation_config(model_name: str, system_instruction: str = None, think
         safety_settings=safety_settings,
     )
 
-def gemini_response_stream(query, model_name=MODEL_FLASH):
+def gemini_response_stream(query, model_name=MODEL_PRO):
     """Generates content using streaming with the specified model."""
-    config = get_generation_config(model_name)
+    if model_name == "gemini-2.5-flash-preview-04-17":
+        config = get_generation_config(model_name, system_instruction=None, thinking_budget=0)
+    else:
+        config = get_generation_config(model_name)
 
     try:
         response_stream = client.models.generate_content_stream(
@@ -211,4 +214,4 @@ def gemini_schema_response(query):
         )
     )
     #print(response, "\n***:", response.text)
-    return json.dumps(response.parsed, ensure_ascii=False)
+    return response.text
