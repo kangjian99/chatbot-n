@@ -139,8 +139,10 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         n = user_model
     
     is_writing = check_writing(user_input)
+    if is_writing:
+        user_input = "写作：" + user_input
 
-    if (user_input.startswith("写作") or is_writing) and user_model == "default" and not 'r1' in MODEL.lower():  # 写作需求默认模型非R1改为gemini
+    if user_input.startswith("写作") and user_model == "default" and not 'r1' in MODEL.lower():  # 写作需求默认模型非R1改为gemini
         interact_func = interact_with_gemini
 
     if '文档' not in prompt_template[0]:
