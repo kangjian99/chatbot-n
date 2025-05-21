@@ -94,6 +94,7 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
     prompt_key = prompt_template[0] if prompt_template else ""
     use_pro_model = user_input.startswith(('总结', '写作')) or any(item in prompt_key for item in ['写作', '改写', '脚本', 'beta'])
     model_name_to_use = MODEL_PRO if use_pro_model else MODEL_FLASH
+    print(f"用户输入：{user_input}\n使用模型: {model_name_to_use}")
 
     # Format history for the new SDK
     formatted_history = []
