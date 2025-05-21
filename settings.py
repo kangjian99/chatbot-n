@@ -71,7 +71,7 @@ model_alt_map = {
     "nv": "deepseek-ai/deepseek-r1", # "mistralai/mistral-small-24b-instruct",
     "tg": "deepseek-ai/DeepSeek-R1", # "mistralai/Mistral-Small-24B-Instruct-2501",
     "fw": "accounts/fireworks/models/deepseek-r1-basic", # "accounts/fireworks/models/deepseek-v3",
-    "nb": "deepseek-ai/DeepSeek-R1-fast", # "deepseek-ai/DeepSeek-V3",
+    "nb": "deepseek-ai/DeepSeek-R1", # "deepseek-ai/DeepSeek-V3",
     "ark": "ep-20250218083204-w9cc9", # "ep-20250219170102-9tb5f",
     "nov": "deepseek/deepseek-r1-turbo",
 }
@@ -88,7 +88,7 @@ client_alt_map = {
 
 #MODEL_alt = "qwen-qwq-32b"
 #CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
-MODEL_alt = "gemini-2.5-flash-preview-04-17"
+MODEL_alt = "gemini-2.5-flash-preview-05-20"
 CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "https://generativelanguage.googleapis.com/v1beta/openai/")
 #MODEL_alt = "ep-20250331093955-tn2vh"
 #CLIENT_alt = client_alt_map["ark"]

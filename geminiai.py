@@ -29,15 +29,15 @@ safety_settings = [
 # Define base generation configs per model
 base_generation_configs = {
     "gemini-2.0-flash-thinking-exp-01-21": {"max_output_tokens": 65536},
-    "gemini-2.5-flash-preview-04-17": {"max_output_tokens": 65536},
+    "gemini-2.5-flash-preview-05-20": {"max_output_tokens": 65536},
     "gemini-2.5-pro-exp-03-25": {"max_output_tokens": 65536},
 }
 DEFAULT_MAX_TOKENS = 8192
 
 # Define default models
-MODEL_FLASH = "gemini-2.5-flash-preview-04-17"
-MODEL_PRO = os.getenv('GEMINI_PRO_MODEL', "gemini-2.5-pro-exp-03-25")
-MODEL_PRO = "gemini-2.5-pro-exp-03-25" # Override if needed
+MODEL_FLASH = "gemini-2.5-flash-preview-05-20"
+MODEL_PRO = os.getenv('GEMINI_PRO_MODEL', "gemini-2.5-flash-preview-05-20")
+#MODEL_PRO = "gemini-2.5-pro-exp-03-25" # Override if needed
 
 # Helper function to create the config object
 def get_generation_config(model_name: str, system_instruction: str = None, thinking_budget: int = None) -> types.GenerateContentConfig:
@@ -119,7 +119,7 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
             history=formatted_history,
             #system_instruction=system_instruction
         )
-        if model_name_to_use == "gemini-2.5-flash-preview-04-17" and not use_pro_model:
+        if model_name_to_use.startswith("gemini-2.5-flash") and not use_pro_model:
             config = get_generation_config(model_name_to_use, system_instruction=None, thinking_budget=0)
             print("关闭思考预算")
         else:
