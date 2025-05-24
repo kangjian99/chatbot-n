@@ -14,7 +14,7 @@ const default_n = process.env.NEXT_PUBLIC_API_N || 2;
 const headline = process.env.NEXT_PUBLIC_API_HEADLINE || "AI 知识库管理助手";
 
 interface Message {
-  type: 'user' | 'system';
+  type: 'user' | 'system' | 'info';
   role?: 'system' | 'assistant';
   text: string;
   id?: number;

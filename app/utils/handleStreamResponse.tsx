@@ -3,11 +3,14 @@ import React from 'react';
 const streamThreshold = Number(process.env.NEXT_PUBLIC_API_THRESHOLD || 10);
 
 interface Message {
-  type: 'user' | 'system';
+  type: 'user' | 'system' | 'info';
   role?: 'system' | 'assistant';
   text: string;
   id?: number;
 }
+
+const THINK_TAG_REGEX = /<think>/g;
+const END_THINK_TAG_REGEX = /<\/think>/g;
 
 export const handleStreamResponse = async (
     reader: ReadableStreamDefaultReader,
@@ -54,14 +57,35 @@ export const handleStreamResponse = async (
         }
     }
 
+    function processThinkTags(text: string): string {
+        // 如果文本开头没有 think 标签，直接返回
+        if (!text.startsWith('<think>') && !text.startsWith('```\n<think>')) return text;
+        
+        return text
+            .replace(THINK_TAG_REGEX, text.startsWith('```\n<think>') ? '<think>' : '```\n<think>')
+            .replace(END_THINK_TAG_REGEX, text.includes('</think>\n```') ? '</think>' : '</think>\n```');
+    }
+    
     function updateMessage(data: string) {
-        // 使用函数式更新，避免依赖外部的accumulatedData变量
         setMessages(prevMessages =>
-            prevMessages.map(msg =>
-                msg.id === newMessageId ? { ...msg, text: 
-                    accumulatedData === data ? data : msg.text + data, role: 'assistant' } 
-                    : msg
-            )
+            prevMessages.map(msg => {
+                if (msg.id === newMessageId) {
+                    // 检查这条消息是否是第一次被流式响应更新
+                    // 通过判断 role 是否仍然是 'system' 来识别
+                    const isFirstUpdate = msg.role === 'system'; 
+                    
+                    return {
+                        ...msg,
+                        text: processThinkTags(
+                            // 如果是第一次更新，用 data 替换现有文本 ("思考中......")
+                            // 否则，将 data 追加到现有文本后面
+                            isFirstUpdate ? data : msg.text + data
+                        ),
+                        role: 'assistant'
+                    };
+                }
+                return msg;
+            })
         );
     }
 
