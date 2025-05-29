@@ -67,14 +67,14 @@ else:
 
 CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if HUB else OpenAI(api_key = API_KEY)
 
-op_free_models = ["deepseek/deepseek-r1:free", "microsoft/mai-ds-r1:free", "deepseek/deepseek-chat-v3-0324:free"]
+op_free_models = ["deepseek/deepseek-r1-0528:free", "microsoft/mai-ds-r1:free", "tngtech/deepseek-r1t-chimera:free"]
 model_alt_map = {
     "sf": "deepseek-ai/DeepSeek-R1",
     "nv": "deepseek-ai/deepseek-r1", # "mistralai/mistral-small-24b-instruct",
     "tg": "deepseek-ai/DeepSeek-R1", # "mistralai/Mistral-Small-24B-Instruct-2501",
-    "fw": "accounts/fireworks/models/deepseek-r1-basic", # "accounts/fireworks/models/deepseek-v3",
-    "nb": "deepseek-ai/DeepSeek-R1", # "deepseek-ai/DeepSeek-V3-0324",
-    "inf": "deepseek/deepseek-r1/fp-8", # deepseek/deepseek-v3/fp-8
+    "fw": "accounts/fireworks/models/deepseek-r1-0528", # "accounts/fireworks/models/deepseek-v3",
+    "nb": "deepseek-ai/DeepSeek-R1-0528", # "deepseek-ai/DeepSeek-V3-0324",
+    "inf": "deepseek/deepseek-r1-0528/fp-8", # deepseek/deepseek-v3/fp-8
     "ark": "ep-20250218083204-w9cc9", # "ep-20250331093955-tn2vh",
     #"nov": "deepseek/deepseek-r1-turbo",
     "op": lambda: random.choice(op_free_models),
@@ -95,7 +95,7 @@ client_alt_map = {
 # 简单需求替换小模型
 #MODEL_alt = "qwen-qwq-32b"
 #CLIENT_alt = OpenAI(api_key = os.environ.get('GROQ_API_KEY'), base_url = "https://api.groq.com/openai/v1")
-MODEL_alt = "gemini-2.5-flash-preview-04-17"
+MODEL_alt = "gemini-2.5-flash-preview-05-20"
 CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "https://generativelanguage.googleapis.com/v1beta/openai/")
 #MODEL_alt = "deepseek/deepseek-v3-0324/fp-8"
 #CLIENT_alt = client_alt_map["inf"]

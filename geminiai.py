@@ -29,15 +29,15 @@ safety_settings = [
 # Define base generation configs per model
 base_generation_configs = {
     "gemini-2.0-flash-thinking-exp-01-21": {"max_output_tokens": 65536},
-    "gemini-2.5-flash-preview-04-17": {"max_output_tokens": 65536},
-    "gemini-2.5-pro-exp-03-25": {"max_output_tokens": 65536},
+    "gemini-2.5-flash-preview-05-20": {"max_output_tokens": 65536},
+    "gemini-2.5-pro-exp-05-06": {"max_output_tokens": 65536},
 }
 DEFAULT_MAX_TOKENS = 8192
 
 # Define default models
-MODEL_FLASH = "gemini-2.5-flash-preview-04-17"
-MODEL_PRO = os.getenv('GEMINI_PRO_MODEL', "gemini-2.5-flash-preview-04-17")
-MODEL_PRO = "gemini-2.5-pro-exp-03-25" # Override if needed
+MODEL_FLASH = "gemini-2.5-flash-preview-05-20"
+MODEL_PRO = os.getenv('GEMINI_PRO_MODEL') or "gemini-2.5-flash-preview-05-20"
+#MODEL_PRO = "gemini-2.5-pro-exp-05-06" # Override if needed
 
 # Helper function to create the config object
 def get_generation_config(model_name: str, system_instruction: str = None, thinking_budget: int = None) -> types.GenerateContentConfig:
@@ -54,7 +54,7 @@ def get_generation_config(model_name: str, system_instruction: str = None, think
 
 def gemini_response_stream(query, model_name=MODEL_PRO):
     """Generates content using streaming with the specified model."""
-    if model_name == "gemini-2.5-flash-preview-04-17":
+    if model_name.startswith("gemini-2.5-flash"):
         config = get_generation_config(model_name, system_instruction=None, thinking_budget=0)
     else:
         config = get_generation_config(model_name)
@@ -97,6 +97,7 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
     prompt_key = prompt_template[0] if prompt_template else ""
     use_pro_model = is_writing_request(user_input, prompt_template)
     model_name_to_use = MODEL_PRO if use_pro_model else MODEL_FLASH
+    print(f"用户输入：{user_input[:40]}...\n使用模型: {model_name_to_use}")
 
     # Format history for the new SDK
     formatted_history = []
@@ -122,7 +123,7 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
             history=formatted_history,
             #system_instruction=system_instruction
         )
-        if model_name_to_use == "gemini-2.5-flash-preview-04-17" and not use_pro_model:
+        if model_name_to_use.startswith("gemini-2.5-flash") and not use_pro_model:
             config = get_generation_config(model_name_to_use, system_instruction=None, thinking_budget=0)
             print("关闭思考预算")
         else:

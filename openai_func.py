@@ -171,7 +171,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     client = CLIENT
 
     if hub in model_alt_map:
-        hub =["tg", "op", "op", "inf", "fw", "sf"][random.randint(0, 5)]
+        hub =["tg", "op", "op", "inf", "fw", "sf", "ark"][random.randint(0, 6)]
         model_func_or_value = model_alt_map[hub]
         model = model_func_or_value() if callable(model_func_or_value) else model_func_or_value
         client = client_alt_map[hub]
@@ -180,10 +180,10 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
     if model == "gpt-4o-free" and num_tokens(prompt) < 1200:
         model = "gpt-4o"
     '''
-    if hub in model_alt_map and not model.endswith('free') and any(item in model.lower() for item in ('r1', 'ep-')) and not is_writing_request(user_input, prompt_template):
+    #if hub in model_alt_map and not model.endswith('free') and any(item in model.lower() for item in ('r1', 'ep-')) and not is_writing_request(user_input, prompt_template):
         #model = model_alt_map[hub]
-        model = MODEL_alt
-        client = CLIENT_alt
+    #    model = MODEL_alt
+    #    client = CLIENT_alt
     if "deepseek" in model:
         tem = 0.6
 
