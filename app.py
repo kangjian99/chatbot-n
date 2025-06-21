@@ -103,7 +103,7 @@ def handle_message():
         "Claude": interact_with_claude,
         "Llama3": interact_with_groq,
         "Gemma": interact_with_groq,
-        "qwq": interact_with_groq,
+        "qwen": interact_with_groq,
         "flash": interact_with_gemini,
         "mistral": interact_with_LLM,
         "V3": interact_with_deepseek,

@@ -67,7 +67,7 @@ else:
 
 CLIENT = OpenAI(api_key = API_KEY_HUB, base_url = BASE_URL) if HUB else OpenAI(api_key = API_KEY)
 
-op_free_models = ["deepseek/deepseek-r1-0528:free", "tngtech/deepseek-r1t-chimera:free"]
+op_free_models = ["deepseek/deepseek-r1-0528:free", "qwen/qwen3-235b-a22b:free"]
 model_alt_map = {
     "sf": "deepseek-ai/DeepSeek-R1",
     "nv": "deepseek-ai/deepseek-r1", # "mistralai/mistral-small-24b-instruct",
