@@ -29,18 +29,18 @@ safety_settings = [
 # Define base generation configs per model
 base_generation_configs = {
     "gemini-2.0-flash-thinking-exp-01-21": {"max_output_tokens": 65536},
-    "gemini-2.5-flash-preview-05-20": {"max_output_tokens": 65536},
-    "gemini-2.5-pro-exp-05-06": {"max_output_tokens": 65536},
+    "gemini-2.5-flash": {"max_output_tokens": 65536},
+    "gemini-2.5-pro": {"max_output_tokens": 65536},
 }
 DEFAULT_MAX_TOKENS = 8192
 
 # Define default models
-MODEL_FLASH = "gemini-2.5-flash-preview-05-20"
-MODEL_PRO = os.getenv('GEMINI_PRO_MODEL') or "gemini-2.5-flash-preview-05-20"
-#MODEL_PRO = "gemini-2.5-pro-exp-05-06" # Override if needed
+MODEL_FLASH = "gemini-2.5-flash"
+MODEL_PRO = os.getenv('GEMINI_PRO_MODEL') or "gemini-2.5-flash"
+#MODEL_PRO = "gemini-2.5-pro" # Override if needed
 
 # Helper function to create the config object
-def get_generation_config(model_name: str, system_instruction: str = None, thinking_budget: int = None) -> types.GenerateContentConfig:
+def get_generation_config(model_name: str, thinking_budget: int = None, system_instruction: str = None) -> types.GenerateContentConfig:
     config_dict = base_generation_configs.get(model_name, {"max_output_tokens": DEFAULT_MAX_TOKENS}).copy()
     if system_instruction:
         config_dict['system_instruction'] = system_instruction
@@ -55,9 +55,11 @@ def get_generation_config(model_name: str, system_instruction: str = None, think
 def gemini_response_stream(query, model_name=MODEL_PRO):
     """Generates content using streaming with the specified model."""
     if model_name.startswith("gemini-2.5-flash"):
-        config = get_generation_config(model_name, system_instruction=None, thinking_budget=0)
+        config = get_generation_config(model_name, thinking_budget=0)
+    elif model_name.startswith("gemini-2.5-pro") and "翻译" in query[:30]:
+        config = get_generation_config(model_name, thinking_budget=128)
     else:
-        config = get_generation_config(model_name)
+        config = get_generation_config(model_name, thinking_budget=-1)
 
     try:
         response_stream = client.models.generate_content_stream(
@@ -124,7 +126,7 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
             #system_instruction=system_instruction
         )
         if model_name_to_use.startswith("gemini-2.5-flash") and not use_pro_model:
-            config = get_generation_config(model_name_to_use, system_instruction=None, thinking_budget=0)
+            config = get_generation_config(model_name_to_use, thinking_budget=0)
             print("关闭思考预算")
         else:
             config = get_generation_config(model_name_to_use)
