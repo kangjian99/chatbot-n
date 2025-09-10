@@ -29,15 +29,15 @@ safety_settings = [
 # Define base generation configs per model
 base_generation_configs = {
     "gemini-2.0-flash-thinking-exp-01-21": {"max_output_tokens": 65536},
-    "gemini-2.5-flash-preview-05-20": {"max_output_tokens": 65536},
-    "gemini-2.5-pro-exp-03-25": {"max_output_tokens": 65536},
+    "gemini-2.5-flash": {"max_output_tokens": 65536},
+    "gemini-2.5-pro": {"max_output_tokens": 65536},
 }
 DEFAULT_MAX_TOKENS = 8192
 
 # Define default models
-MODEL_FLASH = "gemini-2.5-flash-preview-05-20"
-MODEL_PRO = os.getenv('GEMINI_PRO_MODEL') or "gemini-2.5-flash-preview-05-20"
-#MODEL_PRO = "gemini-2.5-pro-exp-03-25" # Override if needed
+MODEL_FLASH = "gemini-2.5-flash"
+#MODEL_PRO = os.getenv('GEMINI_PRO_MODEL') or "gemini-2.5-flash"
+MODEL_PRO = "gemini-2.5-pro" # Override if needed
 
 # Helper function to create the config object
 def get_generation_config(model_name: str, system_instruction: str = None, thinking_budget: int = None) -> types.GenerateContentConfig:

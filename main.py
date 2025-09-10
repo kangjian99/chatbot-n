@@ -123,12 +123,11 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         update_session(db, user_id, selected_template=selected_template)
     
     interact_func = {
-        "Claude": interact_with_claude,
         "Llama3": interact_with_groq,
         "Gemma": interact_with_groq,
-        "qwq": interact_with_groq,
+        "qwen": interact_with_groq,
         "flash": interact_with_gemini,
-        "exp": interact_with_gemini,
+        "pro": interact_with_gemini,
         "mistral": interact_with_LLM,
         "V3": interact_with_deepseek,
         "R1": interact_with_deepseek,
