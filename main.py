@@ -132,7 +132,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         "V3": interact_with_deepseek,
         "R1": interact_with_deepseek,
         "reasoner": interact_with_deepseek,
-    }.get(user_model, interact_with_openai)
+    }.get(user_model, interact_with_groq)
 
     if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
         n = user_model

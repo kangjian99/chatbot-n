@@ -123,8 +123,10 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
         if model_name_to_use.startswith("gemini-2.5-flash") and not use_pro_model:
             config = get_generation_config(model_name_to_use, system_instruction=None, thinking_budget=0)
             print("关闭思考预算")
+        elif model_name_to_use.startswith("gemini-2.5-pro") and "翻译" in query[:30]:
+            config = get_generation_config(model_name_to_use, thinking_budget=128)
         else:
-            config = get_generation_config(model_name_to_use)
+            config = get_generation_config(model_name_to_use, thinking_budget=-1)
 
         response_stream = chat.send_message_stream(
             message=query,
