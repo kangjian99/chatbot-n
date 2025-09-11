@@ -125,7 +125,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
     interact_func = {
         "default": interact_with_openai,
         "Llama3": interact_with_groq,
-        "Gemma": interact_with_groq,
+        #"Gemma": interact_with_groq,
         "qwen": interact_with_groq,
         "flash": interact_with_gemini,
         "pro": interact_with_gemini,

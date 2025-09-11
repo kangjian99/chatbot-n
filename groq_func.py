@@ -47,7 +47,8 @@ def interact_with_groq(user_id, thread_id, user_input, prompt, prompt_template, 
         "oss": "openai/gpt-oss-120b",
         "kimi": "moonshotai/kimi-k2-instruct-0905"
     }.get(user_model, model)
-
+    print(f"user_model: {user_model}\nUsing model: {model_groq}")
+    
     response = client.chat.completions.create(
         messages=messages,
         model=model_groq,
