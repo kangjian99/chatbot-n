@@ -7,8 +7,8 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-model = "gemma2-9b-it"
-model = "meta-llama/llama-4-scout-17b-16e-instruct"
+model = "llama-3.1-8b-instant"
+#model = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 def groq_response(query):
     chat_completion = client.chat.completions.create(
@@ -43,10 +43,9 @@ def interact_with_groq(user_id, thread_id, user_input, prompt, prompt_template, 
 
     model_groq = {
         "Llama3": "llama-3.3-70b-versatile",
-        "Gemma": "gemma2-9b-it",
         "qwen": "qwen/qwen3-32b",
         "oss": "openai/gpt-oss-120b",
-        "kimi": "moonshotai/kimi-k2-instruct"
+        "kimi": "moonshotai/kimi-k2-instruct-0905"
     }.get(user_model, model)
 
     response = client.chat.completions.create(
