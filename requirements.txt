@@ -3,9 +3,9 @@ uvicorn
 python-multipart
 Openai
 tiktoken
-langchain
-langchain_openai
-langchain_community
+langchain==0.2.16
+langchain_openai==0.1.23
+langchain_community==0.2.16
 # weaviate-client
 pypdf
 docx2txt
