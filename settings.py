@@ -92,7 +92,7 @@ CLIENT_alt = OpenAI(api_key = os.environ.get('GOOGLE_API_KEY'), base_url = "http
 
 HUB_alt = os.environ.get('HUB_ALT', 'fw')
 
-HUB_reasoning_content = ["ark", "sf", "inf"]
+HUB_reasoning_content = ["ark", "sf", "inf", "km"]
 
 DB_URL: str = os.environ.get("SUPABASE_URL")
 DB_KEY: str = os.environ.get("SUPABASE_KEY")

@@ -149,7 +149,7 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
     if full_message and not full_message.startswith("[") and any(item in prompt_key for item in TEMPLATE_SAVE):
         join_message = "".join([str(msg["parts"]) for msg in messages])
         info = count_chars(join_message, user_id)
-        save_user_memory(user_id, thread_id, user_input, full_message, info)
+        save_user_memory(user_id, thread_id, user_input, full_message, info+", '"+model_name_to_use+"'")
 
     if 'Chat' in prompt_template[0]:
         # print("精简前messages:", messages[-1])

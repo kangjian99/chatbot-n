@@ -197,7 +197,7 @@ def interact_with_openai(user_id, thread_id, user_input, prompt, prompt_template
             latency_info = f"({res['hub']}){res['model']}: {res['latency']:.2f}s"
         info = count_chars(join_message, user_id)
         if full_message and any(item in prompt_template[0] for item in TEMPLATE_SAVE):
-            save_user_memory(user_id, thread_id, user_input, full_message, info, latency_info)
+            save_user_memory(user_id, thread_id, user_input, full_message, info+", '"+res['model']+"'", latency_info)
         if 'Chat' in prompt_template[0]:
             update_credits(user_id, 1)
         rows = 2 if 'Chat' in prompt_template[0] else 0 # history_messages(user_id, prompt_template[0]) # 获取对应的历史记录条数
