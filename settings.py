@@ -5,10 +5,7 @@ from openai import OpenAI
 
 API_KEY = os.environ.get('OPENAI_API_KEY')
 
-MODEL=os.getenv('GPT_MODEL') or "gpt-4o-2024-08-06" # chatgpt-4o-latest "gpt-3.5-turbo-0125"
-#MODEL="gpt-4-turbo-2024-04-09"
-#model_8k = "moonshot-v1-8k"
-#model_32k = "moonshot-v1-32k"
+MODEL=os.getenv('GPT_MODEL') or "gpt-5-chat-latest" # chatgpt-4o-latest "gpt-3.5-turbo-0125"
 
 #claude_model = os.environ.get('CLAUDE', '').lower() == 'true'   # 全局采用Claude模型
 #claude_model = False   # 测试句
@@ -30,10 +27,10 @@ elif HUB == "sf":
 #    API_KEY_HUB = os.environ.get('NV_API_KEY') 
 #    BASE_URL = "https://integrate.api.nvidia.com/v1"
 #    MODEL = "deepseek-ai/deepseek-r1"
-#elif HUB == "moonshot":
-#    API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
-#    BASE_URL = "https://api.moonshot.cn/v1"
-#    MODEL = "moonshot-v1-8k"
+elif HUB == "km":
+    API_KEY_HUB = os.environ.get('MOONSHOT_API_KEY') 
+    BASE_URL = "https://api.moonshot.cn/v1"
+    MODEL = "kimi-k2-thinking"
 elif HUB == "tg":
     API_KEY_HUB = os.environ.get('TOGETHER_API_KEY') 
     BASE_URL = "https://api.together.xyz/v1"
@@ -46,10 +43,10 @@ elif HUB == "nb":
     API_KEY_HUB = os.environ.get('NEBIUS_API_KEY')
     BASE_URL = "https://api.studio.nebius.ai/v1"
     MODEL = "deepseek-ai/DeepSeek-R1" + os.getenv('FAST_SUFFIX', '')
-elif HUB == "nov":
-    API_KEY_HUB = os.environ.get('NOVITA_API_KEY')
-    BASE_URL = "https://api.novita.ai/v3/openai"
-    MODEL = "deepseek/deepseek-r1"
+#elif HUB == "nov":
+#    API_KEY_HUB = os.environ.get('NOVITA_API_KEY')
+#    BASE_URL = "https://api.novita.ai/v3/openai"
+#    MODEL = "deepseek/deepseek-r1"
 elif HUB == "ark":
     API_KEY_HUB = os.environ.get('ARK_API_KEY')
     BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
