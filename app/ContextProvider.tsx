@@ -4,6 +4,7 @@ import React, { createContext, useState, ReactNode, FC } from 'react';
 
 const default_k = process.env.NEXT_PUBLIC_API_K || 4;
 const default_userModel = process.env.NEXT_PUBLIC_API_USER_MODEL || "default";
+const default_template = process.env.NEXT_PUBLIC_API_TEMPLATE || "0";
 
 interface ConfigurationContextType {
   krangeValue: number;
@@ -26,7 +27,7 @@ const ContextProvider: FC<ContextProviderProps> = ({ children }) => {
   const [krangeValue, setKrangeValue] = useState(10); // Initial state value
   const [kValue, setKValue] = useState(Number(default_k)); 
   const [userModel, setUserModel] = useState(default_userModel);
-  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState(default_template);
 
   return (
     <ConfigurationContext.Provider 
