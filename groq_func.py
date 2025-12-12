@@ -7,7 +7,7 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-model = "llama-3.1-8b-instant"
+model = "openai/gpt-oss-20b"
 #model = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 def groq_response(query):

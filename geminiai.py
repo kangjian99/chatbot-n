@@ -49,6 +49,7 @@ def get_generation_config(thinking_budget: int = None, thinking_level: str = Non
         safety_settings=safety_settings,
     )
 
+# not used in main.py
 def gemini_response_stream(query, model_name=MODEL_PRO):
     """Generates content using streaming with the specified model."""
     if '2.5' in model_name:
@@ -78,7 +79,7 @@ def gemini_response_stream(query, model_name=MODEL_PRO):
 
 def gemini_response(query, model_name=MODEL_FLASH):
     """Generates content non-streaming with the specified model."""
-    config = get_generation_config(model_name)
+    config = get_generation_config()
 
     try:
         response = client.models.generate_content(
@@ -126,14 +127,23 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
             model=model_name_to_use,
             history=formatted_history,
             #system_instruction=system_instruction
-        )
-        if model_name_to_use.startswith("gemini-2.5-flash") and not use_pro_model:
-            config = get_generation_config(model_name_to_use, system_instruction=None, thinking_budget=0)
-            print("关闭思考预算")
-        elif model_name_to_use.startswith("gemini-2.5-pro") and "翻译" in query[:30]:
-            config = get_generation_config(model_name_to_use, thinking_budget=128)
+                )
+        if '2.5' in model_name_to_use:
+            if model_name_to_use.startswith("gemini-2.5-flash") and not use_pro_model:
+                budget, msg = 0, "关闭思考预算"
+            elif "翻译" in query[:30]:
+                budget, msg = 256, "思考预算:256"
+            else:
+                budget, msg = -1, "思考预算未受限"
+            config = get_generation_config(thinking_budget=budget)
         else:
-            config = get_generation_config(model_name_to_use, thinking_budget=-1)
+            if "翻译" in query[:30]:
+                config = get_generation_config(thinking_level="low")
+                msg = "思考预算:low"
+            else:
+                config = get_generation_config()
+                msg = "思考预算未受限"
+        print(msg)
 
         response_stream = chat.send_message_stream(
             message=query,
@@ -146,6 +156,7 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
                 yield(f"data: {json.dumps({'data': chunk.text})}\n\n")
 
     except Exception as e:
+        print('Error:', e)
         yield(f"data: {json.dumps({'error': f'API error: {e}'})}\n\n")
         full_message = "[Error]" # Placeholder
 
