@@ -26,35 +26,42 @@ safety_settings = [
     )
 ]
 
-# Define base generation configs per model
-base_generation_configs = {
-    "gemini-2.0-flash-thinking-exp-01-21": {"max_output_tokens": 65536},
-    "gemini-2.5-flash": {"max_output_tokens": 65536},
-    "gemini-2.5-pro": {"max_output_tokens": 65536},
-}
-DEFAULT_MAX_TOKENS = 8192
+DEFAULT_MAX_TOKENS = 65536
 
 # Define default models
 MODEL_FLASH = "gemini-2.5-flash"
-#MODEL_PRO = os.getenv('GEMINI_PRO_MODEL') or "gemini-2.5-flash"
-MODEL_PRO = "gemini-2.5-pro" # Override if needed
+MODEL_PRO = os.getenv('GEMINI_PRO_MODEL') or "gemini-2.5-pro"
+#MODEL_PRO = "gemini-3-pro-preview" # Override if needed
 
 # Helper function to create the config object
-def get_generation_config(model_name: str, system_instruction: str = None, thinking_budget: int = None) -> types.GenerateContentConfig:
-    config_dict = base_generation_configs.get(model_name, {"max_output_tokens": DEFAULT_MAX_TOKENS}).copy()
+def get_generation_config(thinking_budget: int = None, thinking_level: str = None, system_instruction: str = None) -> types.GenerateContentConfig:
+    config_dict = {"max_output_tokens": DEFAULT_MAX_TOKENS}
     if system_instruction:
         config_dict['system_instruction'] = system_instruction
+    
     if thinking_budget is not None:
         config_dict['thinking_config'] = types.ThinkingConfig(thinking_budget=thinking_budget)
+    elif thinking_level is not None:
+        config_dict['thinking_config'] = types.ThinkingConfig(thinking_level=thinking_level)
 
     return types.GenerateContentConfig(
         **config_dict,
         safety_settings=safety_settings,
     )
 
-def gemini_response_stream(query, model_name=MODEL_FLASH):
+def gemini_response_stream(query, model_name=MODEL_PRO):
     """Generates content using streaming with the specified model."""
-    config = get_generation_config(model_name)
+    if '2.5' in model_name:
+        if model_name.startswith("gemini-2.5-flash"):
+            config = get_generation_config(thinking_budget=0)
+        elif "翻译" in query[:30]:
+            config = get_generation_config(thinking_budget=256)
+        else:
+            config = get_generation_config(thinking_budget=-1)
+    elif "翻译" in query[:30]:
+            config = get_generation_config(thinking_level="low")
+    else:
+        config = get_generation_config()
 
     try:
         response_stream = client.models.generate_content_stream(
