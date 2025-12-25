@@ -29,7 +29,8 @@ safety_settings = [
 DEFAULT_MAX_TOKENS = 65536
 
 # Define default models
-MODEL_FLASH = "gemini-2.5-flash"
+MODEL_FLASH_25 = "gemini-2.5-flash"
+MODEL_FLASH = "gemini-3-flash-preview"
 MODEL_PRO = os.getenv('GEMINI_PRO_MODEL') or "gemini-2.5-pro"
 #MODEL_PRO = "gemini-3-pro-preview" # Override if needed
 
@@ -102,6 +103,8 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
     prompt_key = prompt_template[0] if prompt_template else ""
     use_pro_model = user_input.startswith(('总结', '写作')) or any(item in prompt_key for item in ['写作', '改写', '脚本', 'beta'])
     model_name_to_use = MODEL_PRO if use_pro_model else MODEL_FLASH
+    if n == "flash2.5":
+        model_name_to_use = MODEL_FLASH_25
     print(f"用户输入：{user_input[:40]}...\n使用模型: {model_name_to_use}")
 
     # Format history for the new SDK
@@ -128,14 +131,16 @@ def interact_with_gemini(user_id, thread_id, user_input, query, prompt_template,
             history=formatted_history,
             #system_instruction=system_instruction
                 )
-        if '2.5' in model_name_to_use:
+        if 'flash' in model_name_to_use:
             if model_name_to_use.startswith("gemini-2.5-flash") and not use_pro_model:
-                budget, msg = 0, "关闭思考预算"
+                msg = "关闭思考预算"
+                config = get_generation_config(thinking_budget=0)
             elif "翻译" in query[:30]:
-                budget, msg = 256, "思考预算:256"
+                msg = "思考预算:最低"
+                config = get_generation_config(thinking_level="minimal")
             else:
-                budget, msg = -1, "思考预算未受限"
-            config = get_generation_config(thinking_budget=budget)
+                msg = "思考预算未受限"
+                config = get_generation_config()
         else:
             if "翻译" in query[:30]:
                 config = get_generation_config(thinking_level="low")

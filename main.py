@@ -128,6 +128,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         #"Gemma": interact_with_groq,
         "qwen": interact_with_groq,
         "flash": interact_with_gemini,
+        "flash2.5": interact_with_gemini,
         "pro": interact_with_gemini,
         "mistral": interact_with_LLM,
         "V3": interact_with_deepseek,
@@ -135,7 +136,7 @@ async def handle_message(data: MessageData, db: Session = Depends(get_db)):
         "reasoner": interact_with_deepseek,
     }.get(user_model, interact_with_groq)
 
-    if interact_func == interact_with_groq or interact_func == interact_with_deepseek:
+    if interact_func != interact_with_openai:
         n = user_model
     
     is_writing = check_writing(user_input)
