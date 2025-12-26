@@ -50,7 +50,7 @@ elif HUB == "nb":
 elif HUB == "ark":
     API_KEY_HUB = os.environ.get('ARK_API_KEY')
     BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
-    MODEL = "ep-20250218083204-w9cc9"
+    MODEL = "kimi-k2-250905"
 elif HUB:
     API_KEY_HUB = os.environ.get('BASE_API_KEY')
     BASE_URL = os.environ.get('BASE_URL') or "https://llm.indrin.cn/v1"
@@ -69,7 +69,7 @@ model_alt_map = {
     "tg": "deepseek-ai/DeepSeek-R1", # "mistralai/Mistral-Small-24B-Instruct-2501",
     "fw": "accounts/fireworks/models/deepseek-r1-basic", # "accounts/fireworks/models/deepseek-v3",
     "nb": "deepseek-ai/DeepSeek-R1", # "deepseek-ai/DeepSeek-V3",
-    "ark": "ep-20250218083204-w9cc9", # "ep-20250219170102-9tb5f",
+    "ark": "kimi-k2-250905", # "ep-20250219170102-9tb5f",
     #"nov": "deepseek/deepseek-r1-turbo",
 }
 
